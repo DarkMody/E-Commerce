@@ -1,0 +1,21 @@
+/* Start Welcom */
+.welcome {
+  background-color: var(--section);
+  height: calc(100vh - 52px);
+}
+.welcome .title {
+  font-family: "Boldonse", system-ui;
+}
+/* End Welcome */
+
+/* Start Main */
+.main {
+  width: 90%;
+  margin: auto;
+  /* background-color: var(--light) !important; */
+}
+.main h2 {
+  font-family: "boldest", sans-serif;
+  font-size: 3rem;
+}
+/* End Main */

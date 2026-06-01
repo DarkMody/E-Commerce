@@ -1,0 +1,9 @@
+input {
+  background-color: var(--search-bg);
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+input::placeholder {
+  color: var(--place-holder);
+}

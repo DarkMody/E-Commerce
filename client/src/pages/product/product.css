@@ -1,0 +1,81 @@
+/* Start main */
+.product {
+  background-color: var(--section);
+  padding: 0 20px;
+}
+.product .carousel button {
+  transition: 0.3s;
+}
+.product .carousel button:hover {
+  background-color: var(--dark);
+}
+.product .rate svg {
+  color: var(--green);
+}
+.product .carousel-inner img {
+  height: 400px;
+  width: 100%;
+  object-fit: contain;
+}
+.product .quantity input {
+  width: 50px;
+  background-color: white;
+  border: 2px solid black;
+}
+.product .quantity button {
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+}
+.product .category a {
+  text-decoration: none;
+  color: var(--dark);
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: var(--light);
+  font-weight: bold;
+}
+/* End main */
+
+/* Start Comments */
+.comments h1 {
+  font-family: "boldest", sans-serif;
+}
+.comments .make-comment textarea {
+  padding: 10px 15px;
+  resize: none;
+  border-radius: 15px;
+  width: 400px;
+  max-width: 95%;
+  height: 100px;
+  transition: 0.5s;
+}
+.comments .make-comment textarea:focus {
+  outline: 2px solid var(--dark);
+  /* box-shadow: 0 0 15px 0; */
+}
+.comments .make-comment .star-rating .star {
+  color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+.comments .make-comment .star-rating .star.lit {
+  color: var(--green);
+}
+.comments .make-comment .star-rating span svg {
+  transition: 0.3s;
+}
+.comments .comment-list {
+  width: 95%;
+  max-width: 700px;
+}
+.comments .comment-list .comment {
+  border: 3px solid black;
+  border-radius: 1rem;
+}
+.comments .comment-list .comment img {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+/* End Comments */

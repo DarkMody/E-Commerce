@@ -1,0 +1,4 @@
+@font-face {
+  font-family: "boldest"; /* Give it any name you want */
+  src: url("Montserrat-Black.otf") format("truetype"); /* Path to your file */
+}
