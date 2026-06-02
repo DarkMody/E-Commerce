@@ -10,7 +10,6 @@ import "./product.css";
 
 function Product() {
   const { productId } = useParams();
-  const [quantity, setQuantity] = useState(1);
   const [product, setProducts] = useState();
   const [loading, setLoading] = useState(true);
   const [rate, setRating] = useState(0);
@@ -27,15 +26,6 @@ function Product() {
       });
   }, []);
 
-  const quantityHandling = (e) => {
-    const val = parseInt(e.target.value);
-    setQuantity(val);
-  };
-  const blurQuantityHandling = (e) => {
-    if (e.target.value === "" || parseInt(e.target.value) < 1) {
-      setQuantity(1);
-    }
-  };
   const handleClick = (val) => {
     setRating(val);
     setClicked(val);
@@ -122,23 +112,7 @@ function Product() {
               <div>{product.rating.rate}</div>
               <div>({product.rating.count})</div>
             </div>
-            <div className="price fw-bold fs-2">${product.price}</div>
-            <div className="quantity mb-3">
-              <span className="me-2">Quantity: </span>
-              <button onClick={() => setQuantity(Math.max(quantity - 1, 1))}>
-                <i className="fa-solid fa-minus"></i>
-              </button>
-              <input
-                type="number"
-                className=" rounded-pill px-1 py-1 text-center"
-                value={quantity}
-                onChange={quantityHandling}
-                onBlur={blurQuantityHandling}
-              />
-              <button onClick={() => setQuantity(quantity + 1)}>
-                <i className="fa-solid fa-plus"></i>
-              </button>
-            </div>
+            <div className="price fw-bold fs-2 mb-2">${product.price}</div>
             <Button text="Add To Cart"></Button>
             <div className="category d-flex flex-wrap gap-2 mt-3">
               <a href="#">Clothes</a>

@@ -1,0 +1,8 @@
+#cart {
+  background-color: var(--section);
+}
+#cart h1 {
+  font-family: "boldest", sans-serif;
+}
+#cart #product-cart .product {
+}

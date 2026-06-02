@@ -16,6 +16,7 @@ function Home() {
       .then((data) => {
         setProducts(data);
         setLoading(false);
+        console.log(data);
       });
   }, []);
 
@@ -54,43 +55,34 @@ function Home() {
         <div className="best-products mb-3">
           <h2 className="text-uppercase mb-3">Top Selling</h2>
           <div className="row mb-2">
-            <div className="col-sm-6 col-md-4 col-lg-3 mb-3">
-              <Card product={products[0]}></Card>
-            </div>
-            <div className="col-sm-6 col-md-4 col-lg-3 mb-3">
-              <Card product={products[1]}></Card>
-            </div>
-            <div className="col-sm-6 col-md-4 col-lg-3 mb-3">
-              <Card product={products[2]}></Card>
-            </div>
-            <div className="col-sm-6 col-md-4 col-lg-3 mb-3">
-              <Card product={products[3]}></Card>
-            </div>
+            {products
+              .sort((a, b) => b.rating.count - a.rating.count)
+              .slice(0, 4)
+              .map((obj) => (
+                <div className="col-sm-6 col-md-4 col-lg-3 mb-3" key={obj.id}>
+                  <Card product={obj}></Card>
+                </div>
+              ))}
           </div>
           <Button text="Show More"></Button>
         </div>
         <div className="new-products mb-3">
           <h2 className="text-uppercase mb-3">New Arrival</h2>
           <div className="row mb-2">
-            <div className="col-sm-6 col-md-4 col-lg-3 mb-3">
-              <Card product={products[4]}></Card>
-            </div>
-            <div className="col-sm-6 col-md-4 col-lg-3 mb-3">
-              <Card product={products[5]}></Card>
-            </div>
-            <div className="col-sm-6 col-md-4 col-lg-3 mb-3">
-              <Card product={products[6]}></Card>
-            </div>
-            <div className="col-sm-6 col-md-4 col-lg-3 mb-3">
-              <Card product={products[7]}></Card>
-            </div>
+            {products
+              .sort((a, b) => b.rating.rate - a.rating.rate)
+              .slice(0, 4)
+              .map((obj) => (
+                <div className="col-sm-6 col-md-4 col-lg-3 mb-3" key={obj.id}>
+                  <Card product={obj}></Card>
+                </div>
+              ))}
           </div>
           <Button text="Show More"></Button>
         </div>
       </div>
       <Follow></Follow>
       <Footer></Footer>
-      {/* <Toast></Toast> */}
     </>
   );
 }

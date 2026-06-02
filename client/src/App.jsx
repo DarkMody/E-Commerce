@@ -5,6 +5,7 @@ import Home from "./pages/home/home";
 import Product from "./pages/product/product";
 import Login from "./pages/login/login";
 import Register from "./pages/register/register";
+import Cart from "./pages/cart/cart";
 
 function App() {
   useEffect(() => {
@@ -37,6 +38,7 @@ function App() {
           <Route path="/product/:productId" element={<Product />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
       </HashRouter>
       <div id="toast-box"></div>

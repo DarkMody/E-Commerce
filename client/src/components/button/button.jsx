@@ -5,7 +5,7 @@ function Button(param) {
   return (
     <button
       id={param.id}
-      className={`btn rounded-pill main-btn fw-bold` + param.className}
+      className={`btn rounded-pill main-btn fw-bold ` + param.className}
       onClick={param.onclick}
     >
       {param.text}

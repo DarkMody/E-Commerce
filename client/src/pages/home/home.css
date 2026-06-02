@@ -1,7 +1,7 @@
 /* Start Welcom */
 .welcome {
   background-color: var(--section);
-  height: calc(100vh - 52px);
+  height: calc(100dvh - 52px);
 }
 .welcome .title {
   font-family: "Boldonse", system-ui;

@@ -36,7 +36,7 @@ function Nav() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link rounded-pill" to="/products">
+                <Link className="nav-link rounded-pill" to="/product">
                   Products
                 </Link>
               </li>
@@ -57,7 +57,7 @@ function Nav() {
             </form>
             <ul className="navbar-nav mb-2 mb-lg-0 me-2 gap-1">
               <li className="nav-item rounded-pill">
-                <Link className="nav-link" to="#">
+                <Link className="nav-link" to="/cart">
                   <span className="fs-4 me-1">
                     <i className="fa-solid fa-cart-shopping "></i>
                   </span>

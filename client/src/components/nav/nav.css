@@ -1,3 +1,4 @@
+/* Nav Start */
 nav {
   background-color: var(--light);
   padding: 0.25rem !important;
@@ -16,9 +17,7 @@ nav .navbar-brand {
 .navbar .navbar-nav .nav-link.active,
 .navbar .navbar-nav .nav-link:hover {
   color: var(--green);
-  /* background-color: var(--section); */
 }
-
 nav .search svg {
   color: var(--dark);
 }
@@ -31,9 +30,8 @@ nav .search input {
 nav .search input::placeholder {
   color: var(--place-holder);
 }
-/* nav .navbar-nav ul li{
-  fon
-} */
+/* Nav End */
+
 /* Start Collapse Button */
 nav .navbar-toggler {
   color: var(--dark);
