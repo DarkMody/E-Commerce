@@ -72,6 +72,14 @@ function Nav() {
                   <span className="d-lg-none">Profile</span>
                 </Link>
               </li>
+              <li className="nav-item  rounded-pill">
+                <Link className="nav-link" to="/history">
+                  <span className="fs-4 me-lg-none me-1">
+                    <i className="fa-solid fa-clock-rotate-left"></i>
+                  </span>
+                  <span className="d-lg-none">History</span>
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
