@@ -42,8 +42,7 @@ const registerUser = asyncWrapper(async (req, res, next) => {
 });
 
 const registerSeller = asyncWrapper(async (req, res, next) => {
-  const { name, email, password, store_name, store_location, sub_type } =
-    req.body;
+  const { name, email, password, store_name, store_location } = req.body;
   const validate = await pool.query("select * from users where email = $1", [
     email,
   ]);
@@ -51,7 +50,7 @@ const registerSeller = asyncWrapper(async (req, res, next) => {
     const query =
       "INSERT INTO users (name ,email ,password ,role) values($1 ,$2 ,$3 ,$4) RETURNING *";
     const sellerQuery =
-      "INSERT INTO sellers (user_id ,store_name ,store_location ,sub_type) values($1 ,$2 ,$3 ,$4) RETURNING *";
+      "INSERT INTO sellers (user_id ,store_name ,store_location) values($1 ,$2 ,$3) RETURNING *";
 
     const hashed = await bcrypt.hash(password, 10);
     // Wrap both inserts in a transaction
@@ -64,7 +63,6 @@ const registerSeller = asyncWrapper(async (req, res, next) => {
         row.u_id,
         store_name,
         store_location,
-        sub_type,
       ]);
       await client.query("COMMIT");
       const token = await generateToken({
