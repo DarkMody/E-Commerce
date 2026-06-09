@@ -3,7 +3,7 @@ import Input from "../../components/input/input";
 import Footer from "../../components/footer/footer";
 import { Form, Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { BASE_URL } from "../../config";
+import { SERVER_URL } from "../../config";
 import "./login.css";
 
 function Login() {
@@ -32,7 +32,7 @@ function Login() {
       const password = document.querySelector("#password").value.trim();
       const response = await apiLogin(email, password);
       if (response.status === "success") {
-        localStorage.setItem("token", response.data);
+        localStorage.setItem("userData", JSON.stringify(response.data));
         window.toast("success", "Welcome to DarkZon");
         navigate("/");
       } else {
@@ -49,7 +49,7 @@ function Login() {
   };
 
   const apiLogin = async (email, password) => {
-    return fetch(`${BASE_URL}/api/login`, {
+    return fetch(`${SERVER_URL}/api/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

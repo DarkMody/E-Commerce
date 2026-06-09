@@ -6,8 +6,17 @@ const app = express();
 const port = process.env.PORT || 5000;
 const userController = require("./controllers/userController");
 const createTables = require("./data/createTables");
+const verifyToken = require("./middlewares/verifyToken");
+const cookieParser = require("cookie-parser");
+const FrontURL = "http://localhost:3000";
 
-app.use(cors());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: FrontURL, // your frontend URL
+    credentials: true, // allows cookies to be sent cross-origin
+  }),
+);
 app.use(express.json());
 // Connecting DB & Server & Tables
 pool.connect().then(() => {
@@ -19,7 +28,8 @@ app.listen(port, () => {
 });
 
 // User APIS
-app.get("/api/user", userController.getAllUsers);
+app.get("/api/users", userController.getAllUsers);
+app.get("/api/user", verifyToken, userController.getUser);
 app.post("/api/register/user", userController.registerUser);
 app.post("/api/register/seller", userController.registerSeller);
 app.post("/api/login", userController.login);

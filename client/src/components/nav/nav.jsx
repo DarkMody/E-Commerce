@@ -35,6 +35,14 @@ function Nav() {
                   Home
                 </Link>
               </li>
+              {JSON.parse(localStorage.getItem("userData")).role ===
+                "seller" && (
+                <li className="nav-item">
+                  <Link className="nav-link rounded-pill" to="/product/add">
+                    Add Product
+                  </Link>
+                </li>
+              )}
               <li className="nav-item">
                 <Link className="nav-link rounded-pill" to="/product">
                   Products

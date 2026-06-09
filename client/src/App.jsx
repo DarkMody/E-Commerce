@@ -6,6 +6,8 @@ import Product from "./pages/product/product";
 import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import Cart from "./pages/cart/cart";
+import AddProduct from "./pages/addProduct/addProduct";
+import { userData } from "./config";
 
 function App() {
   useEffect(() => {
@@ -28,6 +30,8 @@ function App() {
         toasty.remove();
       }, 5000);
     };
+    // if (userData === null) {
+    // }
   }, []);
 
   return (
@@ -36,6 +40,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/product/:productId" element={<Product />} />
+          <Route path="/product/add" element={<AddProduct />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/cart" element={<Cart />} />

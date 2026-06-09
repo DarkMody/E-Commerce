@@ -3,7 +3,7 @@ import Input from "../../components/input/input";
 import Footer from "../../components/footer/footer";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { BASE_URL } from "../../config";
+import { SERVER_URL } from "../../config";
 import "./register.css";
 
 function Register() {
@@ -65,7 +65,7 @@ function Register() {
         response = await apiRegisterUser({ name, email, password });
       }
       if (response.status == "success") {
-        localStorage.setItem("token", response.data);
+        localStorage.setItem("userData", JSON.stringify(response.data));
         window.toast("success", "Email created successfully");
         navigate("/");
       } else window.toast("error", response.message);
@@ -84,7 +84,7 @@ function Register() {
   };
 
   const apiRegisterUser = (data) => {
-    return fetch(`${BASE_URL}/api/register/user`, {
+    return fetch(`${SERVER_URL}/api/register/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -94,8 +94,9 @@ function Register() {
       .then((res) => res.json())
       .then((data) => data);
   };
+
   const apiRegisterSeller = (data) => {
-    return fetch(`${BASE_URL}/api/register/seller`, {
+    return fetch(`${SERVER_URL}/api/register/seller`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,8 +1,39 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = async (payLoad) => {
-  const token = jwt.sign(payLoad, process.env.JWT_SECRET, {
-    expiresIn: "5d",
+module.exports = async (payLoad, res) => {
+  const accessToken = await jwt.sign(
+    {
+      id: payLoad.u_id,
+      name: payLoad.name,
+      email: payLoad.email,
+      role: payLoad.role,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1h",
+    },
+  );
+  const refreshToken = await jwt.sign(
+    { id: payLoad.u_id },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "30d",
+    },
+  );
+
+  // Set cookies
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 60 * 60 * 1000,
   });
-  return token;
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  });
+
+  return accessToken;
 };

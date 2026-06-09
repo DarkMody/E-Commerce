@@ -11,6 +11,10 @@ const getAllUsers = asyncWrapper(async (req, res, next) => {
   res.json({ status: httpStatusText.SUCCESS, data: result.rows });
 });
 
+const getUser = asyncWrapper(async (req, res, next) => {
+  res.json({ status: httpStatusText.SUCCESS, data: req.currentUser });
+});
+
 const registerUser = asyncWrapper(async (req, res, next) => {
   const { name, email, password } = req.body;
   const validate = await pool.query("select * from users where email = $1", [
@@ -22,15 +26,15 @@ const registerUser = asyncWrapper(async (req, res, next) => {
     const hashed = await bcrypt.hash(password, 10);
     const result = await pool.query(query, [name, email, hashed]);
     const row = result.rows[0];
-    const token = await generateToken({
-      id: row.u_id,
-      name: row.name,
-      email: row.email,
-      role: row.role,
-    });
+    const token = await generateToken(row, res);
     return res.status(201).json({
       status: httpStatusText.SUCCESS,
-      data: token,
+      data: {
+        id: row.u_id,
+        name: row.name,
+        email: row.email,
+        role: row.role,
+      },
     });
   }
   const error = appError.create(
@@ -65,15 +69,15 @@ const registerSeller = asyncWrapper(async (req, res, next) => {
         store_location,
       ]);
       await client.query("COMMIT");
-      const token = await generateToken({
-        id: row.u_id,
-        name: row.name,
-        email: row.email,
-        role: row.role,
-      });
-      res.status(201).json({
+      const token = await generateToken(row, res);
+      return res.status(201).json({
         status: httpStatusText.SUCCESS,
-        data: token,
+        data: {
+          id: row.u_id,
+          name: row.name,
+          email: row.email,
+          role: row.role,
+        },
       });
     } catch (err) {
       await client.query("ROLLBACK");
@@ -100,15 +104,16 @@ const login = asyncWrapper(async (req, res, next) => {
     const check = bcrypt.compare(password, validate.rows[0].password);
     if (check) {
       const row = validate.rows[0];
-      const token = await generateToken({
-        id: row.u_id,
-        name: row.name,
-        email: row.email,
-        role: row.role,
+      const token = await generateToken(row, res);
+      return res.status(201).json({
+        status: httpStatusText.SUCCESS,
+        data: {
+          id: row.u_id,
+          name: row.name,
+          email: row.email,
+          role: row.role,
+        },
       });
-      return res
-        .status(201)
-        .json({ status: httpStatusText.SUCCESS, data: token });
     } else {
       const error = appError.create(
         "Email or Password is wrong",
@@ -124,6 +129,7 @@ const login = asyncWrapper(async (req, res, next) => {
 
 module.exports = {
   getAllUsers,
+  getUser,
   registerUser,
   registerSeller,
   login,
