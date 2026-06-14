@@ -22,16 +22,17 @@ module.exports = async (payLoad, res) => {
   );
 
   // Set cookies
+  const isProduction = process.env.NODE_ENV === "production";
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: isProduction,
+    sameSite: isProduction ? "strict" : "lax",
     maxAge: 60 * 60 * 1000,
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: isProduction,
+    sameSite: isProduction ? "strict" : "lax",
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 

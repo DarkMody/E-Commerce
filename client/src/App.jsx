@@ -7,9 +7,11 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import Cart from "./pages/cart/cart";
 import AddProduct from "./pages/addProduct/addProduct";
-import { userData } from "./config";
+import { SERVER_URL } from "./config";
 
 function App() {
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     window.toast = (status, msg) => {
       const toastBox = document.querySelector("#toast-box");
@@ -30,10 +32,33 @@ function App() {
         toasty.remove();
       }, 5000);
     };
-    // if (userData === null) {
-    // }
+    window.loggedIn = false;
+    const apiGetUser = async () => {
+      await fetch(`${SERVER_URL}/api/user`, {
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setLoading(false);
+          console.log(data);
+          if (data.status === "success") {
+            localStorage.setItem("userData", JSON.stringify(data.data));
+            window.loggedIn = true;
+          } else {
+            localStorage.setItem("userData", JSON.stringify({}));
+          }
+        });
+    };
+    apiGetUser();
   }, []);
 
+  if (loading)
+    return (
+      <>
+        <h1>Loading...</h1>
+        <div id="toast-box"></div>
+      </>
+    );
   return (
     <>
       <HashRouter>

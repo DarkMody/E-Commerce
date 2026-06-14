@@ -1,6 +1,5 @@
 const pool = require("../config/db");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
@@ -101,7 +100,7 @@ const login = asyncWrapper(async (req, res, next) => {
     email,
   ]);
   if (validate.rows.length === 1) {
-    const check = bcrypt.compare(password, validate.rows[0].password);
+    const check = await bcrypt.compare(password, validate.rows[0].password);
     if (check) {
       const row = validate.rows[0];
       const token = await generateToken(row, res);
@@ -127,10 +126,17 @@ const login = asyncWrapper(async (req, res, next) => {
   return next(error);
 });
 
+const logout = asyncWrapper(async (req, res, next) => {
+  res.clearCookie("accessToken", { path: "/" });
+  res.clearCookie("refreshToken", { path: "/" });
+  res.json({ status: httpStatusText.SUCCESS, message: "Logged out" });
+});
+
 module.exports = {
   getAllUsers,
   getUser,
   registerUser,
   registerSeller,
   login,
+  logout,
 };

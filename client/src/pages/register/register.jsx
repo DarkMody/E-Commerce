@@ -66,6 +66,7 @@ function Register() {
       }
       if (response.status == "success") {
         localStorage.setItem("userData", JSON.stringify(response.data));
+        window.loggedIn = true;
         window.toast("success", "Email created successfully");
         navigate("/");
       } else window.toast("error", response.message);
@@ -86,6 +87,7 @@ function Register() {
   const apiRegisterUser = (data) => {
     return fetch(`${SERVER_URL}/api/register/user`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -98,6 +100,7 @@ function Register() {
   const apiRegisterSeller = (data) => {
     return fetch(`${SERVER_URL}/api/register/seller`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },

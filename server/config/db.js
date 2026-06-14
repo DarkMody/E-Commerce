@@ -5,7 +5,7 @@ const connect = new Pool({
   user: process.env.USER,
   port: process.env.SQLPORT,
   password: process.env.PASSWORD,
-  database: "E-Commerce",
+  database: process.env.DATABASE,
 });
 
 module.exports = connect;

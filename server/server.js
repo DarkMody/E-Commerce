@@ -33,6 +33,7 @@ app.get("/api/user", verifyToken, userController.getUser);
 app.post("/api/register/user", userController.registerUser);
 app.post("/api/register/seller", userController.registerSeller);
 app.post("/api/login", userController.login);
+app.post("/api/logout", verifyToken, userController.logout);
 
 // Error Handeling
 app.use((req, res) => {

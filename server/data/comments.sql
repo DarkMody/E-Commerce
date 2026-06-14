@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS comments(
+c_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+rate NUMERIC CHECK (rate <= 5 AND rate > 0) NOT NULL,
+comment text,
+product_id UUID NOT NULL REFERENCES products(p_id) ON DELETE CASCADE,
+user_id UUID NOT NULL REFERENCES users(u_id) ON DELETE CASCADE ON UPDATE CASCADE,
+created_at  TIMESTAMPTZ DEFAULT NOW()
+)

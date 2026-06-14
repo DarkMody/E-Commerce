@@ -1,22 +1,25 @@
 #toast-box {
   position: fixed;
-  bottom: 10px;
-  right: 10px;
-  padding: 20px;
+  bottom: 0;
+  right: 0;
   z-index: 1100;
   overflow: hidden;
+  width: 400px;
+  max-width: 100%;
+  float: right;
 }
 .toasty {
-  width: 95%;
+  width: 100%;
   max-width: 400px;
   height: 80px;
   background-color: var(--light);
-  margin-top: 30px;
+  margin-bottom: 30px;
   font-weight: bold;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   position: relative;
+  padding: 0 20px 0 0;
 }
 .toasty svg {
   padding: 10px;

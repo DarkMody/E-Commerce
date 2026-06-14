@@ -23,7 +23,7 @@ async function verifyToken(req, res, next) {
   const accessToken = req.cookies.accessToken;
   const refreshToken = req.cookies.refreshToken;
   if (!accessToken && !refreshToken) {
-    const error = appError.create("Please login1", 401, httpStatusText.FAIL);
+    const error = appError.create("Please login", 401, httpStatusText.FAIL);
     return next(error);
   }
   if (accessToken) {

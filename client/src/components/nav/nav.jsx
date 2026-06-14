@@ -2,8 +2,32 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./nav.css";
 import Input from "../input/input";
+import { SERVER_URL } from "../../config";
 
 function Nav() {
+  const [login, setLogin] = useState(false);
+  useEffect(() => {
+    setLogin(window.loggedIn);
+  }, []);
+
+  const logoutClick = async () => {
+    const response = await apiLogout();
+    if (response.status == "success") {
+      setLogin(false);
+      window.loggedIn = false;
+      localStorage.setItem("userData", JSON.stringify({}));
+    }
+    window.toast(response.status, response.message);
+  };
+
+  async function apiLogout() {
+    return fetch(`${SERVER_URL}/api/logout`, {
+      method: "POST",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => data);
+  }
   return (
     <>
       <nav className="navbar navbar-expand-lg sticky-top">
@@ -27,29 +51,26 @@ function Nav() {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0 me-2 gap-1">
               <li className="nav-item ">
-                <Link
-                  className="nav-link active rounded-pill"
-                  aria-current="page"
-                  to="/"
-                >
+                <Link className="nav-link active" aria-current="page" to="/">
                   Home
                 </Link>
               </li>
-              {JSON.parse(localStorage.getItem("userData")).role ===
-                "seller" && (
-                <li className="nav-item">
-                  <Link className="nav-link rounded-pill" to="/product/add">
-                    Add Product
-                  </Link>
-                </li>
-              )}
+              {login &&
+                JSON.parse(localStorage.getItem("userData")).role ===
+                  "seller" && (
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/product/add">
+                      Your Products
+                    </Link>
+                  </li>
+                )}
               <li className="nav-item">
-                <Link className="nav-link rounded-pill" to="/product">
+                <Link className="nav-link" to="/product">
                   Products
                 </Link>
               </li>
               <li className="nav-item ">
-                <Link className="nav-link rounded-pill" to="/contact">
+                <Link className="nav-link" to="/contact">
                   Contact Us
                 </Link>
               </li>
@@ -65,29 +86,52 @@ function Nav() {
             </form>
             <ul className="navbar-nav mb-2 mb-lg-0 me-2 gap-1">
               <li className="nav-item rounded-pill">
-                <Link className="nav-link" to="/cart">
+                <Link className="nav-link d-flex align-items-center" to="/cart">
                   <span className="fs-4 me-1">
                     <i className="fa-solid fa-cart-shopping "></i>
                   </span>
                   <span className="d-lg-none">Cart</span>
                 </Link>
               </li>
-              <li className="nav-item  rounded-pill">
-                <Link className="nav-link" to="/login">
+              <li className="nav-item">
+                <Link
+                  className="nav-link d-flex align-items-center"
+                  to={login ? "user/profile" : "/login"}
+                >
                   <span className="fs-4 me-lg-none me-1">
                     <i className="fa-solid fa-circle-user"></i>
                   </span>
-                  <span className="d-lg-none">Profile</span>
+                  <span className="d-lg-none">
+                    {login ? "Profile" : "Login"}
+                  </span>
                 </Link>
               </li>
-              <li className="nav-item  rounded-pill">
-                <Link className="nav-link" to="/history">
+              <li className="nav-item">
+                <Link
+                  className="nav-link d-flex align-items-center"
+                  to="/history"
+                >
                   <span className="fs-4 me-lg-none me-1">
                     <i className="fa-solid fa-clock-rotate-left"></i>
                   </span>
                   <span className="d-lg-none">History</span>
                 </Link>
               </li>
+              {login && (
+                <li className="nav-item">
+                  <Link
+                    id="logout"
+                    className="nav-link d-flex align-items-center"
+                    to="/"
+                    onClick={logoutClick}
+                  >
+                    <span className="fs-4 me-lg-none me-1">
+                      <i className="fa-solid fa-right-from-bracket"></i>
+                    </span>
+                    <span className="d-lg-none">Logout</span>
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
         </div>

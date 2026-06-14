@@ -33,6 +33,7 @@ function Login() {
       const response = await apiLogin(email, password);
       if (response.status === "success") {
         localStorage.setItem("userData", JSON.stringify(response.data));
+        window.loggedIn = true;
         window.toast("success", "Welcome to DarkZon");
         navigate("/");
       } else {
@@ -51,6 +52,7 @@ function Login() {
   const apiLogin = async (email, password) => {
     return fetch(`${SERVER_URL}/api/login`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
