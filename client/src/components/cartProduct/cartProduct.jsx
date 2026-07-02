@@ -25,9 +25,9 @@ function CartProduct(param) {
   };
 
   const deleteProductFromCart = (e) => {
-    param.onRemove();
     e.target.closest(".product").style.opacity = "0";
     setTimeout(() => {
+      param.onRemove();
       e.target.closest(".product").remove();
     }, 500);
   };

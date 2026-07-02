@@ -8,7 +8,11 @@ import { BASE_URL } from "../../config";
 import { useState, useEffect } from "react";
 
 function AddProduct() {
-  return <h1>text</h1>;
+  return (
+    <>
+      <Nav></Nav>
+    </>
+  );
 }
 
 export default AddProduct;

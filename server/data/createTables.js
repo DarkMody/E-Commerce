@@ -25,6 +25,10 @@ const createTables = async () => {
       path.join(__dirname, "productCategory.sql"),
       "utf8",
     );
+    const imagesSql = fs.readFileSync(
+      path.join(__dirname, "images.sql"),
+      "utf8",
+    );
 
     await pool.query(usersSql);
     await pool.query(sellersSql);
@@ -32,6 +36,7 @@ const createTables = async () => {
     await pool.query(commentsSql);
     await pool.query(categorySql);
     await pool.query(productCategorySql);
+    await pool.query(imagesSql);
   } catch (error) {
     console.error("❌ Error initializing database tables:", error.message);
   }

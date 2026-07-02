@@ -1,0 +1,86 @@
+import "./myProduct.css";
+import Nav from "../../components/nav/nav";
+import Button from "../../components/button/button";
+import Card from "../../components/card/card";
+import Footer from "../../components/footer/footer";
+import Follow from "../../components/follow/follow";
+import { BASE_URL } from "../../config";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+
+function MyProduct() {
+  const [myProducts, setMyProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [myProductCount, setProductCount] = useState(0);
+
+  useEffect(() => {
+    fetch(`${BASE_URL}/products`)
+      .then((response) => response.json())
+      .then((data) => {
+        data = data.slice(0, 4);
+        setMyProducts(data);
+        setProductCount(data.length);
+        setLoading(false);
+      });
+  }, []);
+
+  const onRemoveHandling = (ele) => {
+    if (
+      window.confirm("Are you sure you want to delete this product ?") == true
+    ) {
+      const parent = ele.target.closest(".my-product");
+      parent.style.opacity = "0";
+      setTimeout(() => {
+        setProductCount(myProductCount - 1);
+        parent.remove();
+      }, 500);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Nav></Nav>
+      <div className="my-products pb-5 px-5 pt-5 text-center">
+        {myProductCount ? (
+          <div className="row mb-2">
+            {myProducts.map((obj) => (
+              <div className="col-sm-6 col-md-4 col-lg-3 mb-3 my-product">
+                <span
+                  className="product-delete fs-3"
+                  onClick={onRemoveHandling}
+                >
+                  <i className="fa-solid fa-trash-can"></i>
+                </span>
+                <Link
+                  className="text-decoration-none"
+                  to={`/product/edit/${obj.id}`}
+                >
+                  <Card product={obj}></Card>
+                </Link>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <h2 className="mb-3 text-center">You didn't add any product</h2>
+        )}
+        <Link to={`/product/add`}>
+          <Button text="Add New Product"></Button>
+        </Link>
+      </div>
+      <Follow></Follow>
+      <Footer></Footer>
+    </>
+  );
+}
+
+export default MyProduct;

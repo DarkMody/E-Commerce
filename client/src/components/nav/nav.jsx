@@ -51,7 +51,7 @@ function Nav() {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0 me-2 gap-1">
               <li className="nav-item ">
-                <Link className="nav-link active" aria-current="page" to="/">
+                <Link className="nav-link" aria-current="page" to="/">
                   Home
                 </Link>
               </li>
@@ -59,7 +59,10 @@ function Nav() {
                 JSON.parse(localStorage.getItem("userData")).role ===
                   "seller" && (
                   <li className="nav-item">
-                    <Link className="nav-link" to="/product/add">
+                    <Link
+                      className="nav-link"
+                      to={`/product/view/${JSON.parse(localStorage.getItem("userData")).id}`}
+                    >
                       Your Products
                     </Link>
                   </li>

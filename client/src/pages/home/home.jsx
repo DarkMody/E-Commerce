@@ -6,6 +6,7 @@ import Footer from "../../components/footer/footer";
 import Follow from "../../components/follow/follow";
 import { BASE_URL } from "../../config";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -59,7 +60,12 @@ function Home() {
               .slice(0, 4)
               .map((obj) => (
                 <div className="col-sm-6 col-md-4 col-lg-3 mb-3" key={obj.id}>
-                  <Card product={obj}></Card>
+                  <Link
+                    className="text-decoration-none"
+                    to={`/product/${obj.id}`}
+                  >
+                    <Card product={obj}></Card>
+                  </Link>
                 </div>
               ))}
           </div>
