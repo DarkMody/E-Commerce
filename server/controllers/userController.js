@@ -6,7 +6,9 @@ const appError = require("../utils/appError");
 const generateToken = require("../utils/generateToken");
 
 const getAllUsers = asyncWrapper(async (req, res, next) => {
-  const result = await pool.query("SELECT u_id, name, email FROM users");
+  const result = await pool.query(
+    "SELECT u_id, name, email, role, created_at FROM users",
+  );
   res.json({ status: httpStatusText.SUCCESS, data: result.rows });
 });
 
@@ -93,6 +95,36 @@ const registerSeller = asyncWrapper(async (req, res, next) => {
   );
   return next(error);
 });
+// Temporary register way
+const registerAdmin = asyncWrapper(async (req, res, next) => {
+  const { name, email, password } = req.body;
+  const validate = await pool.query("select * from users where email = $1", [
+    email,
+  ]);
+  if (validate.rows.length === 0) {
+    const query =
+      "INSERT INTO users (name,email,password,role) values($1 ,$2 ,$3 ,'admin') RETURNING *";
+    const hashed = await bcrypt.hash(password, 10);
+    const result = await pool.query(query, [name, email, hashed]);
+    const row = result.rows[0];
+    const token = await generateToken(row, res);
+    return res.status(201).json({
+      status: httpStatusText.SUCCESS,
+      data: {
+        id: row.u_id,
+        name: row.name,
+        email: row.email,
+        role: row.role,
+      },
+    });
+  }
+  const error = appError.create(
+    "Email Already Exists",
+    409,
+    httpStatusText.FAIL,
+  );
+  return next(error);
+});
 
 const login = asyncWrapper(async (req, res, next) => {
   const { email, password } = req.body;
@@ -132,6 +164,27 @@ const logout = asyncWrapper(async (req, res, next) => {
   res.json({ status: httpStatusText.SUCCESS, message: "Logged out" });
 });
 
+const deleteUser = asyncWrapper(async (req, res, next) => {
+  if (
+    req.currentUser.id === req.params.u_id ||
+    req.currentUser.role === "admin"
+  ) {
+    await pool.query(`DELETE FROM users WHERE u_id = $1`, [req.params.u_id]);
+    return res.json({
+      status: httpStatusText.SUCCESS,
+      message: "Account has been deleted",
+    });
+  }
+  const error = appError.create(
+    "You don't have permission to delete this account",
+    403,
+    httpStatusText.FAIL,
+  );
+  return next(error);
+});
+
+const editUser = asyncWrapper(async (req, res, next) => {});
+
 module.exports = {
   getAllUsers,
   getUser,
@@ -139,4 +192,6 @@ module.exports = {
   registerSeller,
   login,
   logout,
+  registerAdmin,
+  deleteUser,
 };

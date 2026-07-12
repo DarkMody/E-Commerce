@@ -13,6 +13,7 @@ const userController = require("./controllers/userController");
 const productController = require("./controllers/productController");
 const createTables = require("./data/createTables");
 const verifyToken = require("./middlewares/verifyToken");
+const verifyRole = require("./middlewares/verifyRole");
 const cookieParser = require("cookie-parser");
 const FrontURL = "http://localhost:3000";
 
@@ -35,12 +36,19 @@ app.listen(port, () => {
 });
 
 // User APIS
-app.get("/api/users", userController.getAllUsers);
+app.get(
+  "/api/users",
+  verifyToken,
+  verifyRole("admin", "manager"),
+  userController.getAllUsers,
+);
 app.get("/api/user", verifyToken, userController.getUser);
 app.post("/api/register/user", userController.registerUser);
 app.post("/api/register/seller", userController.registerSeller);
+app.post("/api/register/admin", userController.registerAdmin); // Temporary
 app.post("/api/login", userController.login);
 app.post("/api/logout", verifyToken, userController.logout);
+app.delete("/api/user/delete/:u_id", verifyToken, userController.deleteUser);
 
 //Product APIS
 app.get("/api/products", productController.getAllProducts);
@@ -56,7 +64,17 @@ app.post(
   imageValidating,
   productController.addProduct,
 );
-app.delete("/api/product/delete", verifyToken, productController.deleteProduct);
+app.delete(
+  "/api/product/delete/:p_id",
+  verifyToken,
+  productController.deleteProduct,
+);
+app.put(
+  "/api/product/edit/:p_id",
+  verifyToken,
+  imageValidating,
+  productController.editProduct,
+);
 
 // Error Handeling
 app.use((req, res) => {
