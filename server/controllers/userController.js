@@ -4,6 +4,7 @@ const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
 const generateToken = require("../utils/generateToken");
+const { HttpStatusCode } = require("axios");
 
 const getAllUsers = asyncWrapper(async (req, res, next) => {
   const result = await pool.query(
@@ -183,7 +184,66 @@ const deleteUser = asyncWrapper(async (req, res, next) => {
   return next(error);
 });
 
-const editUser = asyncWrapper(async (req, res, next) => {});
+const editUser = asyncWrapper(async (req, res, next) => {
+  if (
+    req.currentUser.id === req.params.u_id ||
+    req.currentUser.role === "admin"
+  ) {
+    const allowedFields = ["name", "email", "role"];
+    const fieldsToUpdate = Object.keys(req.body).filter((key) =>
+      allowedFields.includes(key),
+    );
+    if (fieldsToUpdate.length === 0) {
+      const error = appError.create(
+        "No valid fields here",
+        400,
+        httpStatusText.FAIL,
+      );
+      return next(error);
+    }
+    if (fieldsToUpdate.includes("role") && req.currentUser.role !== "admin") {
+      const error = appError.create(
+        "You don't have permission to edit roles",
+        403,
+        httpStatusText.FAIL,
+      );
+      return next(error);
+    }
+    if (fieldsToUpdate.includes("email")) {
+      const validate = await pool.query(
+        "select * from users where email = $1",
+        [req.body.email],
+      );
+      if (validate.rows.length !== 0) {
+        const error = appError.create(
+          "Email Already Exists",
+          409,
+          httpStatusText.FAIL,
+        );
+        return next(error);
+      }
+    }
+    const setClause = fieldsToUpdate
+      .map((field, i) => `${field} = $${i + 1}`)
+      .join(", ");
+    const values = fieldsToUpdate.map((field) => req.body[field]);
+    values.push(req.currentUser.id);
+    const query = `
+    UPDATE users
+    SET ${setClause}
+    WHERE u_id = $${values.length}
+    RETURNING *;
+  `;
+    const result = await pool.query(query, values);
+    res.json({ status: httpStatusText.SUCCESS, data: result.rows[0] });
+  }
+  const error = appError.create(
+    "You don't have permission to edit this account",
+    403,
+    httpStatusText.FAIL,
+  );
+  return next(error);
+});
 
 module.exports = {
   getAllUsers,
@@ -194,4 +254,5 @@ module.exports = {
   logout,
   registerAdmin,
   deleteUser,
+  editUser,
 };

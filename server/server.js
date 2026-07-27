@@ -49,6 +49,7 @@ app.post("/api/register/admin", userController.registerAdmin); // Temporary
 app.post("/api/login", userController.login);
 app.post("/api/logout", verifyToken, userController.logout);
 app.delete("/api/user/delete/:u_id", verifyToken, userController.deleteUser);
+app.patch("/api/user/edit/:u_id", verifyToken, userController.editUser);
 
 //Product APIS
 app.get("/api/products", productController.getAllProducts);
