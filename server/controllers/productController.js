@@ -74,18 +74,18 @@ const addProduct = asyncWrapper(async (req, res, next) => {
   });
   await Promise.all(insertImagesPromises);
 
-  const insertCategoriesPromises = categories.map(async (category) => {
-    const check = await pool.query(`SELECT * FROM category WHERE c_id = $1`, [
-      category,
-    ]);
-    if (check.rows.length !== 0) {
-      return await pool.query(`INSERT INTO product_category VALUES ($1 , $2)`, [
-        p_id,
-        category,
-      ]);
-    }
-  });
-  await Promise.all(insertCategoriesPromises);
+  // const insertCategoriesPromises = categories.map(async (category) => {
+  //   const check = await pool.query(`SELECT * FROM category WHERE c_id = $1`, [
+  //     category,
+  //   ]);
+  //   if (check.rows.length !== 0) {
+  //     return await pool.query(`INSERT INTO product_category VALUES ($1 , $2)`, [
+  //       p_id,
+  //       category,
+  //     ]);
+  //   }
+  // });
+  // await Promise.all(insertCategoriesPromises);
 
   return res.status(201).json({
     status: httpStatusText.SUCCESS,

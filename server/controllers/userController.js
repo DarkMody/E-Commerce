@@ -4,7 +4,6 @@ const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
 const generateToken = require("../utils/generateToken");
-const { HttpStatusCode } = require("axios");
 
 const getAllUsers = asyncWrapper(async (req, res, next) => {
   const result = await pool.query(

@@ -11,6 +11,7 @@ const imageValidating = require("./middlewares/imageChecking");
 const port = process.env.PORT || 5000;
 const userController = require("./controllers/userController");
 const productController = require("./controllers/productController");
+const commentController = require("./controllers/commentController");
 const createTables = require("./data/createTables");
 const verifyToken = require("./middlewares/verifyToken");
 const verifyRole = require("./middlewares/verifyRole");
@@ -76,6 +77,12 @@ app.put(
   imageValidating,
   productController.editProduct,
 );
+
+//Comment APIS
+app.get("/api/comment/:p_id", commentController.getProductComments);
+app.post("/api/comment/:p_id", verifyToken, commentController.addComment);
+app.patch("/api/comment/:c_id", verifyToken, commentController.editComment);
+app.delete("/api/comment/:c_id", verifyToken, commentController.deleteComment);
 
 // Error Handeling
 app.use((req, res) => {
