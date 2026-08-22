@@ -21,15 +21,6 @@ nav .navbar-brand {
 nav .search svg {
   color: var(--dark);
 }
-nav .search input {
-  background-color: var(--search-bg);
-  outline: none;
-  border: none;
-  box-shadow: none;
-}
-nav .search input::placeholder {
-  color: var(--place-holder);
-}
 /* Nav End */
 
 /* Start Collapse Button */

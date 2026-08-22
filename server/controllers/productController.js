@@ -14,7 +14,9 @@ const getSellerProducts = asyncWrapper(async (req, res, next) => {
   const seller_id = req.currentUser.id;
   console.log(seller_id);
   const result = await pool.query(
-    `SELECT * FROM products WHERE seller_id = $1`,
+    `SELECT * FROM products 
+    JOIN images on products.p_id = images.product_id
+    WHERE seller_id = $1 and images.sort_order = 0`,
     [seller_id],
   );
   res.json({ status: httpStatusText.SUCCESS, data: result.rows });

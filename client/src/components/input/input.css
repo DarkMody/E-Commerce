@@ -1,9 +1,26 @@
 input {
-  background-color: var(--search-bg);
+  width: 100%;
+  border: 1px solid #e2e2e2;
+  background: #f7f7f7;
+  font-size: 15px;
+  color: #222;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
   outline: none;
-  border: none;
-  box-shadow: none;
 }
+
 input::placeholder {
   color: var(--place-holder);
+}
+
+input:hover {
+  border-color: #cfcfcf;
+}
+
+input:focus {
+  border-color: #000;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
 }

@@ -1,7 +1,7 @@
 import Button from "../../components/button/button";
 import Input from "../../components/input/input";
 import Footer from "../../components/footer/footer";
-import { Form, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { SERVER_URL } from "../../config";
 import "./login.css";

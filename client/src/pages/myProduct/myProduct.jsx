@@ -4,7 +4,7 @@ import Button from "../../components/button/button";
 import Card from "../../components/card/card";
 import Footer from "../../components/footer/footer";
 import Follow from "../../components/follow/follow";
-import { BASE_URL } from "../../config";
+import { BASE_URL, SERVER_URL } from "../../config";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
@@ -14,26 +14,39 @@ function MyProduct() {
   const [myProductCount, setProductCount] = useState(0);
 
   useEffect(() => {
-    fetch(`${BASE_URL}/products`)
+    fetch(`${SERVER_URL}/api/seller/product`, {
+      credentials: "include",
+    })
       .then((response) => response.json())
       .then((data) => {
-        data = data.slice(0, 4);
-        setMyProducts(data);
-        setProductCount(data.length);
+        console.log(data.data);
+        setMyProducts(data.data);
+        setProductCount(data.data.length);
         setLoading(false);
       });
   }, []);
 
-  const onRemoveHandling = (ele) => {
+  const onRemoveHandling = async (ele) => {
     if (
       window.confirm("Are you sure you want to delete this product ?") == true
     ) {
-      const parent = ele.target.closest(".my-product");
-      parent.style.opacity = "0";
-      setTimeout(() => {
-        setProductCount(myProductCount - 1);
-        parent.remove();
-      }, 500);
+      const id = ele.target.closest(".my-product").children[1].children[0].id;
+      await fetch(`${SERVER_URL}/api/product/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status == "success") {
+            const parent = ele.target.closest(".my-product");
+            parent.style.opacity = "0";
+            setTimeout(() => {
+              setProductCount(myProductCount - 1);
+              parent.remove();
+            }, 500);
+          }
+          window.toast(data.status, data.message);
+        });
     }
   };
 
@@ -63,7 +76,7 @@ function MyProduct() {
                 </span>
                 <Link
                   className="text-decoration-none"
-                  to={`/product/edit/${obj.id}`}
+                  to={`/product/edit/${obj.p_id}`}
                 >
                   <Card product={obj}></Card>
                 </Link>
