@@ -54,6 +54,14 @@
 .comments .make-comment .star-rating span svg {
   transition: 0.3s;
 }
+.comments .make-comment #delete-comment {
+  background-color: var(--red) !important;
+  border-color: var(--red) !important;
+}
+.comments .make-comment #delete-comment:hover {
+  background-color: var(--light) !important;
+  color: var(--red) !important;
+}
 .comments .comment-list {
   width: 95%;
   max-width: 700px;

@@ -4,7 +4,7 @@ import Button from "../../components/button/button";
 import Card from "../../components/card/card";
 import Footer from "../../components/footer/footer";
 import Follow from "../../components/follow/follow";
-import { BASE_URL } from "../../config";
+import { BASE_URL, SERVER_URL } from "../../config";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
@@ -12,10 +12,10 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    fetch(`${BASE_URL}/products`)
+    fetch(`${SERVER_URL}/api/products`)
       .then((response) => response.json())
       .then((data) => {
-        setProducts(data);
+        setProducts(data.data);
         setLoading(false);
       });
   }, []);
@@ -56,13 +56,13 @@ function Home() {
           <h2 className="text-uppercase mb-3">Top Selling</h2>
           <div className="row mb-2">
             {products
-              .sort((a, b) => b.rating.count - a.rating.count)
+              .sort((a, b) => b.people - a.people)
               .slice(0, 4)
               .map((obj) => (
-                <div className="col-sm-6 col-md-4 col-lg-3 mb-3" key={obj.id}>
+                <div className="col-sm-6 col-md-4 col-lg-3 mb-3" key={obj.p_id}>
                   <Link
                     className="text-decoration-none"
-                    to={`/product/${obj.id}`}
+                    to={`/product/${obj.p_id}`}
                   >
                     <Card product={obj}></Card>
                   </Link>
@@ -75,11 +75,16 @@ function Home() {
           <h2 className="text-uppercase mb-3">New Arrival</h2>
           <div className="row mb-2">
             {products
-              .sort((a, b) => b.rating.rate - a.rating.rate)
+              .sort((a, b) => b.rate - a.rate)
               .slice(0, 4)
               .map((obj) => (
-                <div className="col-sm-6 col-md-4 col-lg-3 mb-3" key={obj.id}>
-                  <Card product={obj}></Card>
+                <div className="col-sm-6 col-md-4 col-lg-3 mb-3" key={obj.p_id}>
+                  <Link
+                    className="text-decoration-none"
+                    to={`/product/${obj.p_id}`}
+                  >
+                    <Card product={obj}></Card>
+                  </Link>
                 </div>
               ))}
           </div>

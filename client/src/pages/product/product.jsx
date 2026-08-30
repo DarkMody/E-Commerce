@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { BASE_URL } from "../../config";
+import { BASE_URL, SERVER_URL } from "../../config";
 import Nav from "../../components/nav/nav";
 import Follow from "../../components/follow/follow";
 import Footer from "../../components/footer/footer";
@@ -15,21 +15,109 @@ function Product() {
   const [rate, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [clicked, setClicked] = useState(0);
-  const [givenRate, setGivenRate] = useState(1);
+  // const [givenRate, setGivenRate] = useState(1);
+  const [comments, setComments] = useState();
+  const [myComment, setMyComment] = useState();
 
   useEffect(() => {
-    fetch(`${BASE_URL}/products/${productId}`)
+    fetch(`${SERVER_URL}/api/products/${productId}`)
       .then((response) => response.json())
       .then((data) => {
-        setProducts(data);
+        setProducts(data.data);
         setLoading(false);
       });
-  }, []);
 
-  const handleClick = (val) => {
+    // fetch(`${SERVER_URL}/api/comment/${productId}`)
+    //   .then((res) => res.json())
+    //   .then((comment) => {
+    //     console.log(comment.data);
+    //     setComments(comment.data);
+    //   });
+    fetch(`${SERVER_URL}/api/comment/me/${productId}`, {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((comment) => {
+        console.log(comment.data);
+        if (comment.data.length) {
+          setMyComment(comment.data[0]);
+          setRating(comment.data[0].rate);
+          setClicked(comment.data[0].rate);
+        }
+      });
+  }, [productId]);
+
+  useEffect(() => {
+    fetch(`${SERVER_URL}/api/comment/${productId}`)
+      .then((res) => res.json())
+      .then((comment) => {
+        console.log(comment.data);
+        setComments(comment.data);
+      });
+  }, [productId, myComment]);
+
+  const handleRateClick = (val) => {
     setRating(val);
     setClicked(val);
     setTimeout(() => setClicked(0), 150);
+  };
+
+  const submitComment = async () => {
+    const comment = document.getElementById("comment-place").value;
+    await fetch(`${SERVER_URL}/api/comment/${productId}`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ rate, comment }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.status == "success") {
+          setMyComment(data.data);
+          window.toast(data.status, "Comment has been added successfully");
+        } else window.toast(data.status, data.message);
+      });
+  };
+
+  const editComment = async () => {
+    const comment = document.getElementById("comment-place").value;
+    await fetch(`${SERVER_URL}/api/comment/${myComment.c_id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ rate, comment }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.status == "success") {
+        }
+        window.toast(data.status, data.message);
+      });
+  };
+
+  const deleteComment = async () => {
+    if (window.confirm("Are you sure you want to delete comment ?")) {
+      await fetch(`${SERVER_URL}/api/comment/${myComment.c_id}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          if (data.status == "success") {
+            setMyComment();
+            document.querySelector("textarea").value = "";
+            setRating(0);
+          }
+          window.toast(data.status, data.message);
+        });
+    }
   };
 
   if (loading) return <h1>Loading</h1>;
@@ -41,41 +129,33 @@ function Product() {
           <div className="col-12 col-md-6 col-lg-6 text-center">
             <div id="carouselExampleIndicators" className="carousel slide">
               <div className="carousel-indicators">
-                <button
-                  type="button"
-                  data-bs-target="#carouselExampleIndicators"
-                  data-bs-slide-to="0"
-                  className="active"
-                  aria-current="true"
-                  aria-label="Slide 1"
-                ></button>
-                <button
-                  type="button"
-                  data-bs-target="#carouselExampleIndicators"
-                  data-bs-slide-to="1"
-                  aria-label="Slide 2"
-                ></button>
-                <button
-                  type="button"
-                  data-bs-target="#carouselExampleIndicators"
-                  data-bs-slide-to="2"
-                  aria-label="Slide 3"
-                ></button>
+                {product &&
+                  product.image.map((image, index) => (
+                    <button
+                      type="button"
+                      data-bs-target="#carouselExampleIndicators"
+                      data-bs-slide-to={index}
+                      className={index == 0 ? "active" : ""}
+                      aria-current={index == 0 ? "true" : ""}
+                      aria-label={`Slide ` + (index + 1)}
+                    ></button>
+                  ))}
               </div>
               <div className="carousel-inner">
-                <div className="carousel-item active">
-                  <img
-                    src="https://static.vecteezy.com/system/resources/thumbnails/012/705/555/small_2x/men-s-shirts-mockup-design-template-mockup-free-photo.jpg"
-                    className="d-block w-100"
-                    alt=""
-                  />
-                </div>
-                <div className="carousel-item">
-                  <img src={product.image} className="d-block w-100" alt="" />
-                </div>
-                <div className="carousel-item">
-                  <img src={product.image} className="d-block w-100" alt="" />
-                </div>
+                {product &&
+                  product.image.map((img, index) => (
+                    <div
+                      className={
+                        `carousel-item ` + (index == 0 ? "active" : "")
+                      }
+                    >
+                      <img
+                        src={`${SERVER_URL}/uploads/${img.image}`}
+                        className="d-block w-100"
+                        alt=""
+                      />
+                    </div>
+                  ))}
               </div>
               <button
                 className="carousel-control-prev"
@@ -104,21 +184,25 @@ function Product() {
             </div>
           </div>
           <div className="col-12 col-md-6 col-lg-6">
-            <h2 className="fw-bold">{product.title}</h2>
+            <h2 className="fw-bold">{product.product.name}</h2>
             <div className="rate fw-bold d-flex fs-6 align-items-center gap-1 mb-2">
               <div>
                 <i className="fa-solid fa-star"></i>
               </div>
-              <div>{product.rating.rate}</div>
-              <div>({product.rating.count})</div>
+              <div>{product.product.rate}</div>
+              <div>({product.product.people})</div>
             </div>
-            <div className="price fw-bold fs-2 mb-2">${product.price}</div>
+            <div className="price fw-bold fs-2 mb-2">
+              ${product.product.price}
+            </div>
             <Button text="Add To Cart"></Button>
             <div className="category d-flex flex-wrap gap-2 mt-3">
-              <a href="#">Clothes</a>
-              <a href="#">men</a>
+              {product &&
+                product.category.map((cat) => <a href="#">{cat.name}</a>)}
+              {/* <a href="#">Clothes</a>
+              <a href="#">men</a> */}
             </div>
-            <p className="text-black-50 mt-3">{product.description}</p>
+            <p className="text-black-50 mt-3">{product.product.description}</p>
           </div>
         </div>
       </div>
@@ -132,7 +216,7 @@ function Product() {
                 key={val}
                 data-val={val}
                 className="star"
-                onClick={() => handleClick(val)}
+                onClick={() => handleRateClick(val)}
                 onMouseEnter={() => setHovered(val)}
                 onMouseLeave={() => setHovered(0)}
                 style={{
@@ -147,43 +231,65 @@ function Product() {
             ))}
           </div>
           <div className="mb-1">
-            <textarea name="" id="" placeholder="Comment"></textarea>
+            <textarea
+              name=""
+              id="comment-place"
+              placeholder="Comment"
+              defaultValue={myComment ? myComment.comment : ""}
+            >
+              {/* {myComment ? myComment.comment : ""} */}
+            </textarea>
           </div>
-          <Button text="Comment" id="submit-comment"></Button>
+          <div className="buttons">
+            <Button
+              text={myComment ? "Edit Comment" : "Comment"}
+              className="mx-1"
+              onclick={myComment ? editComment : submitComment}
+              id="submit-comment"
+            ></Button>
+            {myComment && (
+              <Button
+                text="Delete Comment"
+                className="mx-1"
+                onclick={deleteComment}
+                id="delete-comment"
+              ></Button>
+            )}
+          </div>
         </div>
+
         <div className="comment-list m-auto mt-3">
-          <div className="comment px-3 py-2 mb-3">
-            <div className="line d-flex align-items-center justify-content-between mb-2">
-              <div className="d-flex align-items-center">
-                <img
-                  src="https://www.perfocal.com/blog/content/images/size/w960/2021/01/Perfocal_17-11-2019_TYWFAQ_100_standard-3.jpg"
-                  alt=""
-                />
-                <span className="ms-2 fw-bold">UserName</span>
-              </div>
-              <div className="d-flex align-items-center">
-                <div className="me-1 text-black-50">
-                  {[1, 2, 3, 4, 5].map((val) => (
-                    <span
-                      key={val}
-                      style={{
-                        color: val <= givenRate ? "var(--green)" : "inherit",
-                      }}
-                    >
-                      <i className="fa-solid fa-star"></i>
-                    </span>
-                  ))}
+          {comments &&
+            comments.map((comment) => (
+              <div className="comment px-3 py-2 mb-3" id={comment.c_id}>
+                <div className="line d-flex align-items-center justify-content-between mb-2">
+                  <div className="d-flex align-items-center">
+                    <img
+                      src="https://www.perfocal.com/blog/content/images/size/w960/2021/01/Perfocal_17-11-2019_TYWFAQ_100_standard-3.jpg"
+                      alt=""
+                    />
+                    <span className="ms-2 fw-bold">{comment.name}</span>
+                  </div>
+                  <div className="d-flex align-items-center">
+                    <div className="me-1 text-black-50">
+                      {[1, 2, 3, 4, 5].map((val) => (
+                        <span
+                          key={val}
+                          style={{
+                            color:
+                              val <= comment.rate ? "var(--green)" : "inherit",
+                          }}
+                        >
+                          <i className="fa-solid fa-star"></i>
+                        </span>
+                      ))}
+                    </div>
+                    <span>1 minute ago</span>
+                  </div>
                 </div>
-                <span>1 minute ago</span>
+                <p className="text-start">{comment.comment}</p>
               </div>
-            </div>
-            <p className="text-start">
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut
-              consequuntur eius expedita vel vero ut adipisci eos autem placeat!
-              Similique fugiat id sapiente officia neque alias recusandae magnam
-              debitis ab?
-            </p>
-          </div>
+            ))}
           <Button text="Show More"></Button>
         </div>
       </div>

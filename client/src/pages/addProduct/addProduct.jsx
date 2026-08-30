@@ -2,7 +2,6 @@ import "./addProduct.css";
 import Nav from "../../components/nav/nav";
 import Button from "../../components/button/button";
 import Input from "../../components/input/input";
-import Card from "../../components/card/card";
 import Footer from "../../components/footer/footer";
 import Follow from "../../components/follow/follow";
 import { useNavigate } from "react-router-dom";
@@ -67,14 +66,14 @@ function AddProduct() {
     const description = document.getElementById("product-description").value;
 
     if (images.length === 0) {
-      alert("Please add at least one image.");
+      window.toast("error", "Please add at least one image.");
       return;
     }
 
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("price", price);
-    formData.append("quantity", quantity);
+    formData.append("price", price || 0);
+    formData.append("quantity", quantity || 0);
     formData.append("description", description);
 
     // append each image file — use the same key name for all of them

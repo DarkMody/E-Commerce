@@ -9,6 +9,7 @@ import Cart from "./pages/cart/cart";
 import AddProduct from "./pages/addProduct/addProduct";
 import MyProduct from "./pages/myProduct/myProduct";
 import { SERVER_URL } from "./config";
+import EditProduct from "./pages/editProduct/editProduct";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -68,6 +69,7 @@ function App() {
           <Route path="/product/:productId" element={<Product />} />
           <Route path={"/product/view/:sellerId"} element={<MyProduct />} />
           <Route path="/product/add" element={<AddProduct />} />
+          <Route path="/product/edit/:productId" element={<EditProduct />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/cart" element={<Cart />} />

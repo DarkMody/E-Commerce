@@ -5,6 +5,7 @@ import "./card.css";
 
 function Card(param) {
   const product = param.product;
+  const people = product.people;
   return (
     <div className="card text-start pt-2 " id={product.p_id}>
       <div className="d-flex align-items-center justify-content-center image">
@@ -20,8 +21,8 @@ function Card(param) {
           <div className="fs-6">
             <i className="fa-solid fa-star"></i>
           </div>
-          {/* <div>{product.rating.rate}</div>
-          <div>({product.rating.count})</div> */}
+          <div>{product.rate}</div>
+          <div>({Math.round((product.people * 100) / 100)})</div>
         </div>
         <div className="price fw-bold fs-4">${product.price}</div>
       </div>

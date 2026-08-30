@@ -59,7 +59,7 @@ app.get(
   verifyToken,
   productController.getSellerProducts,
 );
-app.get("/api/product/:p_id", productController.getProduct);
+app.get("/api/products/:p_id", productController.getProduct);
 app.post(
   "/api/product/add",
   verifyToken,
@@ -71,7 +71,7 @@ app.delete(
   verifyToken,
   productController.deleteProduct,
 );
-app.put(
+app.patch(
   "/api/product/edit/:p_id",
   verifyToken,
   imageValidating,
@@ -80,6 +80,7 @@ app.put(
 
 //Comment APIS
 app.get("/api/comment/:p_id", commentController.getProductComments);
+app.get("/api/comment/me/:p_id", verifyToken, commentController.getMyComment);
 app.post("/api/comment/:p_id", verifyToken, commentController.addComment);
 app.patch("/api/comment/:c_id", verifyToken, commentController.editComment);
 app.delete("/api/comment/:c_id", verifyToken, commentController.deleteComment);
