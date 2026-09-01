@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS cart (
+    product_id UUID NOT NULL REFERENCES products(p_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(u_id) ON DELETE CASCADE,
+	quantity INT NOT NULL DEFAULT 1 CHECK (quantity >= 1)
+)

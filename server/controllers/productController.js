@@ -173,25 +173,32 @@ const editProduct = asyncWrapper(async (req, res, next) => {
 
     // 1. Figure out which of the OLD images the user kept
     const keptImages = existingImages ? JSON.parse(existingImages) : [];
-    console.log(keptImages);
+
     // 2. Delete the files for images that were removed
     const removedImages = images.rows.filter(
       (oldImg) => !keptImages.includes(oldImg.image),
     );
-    console.log(removedImages);
     removedImages.forEach((img) => {
       const filePath = path.join(__dirname, "..", "uploads", img.image);
       fs.unlink(filePath, (err) => {
-        if (err) console.error(`Failed to delete ${filePath}:`, err.message);
+        if (err) {
+          const error = appError.create(
+            `Failed to delete ${filePath}: ${err.message}`,
+            500,
+            httpStatusText.ERROR,
+          );
+          return next(error);
+        }
       });
     });
+
     // 3. New images just uploaded by multer
     const newImages = req.files ? req.files.map((f) => f.filename) : [];
 
     // 4. Final image list = kept existing + new
     const finalImages = [...keptImages, ...newImages];
 
-    // 5. Delete old images
+    // 5. Delete old images from DB
     await pool.query(`DELETE FROM images WHERE product_id = $1`, [
       req.params.p_id,
     ]);
@@ -201,7 +208,7 @@ const editProduct = asyncWrapper(async (req, res, next) => {
       `UPDATE products SET name = $1, description = $2, price = $3, quantity = GREATEST(quantity + $4 , 0) WHERE p_id = $5;`,
       [name, description, price, quantity, req.params.p_id],
     );
-    console.log(finalImages);
+
     // Adding the new images
     const insertImagesPromises = finalImages.map((img, index) => {
       const imageUrl = img;

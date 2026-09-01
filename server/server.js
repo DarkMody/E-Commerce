@@ -12,6 +12,7 @@ const port = process.env.PORT || 5000;
 const userController = require("./controllers/userController");
 const productController = require("./controllers/productController");
 const commentController = require("./controllers/commentController");
+const cartController = require("./controllers/cartController");
 const createTables = require("./data/createTables");
 const verifyToken = require("./middlewares/verifyToken");
 const verifyRole = require("./middlewares/verifyRole");
@@ -84,6 +85,12 @@ app.get("/api/comment/me/:p_id", verifyToken, commentController.getMyComment);
 app.post("/api/comment/:p_id", verifyToken, commentController.addComment);
 app.patch("/api/comment/:c_id", verifyToken, commentController.editComment);
 app.delete("/api/comment/:c_id", verifyToken, commentController.deleteComment);
+
+//Cart APIS
+app.get("/api/cart", verifyToken, cartController.getCart);
+app.post("/api/cart/:p_id", verifyToken, cartController.addToCart);
+app.delete("/api/cart/:p_id", verifyToken, cartController.deleteFromCart);
+app.patch("/api/cart/:p_id", verifyToken, cartController.editCart);
 
 // Error Handeling
 app.use((req, res) => {
