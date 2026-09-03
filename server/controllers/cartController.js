@@ -14,6 +14,14 @@ const getCart = asyncWrapper(async (req, res, next) => {
   res.json({ status: httpStatusText.SUCCESS, data: result.rows });
 });
 
+const isInCart = asyncWrapper(async (req, res, next) => {
+  const result = await pool.query(
+    `SELECT * FROM cart WHERE user_id = $1 AND product_id = $2`,
+    [req.currentUser.id, req.params.p_id],
+  );
+  res.json({ status: httpStatusText.SUCCESS, data: result.rows });
+});
+
 const addToCart = asyncWrapper(async (req, res, next) => {
   const [userId, productId] = [req.currentUser.id, req.params.p_id];
   const product = await pool.query(`SELECT * FROM products WHERE p_id = $1`, [
@@ -85,6 +93,15 @@ const editCart = asyncWrapper(async (req, res, next) => {
     req.params.p_id,
     req.body.quantity,
   ];
+  if (quantity <= 0) {
+    const error = appError.create(
+      "Quantity must be bigger than 0",
+      401,
+      httpStatusText.FAIL,
+    );
+    return next(error);
+  }
+
   const check = await pool.query(
     `SELECT * FROM cart WHERE product_id = $1 AND user_id = $2`,
     [productId, userId],
@@ -121,10 +138,10 @@ const editCart = asyncWrapper(async (req, res, next) => {
     const error = appError.create(
       `The stock is just ${product.rows[0].quantity}`,
       401,
-      httpStatusText.FAIL,
+      httpStatusText.ERROR,
     );
     return next(error);
   }
 });
 
-module.exports = { getCart, addToCart, deleteFromCart, editCart };
+module.exports = { getCart, addToCart, deleteFromCart, editCart, isInCart };

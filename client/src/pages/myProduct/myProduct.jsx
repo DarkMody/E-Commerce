@@ -19,7 +19,6 @@ function MyProduct() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data.data);
         setMyProducts(data.data);
         setProductCount(data.data.length);
         setLoading(false);

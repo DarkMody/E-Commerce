@@ -32,7 +32,6 @@ function AddProduct() {
 
       return [...prev, ...toAdd];
     });
-    console.log(images);
   };
 
   const handleFileChange = (e) => {

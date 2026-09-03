@@ -88,6 +88,7 @@ app.delete("/api/comment/:c_id", verifyToken, commentController.deleteComment);
 
 //Cart APIS
 app.get("/api/cart", verifyToken, cartController.getCart);
+app.get("/api/cart/:p_id", verifyToken, cartController.isInCart);
 app.post("/api/cart/:p_id", verifyToken, cartController.addToCart);
 app.delete("/api/cart/:p_id", verifyToken, cartController.deleteFromCart);
 app.patch("/api/cart/:p_id", verifyToken, cartController.editCart);

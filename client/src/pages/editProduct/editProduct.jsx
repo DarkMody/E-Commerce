@@ -23,7 +23,6 @@ function EditProduct() {
     fetch(`${SERVER_URL}/api/products/${productId}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data.data);
         setProduct(data.data);
         // Tag existing server images so we can tell them apart from new uploads
         setImages(

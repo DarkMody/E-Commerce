@@ -18,6 +18,7 @@ function Product() {
   // const [givenRate, setGivenRate] = useState(1);
   const [comments, setComments] = useState();
   const [myComment, setMyComment] = useState();
+  const [inCart, setInCart] = useState(false);
 
   useEffect(() => {
     fetch(`${SERVER_URL}/api/products/${productId}`)
@@ -27,31 +28,36 @@ function Product() {
         setLoading(false);
       });
 
-    // fetch(`${SERVER_URL}/api/comment/${productId}`)
-    //   .then((res) => res.json())
-    //   .then((comment) => {
-    //     console.log(comment.data);
-    //     setComments(comment.data);
-    //   });
-    fetch(`${SERVER_URL}/api/comment/me/${productId}`, {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((comment) => {
-        console.log(comment.data);
-        if (comment.data.length) {
-          setMyComment(comment.data[0]);
-          setRating(comment.data[0].rate);
-          setClicked(comment.data[0].rate);
-        }
-      });
+    if (window.loggedIn) {
+      fetch(`${SERVER_URL}/api/comment/me/${productId}`, {
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((comment) => {
+          if (comment.data.length) {
+            setMyComment(comment.data[0]);
+            setRating(comment.data[0].rate);
+            setClicked(comment.data[0].rate);
+          }
+        });
+      fetch(`${SERVER_URL}/api/cart/${productId}`, {
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.data.length != 0) setInCart(true);
+        });
+    } else {
+      let cart = JSON.parse(localStorage.getItem("localCart")) || [];
+      let check = cart.some((ele) => ele.productId == productId);
+      if (check) setInCart(true);
+    }
   }, [productId]);
 
   useEffect(() => {
     fetch(`${SERVER_URL}/api/comment/${productId}`)
       .then((res) => res.json())
       .then((comment) => {
-        console.log(comment.data);
         setComments(comment.data);
       });
   }, [productId, myComment]);
@@ -61,7 +67,7 @@ function Product() {
     setClicked(val);
     setTimeout(() => setClicked(0), 150);
   };
-
+  // Start Comment Handling
   const submitComment = async () => {
     const comment = document.getElementById("comment-place").value;
     await fetch(`${SERVER_URL}/api/comment/${productId}`, {
@@ -74,7 +80,6 @@ function Product() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         if (data.status == "success") {
           setMyComment(data.data);
           window.toast(data.status, "Comment has been added successfully");
@@ -94,7 +99,6 @@ function Product() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         if (data.status == "success") {
         }
         window.toast(data.status, data.message);
@@ -109,7 +113,6 @@ function Product() {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
           if (data.status == "success") {
             setMyComment();
             document.querySelector("textarea").value = "";
@@ -119,6 +122,56 @@ function Product() {
         });
     }
   };
+  // End Comment Handling
+
+  // Start Cart Handling
+  const addToCart = async () => {
+    if (window.loggedIn) {
+      await fetch(`${SERVER_URL}/api/cart/${productId}`, {
+        method: "POST",
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status == "success") setInCart(true);
+          window.toast(data.status, data.message);
+        });
+    } else {
+      let cart = JSON.parse(localStorage.getItem("localCart")) || [];
+      let check = cart.some((ele) => ele.productId == productId);
+      if (!check) {
+        cart.push({ productId, quantity: 1 });
+        localStorage.setItem("localCart", JSON.stringify(cart));
+        setInCart(true);
+        window.toast("success", "Product has been added to your cart");
+      } else {
+        window.toast("invalid", "The product is in your cart");
+      }
+    }
+  };
+
+  const deleteFromCart = async () => {
+    if (window.isLoggedIn) {
+      await fetch(`${SERVER_URL}/api/cart/${productId}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status == "success") {
+            setInCart(false);
+          }
+          window.toast(data.status, data.message);
+        });
+    } else {
+      let cart = JSON.parse(localStorage.getItem("localCart")) || [];
+      let newCart = cart.filter((ele) => ele.productId != productId);
+      localStorage.setItem("localCart", JSON.stringify(newCart));
+      setInCart(false);
+      window.toast("success", "Product has been deleted from your cart");
+    }
+  };
+  // End Cart Handling
 
   if (loading) return <h1>Loading</h1>;
   return (
@@ -195,7 +248,15 @@ function Product() {
             <div className="price fw-bold fs-2 mb-2">
               ${product.product.price}
             </div>
-            <Button text="Add To Cart"></Button>
+            {inCart ? (
+              <Button
+                text="Delete From Cart"
+                id="delete-from-cart"
+                onclick={deleteFromCart}
+              ></Button>
+            ) : (
+              <Button text="Add To Cart" onclick={addToCart}></Button>
+            )}
             <div className="category d-flex flex-wrap gap-2 mt-3">
               {product &&
                 product.category.map((cat) => <a href="#">{cat.name}</a>)}

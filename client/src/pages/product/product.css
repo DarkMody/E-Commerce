@@ -77,3 +77,13 @@
   object-fit: cover;
 }
 /* End Comments */
+
+#delete-from-cart {
+  background-color: var(--red) !important;
+  border-color: var(--red) !important;
+}
+
+#delete-from-cart:hover {
+  background-color: transparent !important;
+  color: var(--red) !important;
+}

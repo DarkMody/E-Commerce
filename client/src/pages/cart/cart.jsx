@@ -4,7 +4,7 @@ import Button from "../../components/button/button";
 import Footer from "../../components/footer/footer";
 import Follow from "../../components/follow/follow";
 import CartProduct from "../../components/cartProduct/cartProduct";
-import { BASE_URL } from "../../config";
+import { BASE_URL, SERVER_URL } from "../../config";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
@@ -14,14 +14,46 @@ function Cart() {
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
-    fetch(`${BASE_URL}/products`)
-      .then((response) => response.json())
-      .then((data) => {
-        data = data.slice(0, 4);
-        setCartProduct(data);
-        setCartCount(data.length);
-        setLoading(false);
-      });
+    if (window.loggedIn) {
+      fetch(`${SERVER_URL}/api/cart`, {
+        credentials: "include",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setCartProduct(data.data);
+          setCartCount(data.data.length);
+          setLoading(false);
+        });
+    } else {
+      const fetchFunction = async () => {
+        let cart = JSON.parse(localStorage.getItem("localCart")) || [];
+        try {
+          const fetchPromises = cart.map(async (product) => {
+            const response = await fetch(
+              `${SERVER_URL}/api/products/${product.productId}`,
+            );
+            const data = await response.json();
+
+            if (data.status === "success") {
+              return {
+                ...data.data.product,
+                ...data.data.image[0],
+                quantity: product.quantity,
+              };
+            }
+            return null;
+          });
+          const results = await Promise.all(fetchPromises);
+          const validProducts = results.filter((product) => product !== null);
+
+          setCartProduct(validProducts);
+          setCartCount(validProducts.length);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchFunction();
+    }
   }, []);
 
   const onRemoveHandling = () => {
