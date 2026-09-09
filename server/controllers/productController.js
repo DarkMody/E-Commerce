@@ -38,7 +38,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
     [p_id],
   );
   const categories = await pool.query(
-    `select c.name from product_category as pc 
+    `select c.* from product_category as pc 
     JOIN products as p on p.p_id = pc.product_id 
     JOIN category as c on c.c_id = pc.category_id
     WHERE p.p_id = $1`,
@@ -64,6 +64,34 @@ const getProduct = asyncWrapper(async (req, res, next) => {
 const addProduct = asyncWrapper(async (req, res, next) => {
   const seller_id = req.currentUser.id;
   const { name, description, price, quantity, categories } = req.body;
+  const category = JSON.parse(categories);
+  if (name.trim() == "") {
+    const error = appError.create(
+      "Please put a name for product",
+      400,
+      httpStatusText.FAIL,
+    );
+    return next(error);
+  }
+
+  if (price == "" || price == 0) {
+    const error = appError.create(
+      "The price must be bigger than 0",
+      400,
+      httpStatusText.FAIL,
+    );
+    return next(error);
+  }
+
+  if (quantity == "" || quantity == 0) {
+    const error = appError.create(
+      "The quantity must be bigger than 0",
+      400,
+      httpStatusText.FAIL,
+    );
+    return next(error);
+  }
+
   if (!req.files || req.files.length === 0) {
     const error = appError.create(
       "At least one image is required",
@@ -91,18 +119,18 @@ const addProduct = asyncWrapper(async (req, res, next) => {
   });
   await Promise.all(insertImagesPromises);
 
-  // const insertCategoriesPromises = categories.map(async (category) => {
-  //   const check = await pool.query(`SELECT * FROM category WHERE c_id = $1`, [
-  //     category,
-  //   ]);
-  //   if (check.rows.length !== 0) {
-  //     return await pool.query(`INSERT INTO product_category VALUES ($1 , $2)`, [
-  //       p_id,
-  //       category,
-  //     ]);
-  //   }
-  // });
-  // await Promise.all(insertCategoriesPromises);
+  const insertCategoriesPromises = category.map(async (category) => {
+    const check = await pool.query(`SELECT * FROM category WHERE c_id = $1`, [
+      category,
+    ]);
+    if (check.rows.length !== 0) {
+      return await pool.query(`INSERT INTO product_category VALUES ($1 , $2)`, [
+        p_id,
+        category,
+      ]);
+    }
+  });
+  await Promise.all(insertCategoriesPromises);
 
   return res.status(201).json({
     status: httpStatusText.SUCCESS,
@@ -151,6 +179,7 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
 const editProduct = asyncWrapper(async (req, res, next) => {
   const { name, description, price, quantity, categories, existingImages } =
     req.body;
+  const category = JSON.parse(categories);
   const result = await pool.query(`SELECT * FROM products where p_id = $1`, [
     req.params.p_id,
   ]);
@@ -171,10 +200,8 @@ const editProduct = asyncWrapper(async (req, res, next) => {
       [req.params.p_id],
     );
 
-    // 1. Figure out which of the OLD images the user kept
     const keptImages = existingImages ? JSON.parse(existingImages) : [];
 
-    // 2. Delete the files for images that were removed
     const removedImages = images.rows.filter(
       (oldImg) => !keptImages.includes(oldImg.image),
     );
@@ -192,13 +219,8 @@ const editProduct = asyncWrapper(async (req, res, next) => {
       });
     });
 
-    // 3. New images just uploaded by multer
     const newImages = req.files ? req.files.map((f) => f.filename) : [];
-
-    // 4. Final image list = kept existing + new
     const finalImages = [...keptImages, ...newImages];
-
-    // 5. Delete old images from DB
     await pool.query(`DELETE FROM images WHERE product_id = $1`, [
       req.params.p_id,
     ]);
@@ -219,18 +241,21 @@ const editProduct = asyncWrapper(async (req, res, next) => {
     });
     await Promise.all(insertImagesPromises);
 
-    // const insertCategoriesPromises = categories.map(async (category) => {
-    //   const check = await pool.query(`SELECT * FROM category WHERE c_id = $1`, [
-    //     category,
-    //   ]);
-    //   if (check.rows.length !== 0) {
-    //     return await pool.query(
-    //       `INSERT INTO product_category VALUES ($1 , $2)`,
-    //       [req.params.p_id, category],
-    //     );
-    //   }
-    // });
-    // await Promise.all(insertCategoriesPromises);
+    await pool.query(`DELETE FROM product_category WHERE product_id = $1`, [
+      req.params.p_id,
+    ]);
+    const insertCategoriesPromises = category.map(async (category) => {
+      const check = await pool.query(`SELECT * FROM category WHERE c_id = $1`, [
+        category,
+      ]);
+      if (check.rows.length !== 0) {
+        return await pool.query(
+          `INSERT INTO product_category VALUES ($1 , $2)`,
+          [req.params.p_id, category],
+        );
+      }
+    });
+    await Promise.all(insertCategoriesPromises);
 
     return res.status(200).json({
       status: httpStatusText.SUCCESS,

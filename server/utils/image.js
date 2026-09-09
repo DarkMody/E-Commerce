@@ -16,9 +16,11 @@ const diskStorage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
   const imgType = file.mimetype.split("/")[0];
+  console.log("Received file:", file.originalname, file.mimetype); // debug
+
   if (imgType === "image") return cb(null, true);
   return cb(
-    appError.create("File must be image", 401, httpStatusText.FAIL),
+    appError.create("File must be image", 400, httpStatusText.FAIL),
     false,
   );
 };

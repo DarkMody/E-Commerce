@@ -10,7 +10,7 @@ import "./product.css";
 
 function Product() {
   const { productId } = useParams();
-  const [product, setProducts] = useState();
+  const [product, setProduct] = useState();
   const [loading, setLoading] = useState(true);
   const [rate, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
@@ -24,7 +24,7 @@ function Product() {
     fetch(`${SERVER_URL}/api/products/${productId}`)
       .then((response) => response.json())
       .then((data) => {
-        setProducts(data.data);
+        setProduct(data.data);
         setLoading(false);
       });
 
@@ -259,9 +259,11 @@ function Product() {
             )}
             <div className="category d-flex flex-wrap gap-2 mt-3">
               {product &&
-                product.category.map((cat) => <a href="#">{cat.name}</a>)}
-              {/* <a href="#">Clothes</a>
-              <a href="#">men</a> */}
+                product.category.map((cat) => (
+                  <a href="#" id={cat.c_id}>
+                    {cat.name}
+                  </a>
+                ))}
             </div>
             <p className="text-black-50 mt-3">{product.product.description}</p>
           </div>

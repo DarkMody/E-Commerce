@@ -6,15 +6,75 @@ import Footer from "../../components/footer/footer";
 import Follow from "../../components/follow/follow";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL, SERVER_URL } from "../../config";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const MAX_IMAGES = 10;
+const MAX_CATEGORIES = 10;
 
 function AddProduct() {
   const navigate = useNavigate();
   const [images, setImages] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
+
+  // ---- categories ----
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const categoryPickerRef = useRef(null);
+
+  useEffect(() => {
+    fetch(`${SERVER_URL}/api/category`, { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        setCategories(data.data);
+      })
+      .catch(() => window.toast("error", "Failed to load categories"))
+      .finally(() => setLoadingCategories(false));
+  }, []);
+
+  // close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        categoryPickerRef.current &&
+        !categoryPickerRef.current.contains(e.target)
+      ) {
+        setIsCategoryDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectCategory = (cat) => {
+    if (selectedCategories.some((c) => c.c_id === cat.c_id)) return;
+
+    if (selectedCategories.length >= MAX_CATEGORIES) {
+      window.toast(
+        "error",
+        `You can select up to ${MAX_CATEGORIES} categories.`,
+      );
+      return;
+    }
+
+    setSelectedCategories((prev) => [...prev, cat]);
+    setCategorySearch("");
+  };
+
+  const removeCategory = (id) => {
+    setSelectedCategories((prev) => prev.filter((c) => c.c_id !== id));
+  };
+
+  const filteredCategories = categories.filter((cat) => {
+    const alreadySelected = selectedCategories.some((c) => c.c_id === cat.c_id);
+    const matchesSearch = cat.name
+      .toLowerCase()
+      .includes(categorySearch.toLowerCase());
+    return !alreadySelected && matchesSearch;
+  });
 
   const addFiles = (fileList) => {
     const incoming = Array.from(fileList).filter((f) =>
@@ -59,10 +119,25 @@ function AddProduct() {
   };
 
   const handleSubmit = async () => {
-    const name = document.getElementById("product-name").value;
+    const name = document.getElementById("product-name").value.trim();
     const price = document.getElementById("product-price").value;
     const quantity = document.getElementById("product-quantity").value;
     const description = document.getElementById("product-description").value;
+
+    if (name == "") {
+      window.toast("error", "Please put a name for product");
+      return;
+    }
+
+    if (price == "" || price == 0) {
+      window.toast("error", "The price must be bigger than 0");
+      return;
+    }
+
+    if (quantity == "" || quantity == 0) {
+      window.toast("error", "The quantity must be bigger than 0");
+      return;
+    }
 
     if (images.length === 0) {
       window.toast("error", "Please add at least one image.");
@@ -71,11 +146,14 @@ function AddProduct() {
 
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("price", price || 0);
-    formData.append("quantity", quantity || 0);
+    formData.append("price", price);
+    formData.append("quantity", quantity);
     formData.append("description", description);
+    formData.append(
+      "categories",
+      JSON.stringify(selectedCategories.map((c) => c.c_id)),
+    );
 
-    // append each image file — use the same key name for all of them
     images.forEach((img) => {
       formData.append("images", img.file);
     });
@@ -136,6 +214,73 @@ function AddProduct() {
             placeholder="Description"
             id="product-description"
           ></textarea>
+        </div>
+
+        {/* ---- Categories search-and-pick ---- */}
+        <div className="row mb-3 w-100" ref={categoryPickerRef}>
+          <label className="upload-label">
+            Categories ({selectedCategories.length}/{MAX_CATEGORIES})
+          </label>
+
+          {selectedCategories.length > 0 && (
+            <div className="selected-categories">
+              {selectedCategories.map((cat) => (
+                <span className="category-tag" key={cat.c_id}>
+                  {cat.name}
+                  <button
+                    type="button"
+                    onClick={() => removeCategory(cat.c_id)}
+                    aria-label={`Remove ${cat.name}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="category-search-wrapper">
+            <input
+              type="text"
+              className="app-input category-search-input"
+              placeholder={
+                selectedCategories.length >= MAX_CATEGORIES
+                  ? "Maximum categories selected"
+                  : "Search categories..."
+              }
+              value={categorySearch}
+              disabled={
+                loadingCategories || selectedCategories.length >= MAX_CATEGORIES
+              }
+              onChange={(e) => setCategorySearch(e.target.value)}
+              onFocus={() => setIsCategoryDropdownOpen(true)}
+            />
+
+            {isCategoryDropdownOpen &&
+              selectedCategories.length < MAX_CATEGORIES && (
+                <div className="category-dropdown">
+                  {loadingCategories ? (
+                    <div className="category-dropdown-item disabled">
+                      Loading...
+                    </div>
+                  ) : filteredCategories.length === 0 ? (
+                    <div className="category-dropdown-item disabled">
+                      No categories found
+                    </div>
+                  ) : (
+                    filteredCategories.map((cat) => (
+                      <div
+                        key={cat.c_id}
+                        className="category-dropdown-item"
+                        onClick={() => selectCategory(cat)}
+                      >
+                        {cat.name}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+          </div>
         </div>
 
         <div className="row mb-3 w-100">

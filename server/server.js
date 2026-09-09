@@ -11,6 +11,7 @@ const imageValidating = require("./middlewares/imageChecking");
 const port = process.env.PORT || 5000;
 const userController = require("./controllers/userController");
 const productController = require("./controllers/productController");
+const categoryController = require("./controllers/categoryController");
 const commentController = require("./controllers/commentController");
 const cartController = require("./controllers/cartController");
 const createTables = require("./data/createTables");
@@ -78,6 +79,9 @@ app.patch(
   imageValidating,
   productController.editProduct,
 );
+
+//Category APIS
+app.get("/api/category", categoryController.getAllCategories);
 
 //Comment APIS
 app.get("/api/comment/:p_id", commentController.getProductComments);
