@@ -7,7 +7,9 @@ function Input(params) {
       className={`rounded-pill px-3 py-2 w-100 ` + params.className}
       type={params.type}
       placeholder={params.placeholder}
-      defaultValue={params.value}
+      value={params.value}
+      onChange={params.onChange}
+      onKeyDown={params.onKeyDown}
     />
   );
 }

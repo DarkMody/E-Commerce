@@ -24,7 +24,14 @@ function Card(param) {
           <div>{product.rate}</div>
           <div>({Math.round((product.people * 100) / 100)})</div>
         </div>
-        <div className="price fw-bold fs-4">${product.price}</div>
+        <div className="price-stock d-flex justify-content-between align-items-center">
+          <div className="price fw-bold fs-4">${product.price}</div>
+          {product.quantity == 0 ? (
+            <div className="stock fw-bold fs-6 p-2">Out of Stock</div>
+          ) : (
+            ""
+          )}
+        </div>
       </div>
     </div>
   );

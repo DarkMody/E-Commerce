@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./nav.css";
 import Input from "../input/input";
 import { SERVER_URL } from "../../config";
 
 function Nav() {
   const [login, setLogin] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate();
+
   useEffect(() => {
     setLogin(window.loggedIn);
   }, []);
@@ -28,6 +31,18 @@ function Nav() {
       .then((res) => res.json())
       .then((data) => data);
   }
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // stop the <form> from doing a full page reload
+      const trimmed = searchValue.trim();
+      if (trimmed) {
+        navigate(`/product?search=${encodeURIComponent(trimmed)}`);
+      } else {
+        navigate(`/product`);
+      }
+    }
+  };
   return (
     <>
       <nav className="navbar navbar-expand-lg sticky-top">
@@ -81,11 +96,18 @@ function Nav() {
             <form
               className="d-flex align-items-center gap-1 search mb-3 mb-lg-0"
               role="search"
+              onSubmit={(e) => e.preventDefault()}
             >
               <div className="fs-5">
                 <i className="fa-solid fa-magnifying-glass"></i>
               </div>
-              <Input placeholder="Search For Products" type="search"></Input>
+              <Input
+                placeholder="Search For Products"
+                type="search"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+              ></Input>
             </form>
             <ul className="navbar-nav mb-2 mb-lg-0 me-2 gap-1">
               <li className="nav-item rounded-pill">

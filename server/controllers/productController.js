@@ -6,19 +6,81 @@ const fs = require("fs");
 const path = require("path");
 
 const getAllProducts = asyncWrapper(async (req, res, next) => {
-  const result = await pool.query(
-    `SELECT DISTINCT p.*, i.image, ROUND(avg(c.rate) OVER (PARTITION BY p.p_id), 2) AS rate, count(c.rate) OVER (PARTITION BY p.p_id) AS people FROM products as p
-    LEFT JOIN comments as c on p.p_id = c.product_id
-    JOIN images as i on i.product_id = p.p_id
-    WHERE i.sort_order = 0`,
-  );
+  let {
+    category,
+    minPrice,
+    maxPrice,
+    minRate,
+    maxRate,
+    sort,
+    inStock,
+    search,
+  } = req.query;
+  let subQuery = `SELECT DISTINCT p.*, i.image, COALESCE(ROUND(avg(c.rate) OVER (PARTITION BY p.p_id), 2),0) AS rate, count(c.rate) OVER (PARTITION BY p.p_id) AS people FROM products AS p
+                  LEFT JOIN comments AS c on p.p_id = c.product_id
+                  JOIN images AS i on i.product_id = p.p_id and i.sort_order = 0`;
+
+  const conditions = [];
+  const conditions2 = [];
+  const values = [];
+  let i = 1;
+  console.log(category);
+
+  if (category != undefined) {
+    category = Array.isArray(category) ? category : [category];
+  } else {
+    category = [];
+  }
+  console.log(req.query);
+
+  if (category.length != 0) {
+    conditions.push(`JOIN (SELECT DISTINCT pc.product_id FROM product_category AS pc
+    WHERE pc.category_id = ANY($${i++} ::uuid[])) AS dpc ON dpc.product_id = p.p_id`);
+    values.push(category);
+  }
+  if (minPrice) {
+    conditions2.push(`price >= $${i++}`);
+    values.push(Number(minPrice));
+  }
+  if (maxPrice) {
+    conditions2.push(`price <= $${i++}`);
+    values.push(Number(maxPrice));
+  }
+  if (minRate) {
+    conditions2.push(`rate >= $${i++}`);
+    values.push(Number(minRate));
+  }
+  if (maxRate) {
+    conditions2.push(`rate <= $${i++}`);
+    values.push(Number(maxRate));
+  }
+  if (inStock !== undefined && inStock !== "") {
+    if (inStock == "true") conditions2.push(`quantity > $${i++}`);
+    else conditions2.push(`quantity = $${i++}`);
+    values.push(0);
+  }
+  if (search) {
+    conditions2.push(`name ILIKE $${i++}`);
+    values.push(`%${search}%`);
+  }
+  if (conditions.length) subQuery += " " + conditions.join(" AND ");
+  let query = `SELECT * FROM (${subQuery})`;
+  if (conditions2.length) query += " WHERE " + conditions2.join(" AND ");
+
+  if (sort && sort != "default") {
+    query += ` ORDER BY ${sort.split("-").join(" ")} `;
+  }
+
+  console.log(query);
+  const result = await pool.query(query, values);
+
   res.json({ status: httpStatusText.SUCCESS, data: result.rows });
 });
 
 const getSellerProducts = asyncWrapper(async (req, res, next) => {
   const seller_id = req.currentUser.id;
   const result = await pool.query(
-    `SELECT DISTINCT p.*, i.image, ROUND(avg(c.rate) OVER (PARTITION BY p.p_id), 2) AS rate, count(c.rate) OVER (PARTITION BY p.p_id) AS people FROM products as p
+    `SELECT DISTINCT p.*, i.image, COALESCE(ROUND(avg(c.rate) OVER (PARTITION BY p.p_id), 2),0) AS rate, count(c.rate) OVER (PARTITION BY p.p_id) AS people FROM products as p
     LEFT JOIN comments as c on p.p_id = c.product_id
     JOIN images as i on i.product_id = p.p_id
     WHERE i.sort_order = 0 and seller_id = $1`,
@@ -31,7 +93,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
   const p_id = req.params.p_id;
   const product = await pool.query(
     `
-    SELECT DISTINCT p.*, ROUND(avg(c.rate) OVER (PARTITION BY p.p_id), 2) AS rate, count(c.rate) OVER (PARTITION BY p.p_id) AS people FROM products as p
+    SELECT DISTINCT p.*, COALESCE(ROUND(avg(c.rate) OVER (PARTITION BY p.p_id), 2),0) AS rate, count(c.rate) OVER (PARTITION BY p.p_id) AS people FROM products as p
     LEFT JOIN comments as c on p.p_id = c.product_id
     WHERE p.p_id = $1
     `,

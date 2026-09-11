@@ -43,3 +43,9 @@
 .card .rate svg {
   color: var(--green);
 }
+
+.card .stock {
+  background-color: var(--red);
+  border-radius: 1rem;
+  color: var(--light);
+}

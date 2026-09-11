@@ -2,6 +2,7 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/home/home";
+import Products from "./pages/products/products";
 import Product from "./pages/product/product";
 import Login from "./pages/login/login";
 import Register from "./pages/register/register";
@@ -66,6 +67,7 @@ function App() {
       <HashRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/product/" element={<Products />} />
           <Route path="/product/:productId" element={<Product />} />
           <Route path={"/product/view/:sellerId"} element={<MyProduct />} />
           <Route path="/product/add" element={<AddProduct />} />
