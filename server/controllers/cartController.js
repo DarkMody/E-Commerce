@@ -106,7 +106,6 @@ const editCart = asyncWrapper(async (req, res, next) => {
     `SELECT * FROM cart WHERE product_id = $1 AND user_id = $2`,
     [productId, userId],
   );
-  console.log(check.rows);
   if (check.rows.length == 0) {
     const error = appError.create(
       "Product not in cart",

@@ -36,7 +36,6 @@ function Products() {
 
   const buildQuery = useCallback(
     (filters, sort, categoryOverriding) => {
-      console.log(filters, sort);
       const params = new URLSearchParams();
       const cats = categoryOverriding ?? selectedCategories;
       if (searchQuery) params.set("search", searchQuery);
@@ -63,7 +62,6 @@ function Products() {
       fetch(`${SERVER_URL}/api/products${query ? `?${query}` : ""}`)
         .then((response) => response.json())
         .then((data) => {
-          console.log(data.data);
           if (data.status == "success") setProducts(data.data);
           setLoading(false);
         })

@@ -24,14 +24,12 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
   const conditions2 = [];
   const values = [];
   let i = 1;
-  console.log(category);
 
   if (category != undefined) {
     category = Array.isArray(category) ? category : [category];
   } else {
     category = [];
   }
-  console.log(req.query);
 
   if (category.length != 0) {
     conditions.push(`JOIN (SELECT DISTINCT pc.product_id FROM product_category AS pc
@@ -71,7 +69,6 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
     query += ` ORDER BY ${sort.split("-").join(" ")} `;
   }
 
-  console.log(query);
   const result = await pool.query(query, values);
 
   res.json({ status: httpStatusText.SUCCESS, data: result.rows });
