@@ -68,6 +68,28 @@ function Register() {
         localStorage.setItem("userData", JSON.stringify(response.data));
         window.loggedIn = true;
         window.toast("success", "Email created successfully");
+
+        // Adding choosen product to add to this user's cart
+        const localCart = JSON.parse(localStorage.getItem("localCart"));
+        console.log(localCart);
+        if (localCart) {
+          localCart.map(async (product) => {
+            await fetch(`${SERVER_URL}/api/cart/${product.productId}`, {
+              method: "POST",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ quantity: product.quantity }),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                console.log(data);
+              });
+          });
+        }
+        localStorage.removeItem("localCart");
+
         navigate("/");
       } else window.toast("error", response.message);
     } else if (!validUser) {

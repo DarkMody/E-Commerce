@@ -14,6 +14,11 @@ function Products() {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
 
+  // ---- pagination ----
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
   // ---- categories ----
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -35,9 +40,11 @@ function Products() {
   const [sortBy, setSortBy] = useState("default");
 
   const buildQuery = useCallback(
-    (filters, sort, categoryOverriding) => {
+    (filters, sort, categoryOverriding, pageOverriding) => {
       const params = new URLSearchParams();
       const cats = categoryOverriding ?? selectedCategories;
+      const pageToUse = pageOverriding ?? page;
+
       if (searchQuery) params.set("search", searchQuery);
       if (cats.length > 0)
         cats.map((cat) => {
@@ -50,19 +57,32 @@ function Products() {
       if (filters.inStock !== "") params.set("inStock", filters.inStock);
       if (sort && sort !== "default") params.set("sort", sort);
 
+      params.set("page", pageToUse);
+
       return params.toString();
     },
-    [selectedCategories, searchQuery],
+    [selectedCategories, searchQuery, page],
   );
 
   const fetchProducts = useCallback(
-    (filters, sort, categoryOverriding) => {
+    (filters, sort, categoryOverriding, pageOverriding) => {
       setLoading(true);
-      const query = buildQuery(filters, sort, categoryOverriding);
+      const query = buildQuery(
+        filters,
+        sort,
+        categoryOverriding,
+        pageOverriding,
+      );
       fetch(`${SERVER_URL}/api/products${query ? `?${query}` : ""}`)
         .then((response) => response.json())
         .then((data) => {
-          if (data.status == "success") setProducts(data.data);
+          if (data.status == "success") {
+            setProducts(data.data);
+            if (data.pagination) {
+              setTotalPages(data.pagination.totalPages || 1);
+              setTotalItems(data.pagination.totalItems || 0);
+            }
+          }
           setLoading(false);
         })
         .catch(() => setLoading(false));
@@ -72,7 +92,20 @@ function Products() {
 
   // initial load (no filters applied)
   useEffect(() => {
-    fetchProducts(draft, sortBy);
+    setPage(1);
+    setSelectedCategories(
+      JSON.parse(searchParams.get("category"))
+        ? [JSON.parse(searchParams.get("category"))]
+        : [],
+    );
+    fetchProducts(
+      draft,
+      sortBy,
+      JSON.parse(searchParams.get("category"))
+        ? [JSON.parse(searchParams.get("category"))]
+        : [],
+      1,
+    );
   }, [searchQuery]);
 
   useEffect(() => {
@@ -112,8 +145,10 @@ function Products() {
     return !alreadySelected && matchesSearch;
   });
 
+  // any filter/sort/category change resets back to page 1
   const handleApplyFilters = () => {
-    fetchProducts(draft, sortBy);
+    setPage(1);
+    fetchProducts(draft, sortBy, undefined, 1);
   };
 
   const handleClearFilters = () => {
@@ -127,13 +162,45 @@ function Products() {
     };
     setDraft(cleared);
     setSortBy("default");
-    fetchProducts(cleared, "default", []);
+    setPage(1);
+    fetchProducts(cleared, "default", [], 1);
   };
 
   const handleSortChange = (e) => {
     const newSort = e.target.value;
     setSortBy(newSort);
-    fetchProducts(draft, newSort); // uses last-applied filters + new sort
+    setPage(1);
+    fetchProducts(draft, newSort, undefined, 1);
+  };
+
+  const goToPage = (newPage) => {
+    if (newPage < 1 || newPage > totalPages || newPage === page) return;
+    setPage(newPage);
+    fetchProducts(draft, sortBy, undefined, newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // build a compact page number list, e.g. 1 ... 4 5 [6] 7 8 ... 20
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 1;
+    const range = [];
+
+    for (
+      let i = Math.max(2, page - delta);
+      i <= Math.min(totalPages - 1, page + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    pages.push(1);
+    if (range[0] > 2) pages.push("...");
+    pages.push(...range);
+    if (range[range.length - 1] < totalPages - 1) pages.push("...");
+    if (totalPages > 1) pages.push(totalPages);
+
+    return pages;
   };
 
   return (
@@ -153,20 +220,6 @@ function Products() {
                   Clear
                 </button>
               </div>
-
-              {/* Name search */}
-              {/* <div className="mb-4">
-                <label className="form-label fw-bold">Name</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Search by name"
-                  value={draft.search}
-                  onChange={(e) =>
-                    setDraft((prev) => ({ ...prev, search: e.target.value }))
-                  }
-                />
-              </div> */}
 
               {/* Category */}
               <div className="row mb-3" ref={categoryPickerRef}>
@@ -326,12 +379,6 @@ function Products() {
                 text="Apply Filters"
                 onclick={handleApplyFilters}
               ></Button>
-              {/* <button
-                className="btn btn-dark w-100"
-                onClick={handleApplyFilters}
-              >
-                Apply Filters
-              </button> */}
             </div>
           </div>
 
@@ -339,7 +386,9 @@ function Products() {
           <div className="col-lg-9 col-md-8">
             <div className="d-flex justify-content-between align-items-center mb-3">
               <span className="text-muted">
-                {loading ? "Loading..." : `${products.length} results`}
+                {loading
+                  ? "Loading..."
+                  : `${products.length} of ${totalItems} results`}
               </span>
               <select
                 className="form-select w-auto"
@@ -362,26 +411,92 @@ function Products() {
                 </div>
               </div>
             ) : (
-              <div className="row mb-2">
-                {products.map((obj) => (
-                  <div
-                    className="col-sm-6 col-md-6 col-lg-4 mb-3"
-                    key={obj.p_id}
-                  >
-                    <Link
-                      className="text-decoration-none"
-                      to={`/product/${obj.p_id}`}
+              <>
+                <div className="row mb-2">
+                  {products.map((obj) => (
+                    <div
+                      className="col-sm-6 col-md-6 col-lg-4 mb-3"
+                      key={obj.p_id}
                     >
-                      <Card product={obj}></Card>
-                    </Link>
-                  </div>
-                ))}
-                {products.length === 0 && (
-                  <div className="text-center text-muted py-5">
-                    No products match your filters.
-                  </div>
+                      <Link
+                        className="text-decoration-none"
+                        to={`/product/${obj.p_id}`}
+                      >
+                        <Card product={obj}></Card>
+                      </Link>
+                    </div>
+                  ))}
+                  {products.length === 0 && (
+                    <div className="text-center text-muted py-5">
+                      No products match your filters.
+                    </div>
+                  )}
+                </div>
+
+                {/* ---- Pagination bar ---- */}
+                {totalPages > 1 && (
+                  <nav
+                    aria-label="Products pagination"
+                    className="d-flex justify-content-center mt-4"
+                  >
+                    <ul className="pagination">
+                      <li
+                        className={`page-item ${page === 1 ? "disabled" : ""}`}
+                      >
+                        <button
+                          type="button"
+                          className="page-link"
+                          onClick={() => goToPage(page - 1)}
+                          disabled={page === 1}
+                        >
+                          Previous
+                        </button>
+                      </li>
+
+                      {getPageNumbers().map((num, idx) =>
+                        num === "..." ? (
+                          <li
+                            key={`ellipsis-${idx}`}
+                            className="page-item disabled"
+                          >
+                            <span className="page-link">…</span>
+                          </li>
+                        ) : (
+                          <li
+                            key={num}
+                            className={`page-item ${
+                              page === num ? "active" : ""
+                            }`}
+                          >
+                            <button
+                              type="button"
+                              className="page-link"
+                              onClick={() => goToPage(num)}
+                            >
+                              {num}
+                            </button>
+                          </li>
+                        ),
+                      )}
+
+                      <li
+                        className={`page-item ${
+                          page === totalPages ? "disabled" : ""
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          className="page-link"
+                          onClick={() => goToPage(page + 1)}
+                          disabled={page === totalPages}
+                        >
+                          Next
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
                 )}
-              </div>
+              </>
             )}
           </div>
         </div>

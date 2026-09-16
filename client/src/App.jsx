@@ -9,8 +9,10 @@ import Register from "./pages/register/register";
 import Cart from "./pages/cart/cart";
 import AddProduct from "./pages/addProduct/addProduct";
 import MyProduct from "./pages/myProduct/myProduct";
+import Profile from "./pages/profile/profile";
 import { SERVER_URL } from "./config";
 import EditProduct from "./pages/editProduct/editProduct";
+import ScrollToTop from "./components/scrollToTop/scrollToTop";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -35,6 +37,7 @@ function App() {
         toasty.remove();
       }, 5000);
     };
+
     window.loggedIn = false;
     const apiGetUser = async () => {
       await fetch(`${SERVER_URL}/api/user`, {
@@ -65,6 +68,7 @@ function App() {
   return (
     <>
       <HashRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/product/" element={<Products />} />
@@ -75,6 +79,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/user/profile" element={<Profile />} />
         </Routes>
       </HashRouter>
       <div id="toast-box"></div>

@@ -47,7 +47,7 @@ async function verifyToken(req, res, next) {
     const id = jwt.decode(refreshToken).id;
     console.log(id);
     const data = await pool.query(
-      "select u_id,name,email,role from users where u_id = $1",
+      "select u_id,name,email,role,created_at from users where u_id = $1",
       [id],
     );
     const token = await generateToken(data.rows[0], res);

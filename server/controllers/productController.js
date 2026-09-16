@@ -15,7 +15,11 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
     sort,
     inStock,
     search,
+    page,
   } = req.query;
+
+  const pageSize = 20;
+
   let subQuery = `SELECT DISTINCT p.*, i.image, COALESCE(ROUND(avg(c.rate) OVER (PARTITION BY p.p_id), 2),0) AS rate, count(c.rate) OVER (PARTITION BY p.p_id) AS people FROM products AS p
                   LEFT JOIN comments AS c on p.p_id = c.product_id
                   JOIN images AS i on i.product_id = p.p_id and i.sort_order = 0`;
@@ -68,10 +72,21 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
   if (sort && sort != "default") {
     query += ` ORDER BY ${sort.split("-").join(" ")} `;
   }
+  const count = await pool.query(query, values);
 
+  if (!page) page = 1;
+  query += ` LIMIT ${pageSize} OFFSET $${i++} `;
+  values.push((page - 1) * pageSize);
   const result = await pool.query(query, values);
-
-  res.json({ status: httpStatusText.SUCCESS, data: result.rows });
+  const [totalItems, totalPages] = [
+    count.rows.length,
+    Math.ceil(count.rows.length / pageSize),
+  ];
+  res.json({
+    status: httpStatusText.SUCCESS,
+    data: result.rows,
+    pagination: { page, totalItems, totalPages },
+  });
 });
 
 const getSellerProducts = asyncWrapper(async (req, res, next) => {

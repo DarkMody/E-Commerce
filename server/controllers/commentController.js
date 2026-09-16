@@ -4,13 +4,28 @@ const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
 
 const getProductComments = asyncWrapper(async (req, res, next) => {
-  const result = await pool.query(
+  const { page } = req.query;
+  const pageSize = 5;
+  const count = await pool.query(
     `SELECT c.*, u.name from comments as c
     JOIN users as u ON c.user_id = u.u_id
     WHERE product_id = $1`,
     [req.params.p_id],
   );
-  res.json({ status: httpStatusText.SUCCESS, data: result.rows });
+  const result = await pool.query(
+    `SELECT c.*, u.name from comments as c
+    JOIN users as u ON c.user_id = u.u_id
+    WHERE product_id = $1
+    LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`,
+    [req.params.p_id],
+  );
+  const totalItems = count.rows.length;
+  const totalPages = totalItems / pageSize;
+  res.json({
+    status: httpStatusText.SUCCESS,
+    data: result.rows,
+    pagination: { page, totalItems, totalPages },
+  });
 });
 
 const getMyComment = asyncWrapper(async (req, res, next) => {
@@ -110,7 +125,7 @@ const editComment = asyncWrapper(async (req, res, next) => {
   }
   if (req.currentUser.id == checkOwnerShip.rows[0].user_id) {
     await pool.query(
-      `UPDATE comments SET rate = $1, comment = $2 WHERE c_id = $3`,
+      `UPDATE comments SET rate = $1, comment = $2, created_at = NOW() WHERE c_id = $3`,
       [rate, comment, req.params.c_id],
     );
     return res.status(200).json({

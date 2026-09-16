@@ -121,7 +121,7 @@ function Nav() {
               <li className="nav-item">
                 <Link
                   className="nav-link d-flex align-items-center"
-                  to={login ? "user/profile" : "/login"}
+                  to={login ? "/user/profile" : "/login"}
                 >
                   <span className="fs-4 me-lg-none me-1">
                     <i className="fa-solid fa-circle-user"></i>

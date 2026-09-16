@@ -35,6 +35,7 @@ const registerUser = asyncWrapper(async (req, res, next) => {
         name: row.name,
         email: row.email,
         role: row.role,
+        created_at: row.created_at,
       },
     });
   }
@@ -78,6 +79,7 @@ const registerSeller = asyncWrapper(async (req, res, next) => {
           name: row.name,
           email: row.email,
           role: row.role,
+          created_at: row.created_at,
         },
       });
     } catch (err) {
@@ -115,6 +117,7 @@ const registerAdmin = asyncWrapper(async (req, res, next) => {
         name: row.name,
         email: row.email,
         role: row.role,
+        created_at: row.created_at,
       },
     });
   }
@@ -143,6 +146,7 @@ const login = asyncWrapper(async (req, res, next) => {
           name: row.name,
           email: row.email,
           role: row.role,
+          created_at: row.created_at,
         },
       });
     } else {

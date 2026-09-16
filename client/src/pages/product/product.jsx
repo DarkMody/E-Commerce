@@ -15,8 +15,13 @@ function Product() {
   const [rate, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [clicked, setClicked] = useState(0);
-  // const [givenRate, setGivenRate] = useState(1);
-  const [comments, setComments] = useState();
+  const [comments, setComments] = useState([]);
+
+  // ---- pagination ----
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
   const [myComment, setMyComment] = useState();
   const [inCart, setInCart] = useState(false);
 
@@ -48,19 +53,28 @@ function Product() {
           if (data.data.length != 0) setInCart(true);
         });
     } else {
-      let cart = JSON.parse(localStorage.getItem("localCart")) || [];
+      let cart = JSON.parse(localStorage.getItem("localCart") || "[]");
       let check = cart.some((ele) => ele.productId == productId);
       if (check) setInCart(true);
     }
   }, [productId]);
+  const getComments = () => {
+    const params = new URLSearchParams();
+    params.set("page", page);
+    const query = params.toString();
 
-  useEffect(() => {
-    fetch(`${SERVER_URL}/api/comment/${productId}`)
+    fetch(`${SERVER_URL}/api/comment/${productId}${query ? `?${query}` : ""}`)
       .then((res) => res.json())
       .then((comment) => {
-        setComments(comment.data);
+        setComments((prev) =>
+          page === 1 ? comment.data : [...prev, ...comment.data],
+        );
+        setTotalPages(comment.pagination.totalPages ?? 1);
       });
-  }, [productId, myComment]);
+  };
+  useEffect(() => {
+    getComments();
+  }, [myComment, page]);
 
   const handleRateClick = (val) => {
     setRating(val);
@@ -100,6 +114,8 @@ function Product() {
       .then((res) => res.json())
       .then((data) => {
         if (data.status == "success") {
+          setPage(1);
+          getComments();
         }
         window.toast(data.status, data.message);
       });
@@ -117,6 +133,8 @@ function Product() {
             setMyComment();
             document.querySelector("textarea").value = "";
             setRating(0);
+            setPage(1);
+            getComments();
           }
           window.toast(data.status, data.message);
         });
@@ -137,7 +155,7 @@ function Product() {
           window.toast(data.status, data.message);
         });
     } else {
-      let cart = JSON.parse(localStorage.getItem("localCart")) || [];
+      let cart = JSON.parse(localStorage.getItem("localCart") || "[]");
       let check = cart.some((ele) => ele.productId == productId);
       if (!check) {
         cart.push({ productId, quantity: 1 });
@@ -164,7 +182,7 @@ function Product() {
           window.toast(data.status, data.message);
         });
     } else {
-      let cart = JSON.parse(localStorage.getItem("localCart")) || [];
+      let cart = JSON.parse(localStorage.getItem("localCart") || "[]");
       let newCart = cart.filter((ele) => ele.productId != productId);
       localStorage.setItem("localCart", JSON.stringify(newCart));
       setInCart(false);
@@ -172,6 +190,36 @@ function Product() {
     }
   };
   // End Cart Handling
+
+  const timeAgo = (created) => {
+    const now = Date.now();
+    const old = new Date(created).getTime();
+    const secDiff = Math.floor((now - old) / 1000);
+    const intervals = [
+      { label: "year", seconds: 31536000 },
+      { label: "month", seconds: 2592000 },
+      { label: "week", seconds: 604800 },
+      { label: "day", seconds: 86400 },
+      { label: "hour", seconds: 3600 },
+      { label: "minute", seconds: 60 },
+      { label: "second", seconds: 1 },
+    ];
+
+    if (secDiff < 5) return "just now";
+
+    for (const interval of intervals) {
+      const count = Math.floor(secDiff / interval.seconds);
+      if (count >= 1) {
+        return `${count} ${interval.label}${count > 1 ? "s" : ""} ago`;
+      }
+    }
+
+    return "just now";
+  };
+
+  const showMoreClick = async () => {
+    setPage((prev) => prev + 1);
+  };
 
   if (loading) return <h1>Loading</h1>;
   return (
@@ -260,7 +308,10 @@ function Product() {
             <div className="category d-flex flex-wrap gap-2 mt-3">
               {product &&
                 product.category.map((cat) => (
-                  <a href="#" id={cat.c_id}>
+                  <a
+                    href={`#/product?category=${encodeURIComponent(JSON.stringify(cat))}`}
+                    id={cat.c_id}
+                  >
                     {cat.name}
                   </a>
                 ))}
@@ -347,13 +398,15 @@ function Product() {
                         </span>
                       ))}
                     </div>
-                    <span>1 minute ago</span>
+                    <span>{timeAgo(comment.created_at)}</span>
                   </div>
                 </div>
                 <p className="text-start">{comment.comment}</p>
               </div>
             ))}
-          <Button text="Show More"></Button>
+          {page < totalPages && (
+            <Button text="Show More" onclick={showMoreClick}></Button>
+          )}
         </div>
       </div>
       <Follow></Follow>

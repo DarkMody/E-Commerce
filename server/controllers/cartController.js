@@ -24,6 +24,7 @@ const isInCart = asyncWrapper(async (req, res, next) => {
 
 const addToCart = asyncWrapper(async (req, res, next) => {
   const [userId, productId] = [req.currentUser.id, req.params.p_id];
+  let quantity = req.body.quantity;
   const product = await pool.query(`SELECT * FROM products WHERE p_id = $1`, [
     productId,
   ]);
@@ -65,10 +66,12 @@ const addToCart = asyncWrapper(async (req, res, next) => {
     );
     return next(error);
   }
-  await pool.query(`INSERT INTO cart (user_id, product_id) VALUES ($1, $2)`, [
-    userId,
-    productId,
-  ]);
+  quantity = Math.min(product.rows[0].quantity, quantity || 1);
+
+  await pool.query(
+    `INSERT INTO cart (user_id, product_id,quantity) VALUES ($1, $2,$3)`,
+    [userId, productId, quantity],
+  );
   res.json({
     status: httpStatusText.SUCCESS,
     message: "Product has been added to your cart",

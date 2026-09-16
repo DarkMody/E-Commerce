@@ -9,15 +9,35 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 function Home() {
-  const [products, setProducts] = useState([]);
+  const [topSelling, setTopSelling] = useState([]);
+  const [newArrival, setNewArrival] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const buildQuery = (sort) => {
+    const params = new URLSearchParams();
+    params.set("page", 1);
+    params.set("inStock", "true");
+    params.set("sort", sort);
+    return params.toString();
+  };
+
   useEffect(() => {
-    fetch(`${SERVER_URL}/api/products`)
+    let query = buildQuery("sold-desc");
+    fetch(`${SERVER_URL}/api/products${query ? `?${query}` : ""}`)
       .then((response) => response.json())
       .then((data) => {
-        setProducts(data.data);
+        if (data.status == "success") setTopSelling(data.data);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
+    query = buildQuery("created_at-desc");
+    fetch(`${SERVER_URL}/api/products${query ? `?${query}` : ""}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status == "success") setNewArrival(data.data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   function scroll() {
@@ -55,40 +75,32 @@ function Home() {
         <div className="best-products mb-3">
           <h2 className="text-uppercase mb-3">Top Selling</h2>
           <div className="row mb-2">
-            {products
-              .sort((a, b) => b.people - a.people)
-              .slice(0, 4)
-              .map((obj) => (
-                <div className="col-sm-6 col-md-4 col-lg-3 mb-3" key={obj.p_id}>
-                  <Link
-                    className="text-decoration-none"
-                    to={`/product/${obj.p_id}`}
-                  >
-                    <Card product={obj}></Card>
-                  </Link>
-                </div>
-              ))}
+            {topSelling.slice(0, 4).map((obj) => (
+              <div className="col-sm-6 col-md-4 col-lg-3 mb-3" key={obj.p_id}>
+                <Link
+                  className="text-decoration-none"
+                  to={`/product/${obj.p_id}`}
+                >
+                  <Card product={obj}></Card>
+                </Link>
+              </div>
+            ))}
           </div>
-          <Button text="Show More"></Button>
         </div>
         <div className="new-products mb-3">
           <h2 className="text-uppercase mb-3">New Arrival</h2>
           <div className="row mb-2">
-            {products
-              .sort((a, b) => b.rate - a.rate)
-              .slice(0, 4)
-              .map((obj) => (
-                <div className="col-sm-6 col-md-4 col-lg-3 mb-3" key={obj.p_id}>
-                  <Link
-                    className="text-decoration-none"
-                    to={`/product/${obj.p_id}`}
-                  >
-                    <Card product={obj}></Card>
-                  </Link>
-                </div>
-              ))}
+            {newArrival.slice(0, 4).map((obj) => (
+              <div className="col-sm-6 col-md-4 col-lg-3 mb-3" key={obj.p_id}>
+                <Link
+                  className="text-decoration-none"
+                  to={`/product/${obj.p_id}`}
+                >
+                  <Card product={obj}></Card>
+                </Link>
+              </div>
+            ))}
           </div>
-          <Button text="Show More"></Button>
         </div>
       </div>
       <Follow></Follow>

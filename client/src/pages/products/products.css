@@ -87,3 +87,95 @@
   background-color: transparent;
 }
 /* End category */
+
+/* ---- Pagination bar ---- */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.page-item {
+  display: flex;
+}
+
+.page-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  background-color: #fff;
+  color: #000;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.page-link:hover {
+  background-color: #f0f0f0;
+  border-color: #ccc;
+}
+
+.page-item.active .page-link {
+  background-color: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.page-item.disabled .page-link {
+  color: #bbb;
+  border-color: #eee;
+  background-color: #fafafa;
+  cursor: not-allowed;
+}
+
+.page-item.disabled .page-link:hover {
+  background-color: #fafafa;
+  border-color: #eee;
+}
+
+/* Previous/Next buttons slightly wider than number buttons */
+.page-item:first-child .page-link,
+.page-item:last-child .page-link {
+  min-width: 90px;
+  font-weight: 600;
+}
+
+/* Ellipsis */
+.page-item.disabled .page-link {
+  border: none;
+  background: transparent;
+  min-width: 24px;
+  padding: 0 4px;
+}
+
+@media (max-width: 576px) {
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .page-item:first-child .page-link,
+  .page-item:last-child .page-link {
+    min-width: 70px;
+    font-size: 13px;
+  }
+
+  .page-link {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+}
+/* End Pagination bar */
