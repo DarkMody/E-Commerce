@@ -25,7 +25,10 @@ const fileFilter = (req, file, cb) => {
   );
 };
 
+const memoryStorage = multer.memoryStorage();
+
 module.exports = {
   diskStorage,
   fileFilter,
+  memoryStorage,
 };

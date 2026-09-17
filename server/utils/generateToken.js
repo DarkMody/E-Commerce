@@ -7,6 +7,8 @@ module.exports = async (payLoad, res) => {
       name: payLoad.name,
       email: payLoad.email,
       role: payLoad.role,
+      created_at: payLoad.created_at,
+      image: payLoad.image,
     },
     process.env.JWT_SECRET,
     {

@@ -192,6 +192,7 @@ const editUser = asyncWrapper(async (req, res, next) => {
     req.currentUser.id === req.params.u_id ||
     req.currentUser.role === "admin"
   ) {
+    console.log(req.body);
     const allowedFields = ["name", "email", "role"];
     const fieldsToUpdate = Object.keys(req.body).filter((key) =>
       allowedFields.includes(key),
@@ -217,7 +218,10 @@ const editUser = asyncWrapper(async (req, res, next) => {
         "select * from users where email = $1",
         [req.body.email],
       );
-      if (validate.rows.length !== 0) {
+      if (
+        validate.rows.length !== 0 &&
+        validate.rows[0].email != req.body.email
+      ) {
         const error = appError.create(
           "Email Already Exists",
           409,

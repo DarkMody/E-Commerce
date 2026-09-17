@@ -5,8 +5,8 @@ const cors = require("cors");
 const app = express();
 const multer = require("multer");
 const path = require("path");
-const { diskStorage, fileFilter } = require("./utils/image");
-const upload = multer({ storage: diskStorage, fileFilter });
+// const { diskStorage, fileFilter } = require("./utils/image");
+// const upload = multer({ storage: diskStorage, fileFilter });
 const imageValidating = require("./middlewares/imageChecking");
 const port = process.env.PORT || 5000;
 const userController = require("./controllers/userController");
@@ -51,8 +51,13 @@ app.post("/api/register/seller", userController.registerSeller);
 app.post("/api/register/admin", userController.registerAdmin); // Temporary
 app.post("/api/login", userController.login);
 app.post("/api/logout", verifyToken, userController.logout);
-app.delete("/api/user/delete/:u_id", verifyToken, userController.deleteUser);
-app.patch("/api/user/edit/:u_id", verifyToken, userController.editUser);
+app.delete("/api/user/delete", verifyToken, userController.deleteUser);
+app.patch(
+  "/api/user/edit/:u_id",
+  verifyToken,
+  imageValidating.profileImageValidating,
+  userController.editUser,
+);
 
 //Product APIS
 app.get("/api/products", productController.getAllProducts);
@@ -65,7 +70,7 @@ app.get("/api/products/:p_id", productController.getProduct);
 app.post(
   "/api/product/add",
   verifyToken,
-  imageValidating,
+  imageValidating.productImageValidating,
   productController.addProduct,
 );
 app.delete(
@@ -76,7 +81,7 @@ app.delete(
 app.patch(
   "/api/product/edit/:p_id",
   verifyToken,
-  imageValidating,
+  imageValidating.productImageValidating,
   productController.editProduct,
 );
 
