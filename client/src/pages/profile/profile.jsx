@@ -23,7 +23,6 @@ function Profile() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordSaving, setPasswordSaving] = useState(false);
-  const [passwordError, setPasswordError] = useState("");
 
   // --- Delete profile state ---
   const [deleting, setDeleting] = useState(false);
@@ -72,7 +71,7 @@ function Profile() {
       formData.append("name", editName);
       formData.append("email", editEmail);
       if (imageFile) {
-        formData.append("images", imageFile);
+        formData.append("image", imageFile);
       }
 
       const res = await fetch(`${SERVER_URL}/api/user/edit/${user.id}`, {
@@ -98,7 +97,6 @@ function Profile() {
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
-    setPasswordError("");
     setShowPasswordModal(true);
   }
 
@@ -109,34 +107,29 @@ function Profile() {
 
   async function handlePasswordSubmit(e) {
     e.preventDefault();
-    setPasswordError("");
 
-    if (newPassword.length < 6) {
-      setPasswordError("New password must be at least 6 characters.");
+    if (newPassword.length < 5) {
+      window.toast("error", "New password must be at least 5 characters.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError("New passwords do not match.");
+      window.toast("error", "New passwords do not match.");
       return;
     }
 
     setPasswordSaving(true);
     try {
       const res = await fetch(`${SERVER_URL}/api/user/password`, {
-        method: "PUT",
+        method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || "Could not change password.");
+      const data = await res.json();
+      if (data.status == "success") {
+        setShowPasswordModal(false);
       }
-
-      setShowPasswordModal(false);
-    } catch (err) {
-      setPasswordError(err.message || "Something went wrong.");
+      window.toast(data.status, data.message);
     } finally {
       setPasswordSaving(false);
     }
@@ -149,17 +142,17 @@ function Profile() {
     if (!confirmed) return;
 
     setDeleting(true);
-    try {
-      const res = await fetch(`${SERVER_URL}/api/user`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Could not delete profile.");
+    const res = await fetch(`${SERVER_URL}/api/user/delete/${user.id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    const data = await res.json();
+    console.log(data);
+    window.toast(data.status, data.message);
+    if (data.status == "success") {
       window.location.href = "/";
-    } catch (err) {
-      alert(err.message || "Something went wrong.");
-      setDeleting(false);
     }
+    setDeleting(false);
   }
 
   if (loading) {
@@ -362,10 +355,6 @@ function Profile() {
                   required
                 />
               </label>
-
-              {passwordError && (
-                <p className="profile-form-error">{passwordError}</p>
-              )}
 
               <div className="profile-form-actions">
                 <button
