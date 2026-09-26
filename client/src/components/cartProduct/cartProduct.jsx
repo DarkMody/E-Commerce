@@ -21,11 +21,14 @@ function CartProduct(param) {
         .then((data) => {
           if (data.status == "success") {
             setQuantity(value);
+            param.onQuantityChange(product.p_id, value);
           } else {
             window.toast(data.status, data.message);
             if (data.status == "error") {
               let temp = data.message.split(" ");
-              setQuantity(temp[temp.length - 1]);
+              const maxLimit = temp[temp.length - 1];
+              setQuantity(maxLimit);
+              param.onQuantityChange(product.p_id, maxLimit);
             }
           }
         });
@@ -37,6 +40,7 @@ function CartProduct(param) {
       if (data.data.product.quantity >= value) setQuantity(value);
       else {
         setQuantity(data.data.product.quantity);
+        param.onQuantityChange(product.p_id, data.data.product.quantity);
         window.toast(
           "error",
           `The stock is just ${data.data.product.quantity}`,
@@ -75,7 +79,7 @@ function CartProduct(param) {
           if (data.status == "success") {
             e.target.closest(".product").style.opacity = "0";
             setTimeout(() => {
-              param.onRemove();
+              param.onRemove(product.p_id);
               e.target.closest(".product").remove();
             }, 500);
           }
@@ -88,7 +92,7 @@ function CartProduct(param) {
 
       e.target.closest(".product").style.opacity = "0";
       setTimeout(() => {
-        param.onRemove();
+        param.onRemove(product.p_id);
         e.target.closest(".product").remove();
       }, 500);
     }

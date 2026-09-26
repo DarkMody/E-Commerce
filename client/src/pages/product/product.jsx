@@ -169,7 +169,7 @@ function Product() {
   };
 
   const deleteFromCart = async () => {
-    if (window.isLoggedIn) {
+    if (window.loggedIn) {
       await fetch(`${SERVER_URL}/api/cart/${productId}`, {
         method: "DELETE",
         credentials: "include",
@@ -186,7 +186,7 @@ function Product() {
       let newCart = cart.filter((ele) => ele.productId != productId);
       localStorage.setItem("localCart", JSON.stringify(newCart));
       setInCart(false);
-      window.toast("success", "Product has been deleted from your cart");
+      // window.toast("success", "Product has been deleted from your cart");
     }
   };
   // End Cart Handling
@@ -196,13 +196,13 @@ function Product() {
     const old = new Date(created).getTime();
     const secDiff = Math.floor((now - old) / 1000);
     const intervals = [
-      { label: "year", seconds: 31536000 },
-      { label: "month", seconds: 2592000 },
-      { label: "week", seconds: 604800 },
-      { label: "day", seconds: 86400 },
-      { label: "hour", seconds: 3600 },
-      { label: "minute", seconds: 60 },
-      { label: "second", seconds: 1 },
+      { label: "Y", seconds: 31536000 },
+      { label: "M", seconds: 2592000 },
+      { label: "W", seconds: 604800 },
+      { label: "D", seconds: 86400 },
+      { label: "H", seconds: 3600 },
+      { label: "Min", seconds: 60 },
+      { label: "Sec", seconds: 1 },
     ];
 
     if (secDiff < 5) return "just now";
@@ -354,7 +354,7 @@ function Product() {
               {/* {myComment ? myComment.comment : ""} */}
             </textarea>
           </div>
-          <div className="buttons">
+          <div className="buttons d-flex gap-1 justify-content-center">
             <Button
               text={myComment ? "Edit Comment" : "Comment"}
               className="mx-1"
@@ -379,7 +379,7 @@ function Product() {
                 <div className="line d-flex align-items-center justify-content-between mb-2">
                   <div className="d-flex align-items-center">
                     <img
-                      src="https://www.perfocal.com/blog/content/images/size/w960/2021/01/Perfocal_17-11-2019_TYWFAQ_100_standard-3.jpg"
+                      src={`${SERVER_URL}/uploads/${comment.image}`}
                       alt=""
                     />
                     <span className="ms-2 fw-bold">{comment.name}</span>

@@ -11,8 +11,11 @@ import { Link } from "react-router-dom";
 function Cart() {
   const [cartProduct, setCartProduct] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cartCount, setCartCount] = useState(0);
-
+  const cartCount = cartProduct.length;
+  const totalPrice = cartProduct.reduce(
+    (sum, p) => sum + p.price * p.quantity,
+    0,
+  );
   useEffect(() => {
     if (window.loggedIn) {
       fetch(`${SERVER_URL}/api/cart`, {
@@ -21,7 +24,6 @@ function Cart() {
         .then((response) => response.json())
         .then((data) => {
           setCartProduct(data.data);
-          setCartCount(data.data.length);
           setLoading(false);
         });
     } else {
@@ -47,7 +49,6 @@ function Cart() {
           const validProducts = results.filter((product) => product !== null);
 
           setCartProduct(validProducts);
-          setCartCount(validProducts.length);
         } finally {
           setLoading(false);
         }
@@ -56,8 +57,14 @@ function Cart() {
     }
   }, []);
 
-  const onRemoveHandling = () => {
-    setCartCount(cartCount - 1);
+  const updateQuantity = (p_id, quantity) => {
+    setCartProduct((prev) =>
+      prev.map((p) => (p.p_id === p_id ? { ...p, quantity } : p)),
+    );
+  };
+
+  const onRemoveHandling = (p_id) => {
+    setCartProduct((prev) => prev.filter((p) => p.p_id !== p_id));
   };
 
   if (loading) {
@@ -83,10 +90,15 @@ function Cart() {
             >
               {cartProduct.map((product) => (
                 <CartProduct
+                  key={product.p_id}
                   product={product}
                   onRemove={onRemoveHandling}
-                ></CartProduct>
+                  onQuantityChange={updateQuantity}
+                />
               ))}
+            </div>
+            <div className="fs-3 fw-bold mb-3">
+              Total Price : ${totalPrice.toFixed(2)}
             </div>
             <Link to="/cart/pay">
               <Button text="Buy Now"></Button>

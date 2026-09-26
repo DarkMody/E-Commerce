@@ -7,13 +7,13 @@ const getProductComments = asyncWrapper(async (req, res, next) => {
   const { page } = req.query;
   const pageSize = 5;
   const count = await pool.query(
-    `SELECT c.*, u.name from comments as c
+    `SELECT c.*, u.name, u.image from comments as c
     JOIN users as u ON c.user_id = u.u_id
     WHERE product_id = $1`,
     [req.params.p_id],
   );
   const result = await pool.query(
-    `SELECT c.*, u.name from comments as c
+    `SELECT c.*, u.name, u.image from comments as c
     JOIN users as u ON c.user_id = u.u_id
     WHERE product_id = $1
     LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`,

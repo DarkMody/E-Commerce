@@ -10,6 +10,7 @@ import Cart from "./pages/cart/cart";
 import AddProduct from "./pages/addProduct/addProduct";
 import MyProduct from "./pages/myProduct/myProduct";
 import Profile from "./pages/profile/profile";
+import Pay from "./pages/pay/pay";
 import { SERVER_URL } from "./config";
 import EditProduct from "./pages/editProduct/editProduct";
 import ScrollToTop from "./components/scrollToTop/scrollToTop";
@@ -80,6 +81,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/user/profile" element={<Profile />} />
+          <Route path="/cart/pay" element={<Pay />} />
         </Routes>
       </HashRouter>
       <div id="toast-box"></div>

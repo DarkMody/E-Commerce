@@ -24,10 +24,14 @@ const isInCart = asyncWrapper(async (req, res, next) => {
 
 const addToCart = asyncWrapper(async (req, res, next) => {
   const [userId, productId] = [req.currentUser.id, req.params.p_id];
-  let quantity = req.body.quantity;
+  let quantity = 1;
+  if (req.body) {
+    quantity = req.body.quantity ?? 1;
+  }
   const product = await pool.query(`SELECT * FROM products WHERE p_id = $1`, [
     productId,
   ]);
+
   if (product.rows.length === 0) {
     const error = appError.create(
       "Product isn't here",
@@ -44,7 +48,6 @@ const addToCart = asyncWrapper(async (req, res, next) => {
     );
     return next(error);
   }
-
   const check = await pool.query(
     `SELECT * FROM cart WHERE product_id = $1 AND user_id = $2`,
     [productId, userId],
@@ -137,6 +140,10 @@ const editCart = asyncWrapper(async (req, res, next) => {
     );
     res.json({ status: httpStatusText.SUCCESS, message: "Edit done" });
   } else {
+    pool.query(
+      `UPDATE cart SET quantity = $1 WHERE product_id = $2 AND user_id = $3`,
+      [product.rows[0].quantity, productId, userId],
+    );
     const error = appError.create(
       `The stock is just ${product.rows[0].quantity}`,
       401,
