@@ -14,6 +14,7 @@ const productController = require("./controllers/productController");
 const categoryController = require("./controllers/categoryController");
 const commentController = require("./controllers/commentController");
 const cartController = require("./controllers/cartController");
+const orderController = require("./controllers/orderController");
 const createTables = require("./data/createTables");
 const verifyToken = require("./middlewares/verifyToken");
 const verifyRole = require("./middlewares/verifyRole");
@@ -102,6 +103,16 @@ app.get("/api/cart/:p_id", verifyToken, cartController.isInCart);
 app.post("/api/cart/:p_id", verifyToken, cartController.addToCart);
 app.delete("/api/cart/:p_id", verifyToken, cartController.deleteFromCart);
 app.patch("/api/cart/:p_id", verifyToken, cartController.editCart);
+
+//Order APIS
+app.get(
+  "/api/order",
+  verifyToken,
+  verifyRole("admin", "manager"),
+  orderController.getAllOrders,
+);
+app.get("/api/user/order", verifyToken, orderController.getOrders);
+app.post("/api/order", verifyToken, orderController.makeOrder);
 
 // Error Handeling
 app.use((req, res) => {
