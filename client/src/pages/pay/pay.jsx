@@ -11,7 +11,7 @@ const METHODS = [
 
 // allows an optional +, then 10-15 digits (spaces/dashes are ignored)
 const isValidPhone = (value) =>
-  /^\+?\d{10,15}$/.test(value.replace(/[\s-]/g, ""));
+  /^(?:\+20|0)1[0125]\d{8}$/.test(value.replace(/[\s-]/g, ""));
 
 function Pay() {
   const [address, setAddress] = useState(null);
@@ -70,7 +70,7 @@ function Pay() {
           <p className="co-sub">The courier will call you on this number.</p>
           <div className={`co-field ${showPhoneError ? "has-error" : ""}`}>
             <input
-              type="tel"
+              type="number"
               inputMode="tel"
               autoComplete="tel"
               placeholder="e.g. +20 100 123 4567"
@@ -83,7 +83,7 @@ function Pay() {
             />
             {showPhoneError && (
               <p id="phone-error" className="co-error" role="alert">
-                Enter a valid phone number (10–15 digits).
+                Enter valid egyption phone number.
               </p>
             )}
           </div>

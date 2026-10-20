@@ -113,6 +113,12 @@ app.get(
 );
 app.get("/api/user/order", verifyToken, orderController.getOrders);
 app.post("/api/order", verifyToken, orderController.makeOrder);
+app.patch("/api/order/:o_id", verifyToken, orderController.editOrder);
+app.get(
+  "/api/order/product/:o_id",
+  verifyToken,
+  orderController.getOrderProduct,
+);
 
 // Error Handeling
 app.use((req, res) => {

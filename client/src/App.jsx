@@ -11,9 +11,11 @@ import AddProduct from "./pages/addProduct/addProduct";
 import MyProduct from "./pages/myProduct/myProduct";
 import Profile from "./pages/profile/profile";
 import Pay from "./pages/pay/pay";
+import History from "./pages/history/history";
 import { SERVER_URL } from "./config";
 import EditProduct from "./pages/editProduct/editProduct";
 import ScrollToTop from "./components/scrollToTop/scrollToTop";
+import HistoryOrder from "./pages/historyOrder/historyOrder";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -82,6 +84,8 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/user/profile" element={<Profile />} />
           <Route path="/cart/pay" element={<Pay />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/history/:o_id" element={<HistoryOrder />} />
         </Routes>
       </HashRouter>
       <div id="toast-box"></div>
