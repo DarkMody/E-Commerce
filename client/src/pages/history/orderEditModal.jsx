@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react";
 import { SERVER_URL } from "../../config";
-
-const IN_PROCESS_STATUS = "processing";
+import AddressPicker from "../../components/addressPicker/addressPicker";
 
 export default function OrderEditModal({ order, onClose, onSaved }) {
   const [phone, setPhone] = useState(order.phone_number || "");
-  const [location, setLocation] = useState(order.location || "");
+  const [location, setLocation] = useState(JSON.parse(order.location) || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const canEditLocation = String(order.status).toLowerCase() === "processing";
+  const canEditPhone =
+    String(order.status).toLowerCase() === "processing" ||
+    String(order.status).toLowerCase === "shipped";
 
-  // Location can only be edited while the order is still in process.
-  const canEditLocation =
-    String(order.status).toLowerCase() === IN_PROCESS_STATUS;
-
-  // Close on Escape key.
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
@@ -23,11 +21,10 @@ export default function OrderEditModal({ order, onClose, onSaved }) {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!phone.trim()) return setError("Phone number is required.");
-    if (canEditLocation && !location.trim())
-      return setError("Location is required.");
+    if (canEditLocation && !location)
+      return window.toast("error", "Location is required.");
 
     setSaving(true);
-    setError("");
     try {
       const body = canEditLocation ? { phone, location } : { phone };
       const res = await fetch(`${SERVER_URL}/api/order/${order.o_id}`, {
@@ -47,10 +44,8 @@ export default function OrderEditModal({ order, onClose, onSaved }) {
 
   return (
     <>
-      {/* Dark backdrop */}
       <div className="modal-backdrop show"></div>
 
-      {/* Modal (d-block shows it without needing Bootstrap's JS) */}
       <div
         className="modal d-block"
         tabIndex="-1"
@@ -86,6 +81,7 @@ export default function OrderEditModal({ order, onClose, onSaved }) {
                   className="form-control"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  disabled={!canEditPhone}
                 />
               </div>
 
@@ -93,13 +89,14 @@ export default function OrderEditModal({ order, onClose, onSaved }) {
                 <label htmlFor="order-location" className="form-label">
                   Location
                 </label>
-                <input
-                  id="order-location"
-                  className="form-control"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  disabled={!canEditLocation}
-                />
+                {canEditLocation && (
+                  <AddressPicker onSelect={setLocation} def={location} />
+                )}
+                <div className={`co-selected ${location ? "" : "is-empty"}`}>
+                  {location
+                    ? location.formattedAddress
+                    : "No location picked yet"}
+                </div>
                 {!canEditLocation && (
                   <div className="form-text">
                     The location can't be changed once the order has left

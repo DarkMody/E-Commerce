@@ -108,3 +108,16 @@
   outline: 3px solid var(--yellow);
   outline-offset: 2px;
 }
+.co-selected {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border-left: 5px solid var(--green);
+  background: var(--search-bg);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+.co-selected.is-empty {
+  border-left-color: var(--place-holder);
+  color: #8a8a8a;
+}

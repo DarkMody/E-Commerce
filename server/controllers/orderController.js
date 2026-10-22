@@ -160,15 +160,29 @@ const editOrder = asyncWrapper(async (req, res, next) => {
 });
 
 const getOrderProduct = asyncWrapper(async (req, res, next) => {
-  const result = await pool.query(
-    `SELECT p.*, op.quantity AS ordered_quantity, i.image FROM products as p
-    JOIN order_product as op ON p.p_id = op.product_id
-    JOIN orders as o ON o.o_id = op.order_id
-    JOIN images as i ON i.product_id = p.p_id
-    WHERE op.order_id = $1 AND i.sort_order = 0`,
-    [req.params.o_id],
+  const order = await pool.query(`SELECT * FROM orders WHERE o_id = $1`, [
+    req.params.o_id,
+  ]);
+  if (
+    order.rows[0].user_id == req.currentUser.id ||
+    req.currentUser.role == "admin"
+  ) {
+    const result = await pool.query(
+      `SELECT p.*, op.quantity AS ordered_quantity, i.image FROM products as p
+      JOIN order_product as op ON p.p_id = op.product_id
+      JOIN orders as o ON o.o_id = op.order_id
+      JOIN images as i ON i.product_id = p.p_id
+      WHERE op.order_id = $1 AND i.sort_order = 0`,
+      [req.params.o_id],
+    );
+    return res.json({ status: httpStatusText.SUCCESS, data: result.rows });
+  }
+  const error = appError.create(
+    "you don't have the right to access this order's products",
+    401,
+    httpStatusText.ERROR,
   );
-  res.json({ status: httpStatusText.SUCCESS, data: result.rows });
+  return next(error);
 });
 module.exports = {
   getAllOrders,

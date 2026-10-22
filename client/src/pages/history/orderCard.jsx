@@ -19,21 +19,23 @@ const formatDate = (d) =>
 export default function OrderCard({ order, onEdit }) {
   const statusKey = String(order.status).toLowerCase();
   const cancelOrder = async (order) => {
-    try {
-      const body = { status: "Cancelled" };
-      const res = await fetch(`${SERVER_URL}/api/order/${order.o_id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error("Could not update the order.");
-      const updated = await res.json();
-      window.toast(updated.status, updated.message);
-    } catch (err) {
-      window.toast("error", err.message);
+    if (window.confirm("You want to cancel order ?")) {
+      try {
+        const body = { status: "Cancelled" };
+        const res = await fetch(`${SERVER_URL}/api/order/${order.o_id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error("Could not update the order.");
+        const updated = await res.json();
+        window.toast(updated.status, updated.message);
+      } catch (err) {
+        window.toast("error", err.message);
+      }
     }
   };
   return (
@@ -44,7 +46,7 @@ export default function OrderCard({ order, onEdit }) {
             to={`/history/${order.o_id}`}
             className="order-card__label order-id"
           >
-            {order.o_id}
+            Order ID: {order.o_id}
           </Link>
           <p className="order-card__value">{formatDate(order.created_at)}</p>
         </div>

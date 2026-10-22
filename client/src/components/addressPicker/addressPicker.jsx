@@ -9,12 +9,12 @@ const pinIcon = L.divIcon({
   iconAnchor: [14, 28],
 });
 
-function AddressPicker({ onSelect }) {
+function AddressPicker({ onSelect, def }) {
   const mapEl = useRef(null);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const timer = useRef(null);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(def ? def.formattedAddress : "");
   const [suggestions, setSuggestions] = useState([]);
   const [locating, setLocating] = useState(false);
 
@@ -26,6 +26,7 @@ function AddressPicker({ onSelect }) {
       const data = await res.json();
       setQuery(data.display_name || "");
       onSelect({ lat, lng, formattedAddress: data.display_name });
+      console.log(onSelect);
     } catch {
       onSelect({
         lat,
@@ -36,7 +37,8 @@ function AddressPicker({ onSelect }) {
   };
 
   useEffect(() => {
-    const start = [30.0131, 31.2089];
+    console.log(def);
+    const start = def ? [def.lat, def.lng] : [30.0131, 31.2089];
     const map = L.map(mapEl.current, { zoomControl: false }).setView(start, 15);
     L.control.zoom({ position: "bottomright" }).addTo(map);
     mapRef.current = map;
