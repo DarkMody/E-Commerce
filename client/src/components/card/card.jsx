@@ -28,6 +28,10 @@ function Card(param) {
           <div className="price fw-bold fs-4">${product.price}</div>
           {product.quantity == 0 ? (
             <div className="stock fw-bold fs-6 p-2">Out of Stock</div>
+          ) : param.sellerPage ? (
+            <div className="fw-bold fs-6 p-2">
+              Remaining : {product.quantity}
+            </div>
           ) : (
             ""
           )}

@@ -8,6 +8,8 @@ const path = require("path");
 const imageValidating = require("./middlewares/imageChecking");
 const port = process.env.PORT || 5000;
 const userController = require("./controllers/userController");
+const sellerController = require("./controllers/sellerController");
+const adminController = require("./controllers/adminController");
 const productController = require("./controllers/productController");
 const categoryController = require("./controllers/categoryController");
 const commentController = require("./controllers/commentController");
@@ -38,16 +40,8 @@ app.listen(port, () => {
 });
 
 // User APIS
-app.get(
-  "/api/users",
-  verifyToken,
-  verifyRole("admin", "manager"),
-  userController.getAllUsers,
-);
 app.get("/api/user", verifyToken, userController.getUser);
 app.post("/api/register/user", userController.registerUser);
-app.post("/api/register/seller", userController.registerSeller);
-app.post("/api/register/admin", userController.registerAdmin); // Temporary
 app.post("/api/login", userController.login);
 app.post("/api/logout", verifyToken, userController.logout);
 app.delete("/api/user/delete/:u_id", verifyToken, userController.deleteUser);
@@ -103,12 +97,6 @@ app.delete("/api/cart/:p_id", verifyToken, cartController.deleteFromCart);
 app.patch("/api/cart/:p_id", verifyToken, cartController.editCart);
 
 //Order APIS
-app.get(
-  "/api/order",
-  verifyToken,
-  verifyRole("admin", "manager"),
-  orderController.getAllOrders,
-);
 app.get("/api/user/order", verifyToken, orderController.getOrders);
 app.post("/api/order", verifyToken, orderController.makeOrder);
 app.patch("/api/order/:o_id", verifyToken, orderController.editOrder);
@@ -116,6 +104,48 @@ app.get(
   "/api/order/product/:o_id",
   verifyToken,
   orderController.getOrderProduct,
+);
+
+//Admin APIS
+app.post("/api/register/admin", adminController.registerAdmin); // Temporary
+app.get(
+  "/api/admin/stats",
+  verifyToken,
+  verifyRole("admin"),
+  adminController.getStatus,
+);
+app.get(
+  "/api/users",
+  verifyToken,
+  verifyRole("admin", "manager"),
+  adminController.getAllUsers,
+);
+app.get(
+  "/api/order",
+  verifyToken,
+  verifyRole("admin", "manager"),
+  adminController.getAllOrders,
+);
+app.patch(
+  "/api/role/edit/:u_id",
+  verifyToken,
+  verifyRole("admin"),
+  adminController.editRoles,
+);
+app.delete(
+  "/api/delete/user/:u_id",
+  verifyToken,
+  verifyRole("admin"),
+  adminController.deleteUser,
+);
+
+// Seller APIS
+app.post("/api/register/seller", sellerController.registerSeller);
+app.get(
+  "/api/seller/stats",
+  verifyToken,
+  verifyRole("seller"),
+  sellerController.getStats,
 );
 
 // Error Handeling

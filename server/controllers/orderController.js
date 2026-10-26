@@ -3,11 +3,6 @@ const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
 
-const getAllOrders = asyncWrapper(async (req, res, next) => {
-  const result = await pool.query(`SELECT * FROM orders`);
-  return res.json({ status: httpStatusText.SUCCESS, data: result.rows });
-});
-
 const getOrders = asyncWrapper(async (req, res, next) => {
   const result = await pool.query(`SELECT * FROM orders WHERE user_id = $1`, [
     req.currentUser.id,
@@ -38,7 +33,6 @@ const makeOrder = asyncWrapper(async (req, res, next) => {
     VALUES($1, $2, $3, $4, $5) RETURNING *`,
     [userId, location, phoneNumber, method, totalPrice.rows[0].total_price],
   );
-  console.log(order);
   try {
     const products = await pool.query(`SELECT * FROM cart WHERE user_id = $1`, [
       userId,
@@ -129,7 +123,6 @@ const editOrder = asyncWrapper(async (req, res, next) => {
         ],
       );
     } catch (err) {
-      console.log(err);
       const error = appError.create(
         "Couldn't edit plz try again",
         500,
@@ -184,8 +177,8 @@ const getOrderProduct = asyncWrapper(async (req, res, next) => {
   );
   return next(error);
 });
+
 module.exports = {
-  getAllOrders,
   getOrders,
   makeOrder,
   editOrder,

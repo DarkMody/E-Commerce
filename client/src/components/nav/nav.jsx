@@ -74,11 +74,17 @@ function Nav() {
                 JSON.parse(localStorage.getItem("userData")).role ===
                   "seller" && (
                   <li className="nav-item">
-                    <Link
-                      className="nav-link"
-                      to={`/product/view/${JSON.parse(localStorage.getItem("userData")).id}`}
-                    >
-                      Your Products
+                    <Link className="nav-link" to={`/seller`}>
+                      Seller Dashboard
+                    </Link>
+                  </li>
+                )}
+              {login &&
+                JSON.parse(localStorage.getItem("userData")).role ===
+                  "admin" && (
+                  <li className="nav-item">
+                    <Link className="nav-link" to={`/admin`}>
+                      Admin Dashboard
                     </Link>
                   </li>
                 )}

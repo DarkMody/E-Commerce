@@ -8,7 +8,9 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import Cart from "./pages/cart/cart";
 import AddProduct from "./pages/addProduct/addProduct";
-import MyProduct from "./pages/myProduct/myProduct";
+import SellerLayout from "./pages/sellerDashboard/SellerLayout";
+import SellerMain from "./pages/sellerDashboard/SellerMain";
+import SellerProducts from "./pages/sellerDashboard/sellerProducts";
 import Profile from "./pages/profile/profile";
 import Pay from "./pages/pay/pay";
 import History from "./pages/history/history";
@@ -16,6 +18,10 @@ import { SERVER_URL } from "./config";
 import EditProduct from "./pages/editProduct/editProduct";
 import ScrollToTop from "./components/scrollToTop/scrollToTop";
 import HistoryOrder from "./pages/historyOrder/historyOrder";
+import AdminLayout from "./pages/adminDashboard/AdminLayout";
+import AdminMain from "./pages/adminDashboard/AdminMain";
+import AdminRoles from "./pages/adminDashboard/AdminRoles";
+import AdminOrders from "./pages/adminDashboard/AdminOrders";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -76,7 +82,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/product/" element={<Products />} />
           <Route path="/product/:productId" element={<Product />} />
-          <Route path={"/product/view/:sellerId"} element={<MyProduct />} />
+          <Route path="/seller" element={<SellerLayout />}>
+            <Route index element={<SellerMain />} />
+            <Route path="products" element={<SellerProducts />} />
+          </Route>{" "}
           <Route path="/product/add" element={<AddProduct />} />
           <Route path="/product/edit/:productId" element={<EditProduct />} />
           <Route path="/login" element={<Login />} />
@@ -86,6 +95,11 @@ function App() {
           <Route path="/cart/pay" element={<Pay />} />
           <Route path="/history" element={<History />} />
           <Route path="/history/:o_id" element={<HistoryOrder />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminMain />} />
+            <Route path="roles" element={<AdminRoles />} />
+            <Route path="orders" element={<AdminOrders />} />
+          </Route>
         </Routes>
       </HashRouter>
       <div id="toast-box"></div>

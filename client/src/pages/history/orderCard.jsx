@@ -68,19 +68,21 @@ export default function OrderCard({ order, onEdit }) {
         <span className="order-card__value">{order.method}</span>
       </div>
 
-      <div className="d-flex jusify-content-center gap-1">
-        <button className="btn-dark-zon w-100" onClick={() => onEdit(order)}>
-          Edit order
-        </button>
-        {statusKey == "processing" && (
-          <button
-            className="btn status-red  w-100"
-            onClick={() => cancelOrder(order)}
-          >
-            Cancel
+      {onEdit && (
+        <div className="d-flex jusify-content-center gap-1">
+          <button className="btn-dark-zon w-100" onClick={() => onEdit(order)}>
+            Edit order
           </button>
-        )}
-      </div>
+          {statusKey == "processing" && (
+            <button
+              className="btn status-red  w-100"
+              onClick={() => cancelOrder(order)}
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

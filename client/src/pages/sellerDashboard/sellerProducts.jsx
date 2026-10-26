@@ -1,4 +1,4 @@
-import "./myProduct.css";
+import "./sellerProducts.css";
 import Nav from "../../components/nav/nav";
 import Button from "../../components/button/button";
 import Card from "../../components/card/card";
@@ -61,7 +61,6 @@ function MyProduct() {
 
   return (
     <>
-      <Nav></Nav>
       <div className="my-products pb-5 px-5 pt-5 text-center">
         {myProductCount ? (
           <div className="row mb-2">
@@ -77,7 +76,7 @@ function MyProduct() {
                   className="text-decoration-none"
                   to={`/product/edit/${obj.p_id}`}
                 >
-                  <Card product={obj}></Card>
+                  <Card product={obj} sellerPage={true}></Card>
                 </Link>
               </div>
             ))}

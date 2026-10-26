@@ -11,13 +11,6 @@ const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const path = require("path");
 
-const getAllUsers = asyncWrapper(async (req, res, next) => {
-  const result = await pool.query(
-    "SELECT u_id, name, email, role, created_at FROM users",
-  );
-  res.json({ status: httpStatusText.SUCCESS, data: result.rows });
-});
-
 const getUser = asyncWrapper(async (req, res, next) => {
   res.json({ status: httpStatusText.SUCCESS, data: req.currentUser });
 });
@@ -30,90 +23,6 @@ const registerUser = asyncWrapper(async (req, res, next) => {
   if (validate.rows.length === 0) {
     const query =
       "INSERT INTO users (name,email,password) values($1 ,$2 ,$3) RETURNING *";
-    const hashed = await bcrypt.hash(password, 10);
-    const result = await pool.query(query, [name, email, hashed]);
-    const row = result.rows[0];
-    const token = await generateToken(row, res);
-    return res.status(201).json({
-      status: httpStatusText.SUCCESS,
-      data: {
-        id: row.u_id,
-        name: row.name,
-        email: row.email,
-        role: row.role,
-        created_at: row.created_at,
-        image: row.image,
-      },
-    });
-  }
-  const error = appError.create(
-    "Email Already Exists",
-    409,
-    httpStatusText.FAIL,
-  );
-  return next(error);
-});
-
-const registerSeller = asyncWrapper(async (req, res, next) => {
-  const { name, email, password, store_name, store_location } = req.body;
-  const validate = await pool.query("select * from users where email = $1", [
-    email,
-  ]);
-  if (validate.rows.length === 0) {
-    const query =
-      "INSERT INTO users (name ,email ,password ,role) values($1 ,$2 ,$3 ,$4) RETURNING *";
-    const sellerQuery =
-      "INSERT INTO sellers (user_id ,store_name ,store_location) values($1 ,$2 ,$3) RETURNING *";
-
-    const hashed = await bcrypt.hash(password, 10);
-    // Wrap both inserts in a transaction
-    const client = await pool.connect();
-    try {
-      await client.query("BEGIN");
-      const result = await client.query(query, [name, email, hashed, "seller"]);
-      const row = result.rows[0];
-      const result2 = await client.query(sellerQuery, [
-        row.u_id,
-        store_name,
-        store_location,
-      ]);
-      await client.query("COMMIT");
-      const token = await generateToken(row, res);
-      return res.status(201).json({
-        status: httpStatusText.SUCCESS,
-        data: {
-          id: row.u_id,
-          name: row.name,
-          email: row.email,
-          role: row.role,
-          created_at: row.created_at,
-          image: row.image,
-        },
-      });
-    } catch (err) {
-      await client.query("ROLLBACK");
-      return next(err);
-    } finally {
-      client.release();
-    }
-    return;
-  }
-  const error = appError.create(
-    "Email Already Exists",
-    409,
-    httpStatusText.FAIL,
-  );
-  return next(error);
-});
-// Temporary register way
-const registerAdmin = asyncWrapper(async (req, res, next) => {
-  const { name, email, password } = req.body;
-  const validate = await pool.query("select * from users where email = $1", [
-    email,
-  ]);
-  if (validate.rows.length === 0) {
-    const query =
-      "INSERT INTO users (name,email,password,role) values($1 ,$2 ,$3 ,'admin') RETURNING *";
     const hashed = await bcrypt.hash(password, 10);
     const result = await pool.query(query, [name, email, hashed]);
     const row = result.rows[0];
@@ -179,10 +88,7 @@ const logout = asyncWrapper(async (req, res, next) => {
 });
 
 const deleteUser = asyncWrapper(async (req, res, next) => {
-  if (
-    req.currentUser.id === req.params.u_id ||
-    req.currentUser.role === "admin"
-  ) {
+  if (req.currentUser.id === req.params.u_id) {
     await pool.query(`DELETE FROM users WHERE u_id = $1`, [req.params.u_id]);
     res.clearCookie("accessToken", { path: "/" });
     res.clearCookie("refreshToken", { path: "/" });
@@ -200,24 +106,12 @@ const deleteUser = asyncWrapper(async (req, res, next) => {
 });
 
 const editUser = asyncWrapper(async (req, res, next) => {
-  if (
-    req.currentUser.id === req.params.u_id ||
-    req.currentUser.role === "admin"
-  ) {
-    console.log(req.currentUser);
-    const allowedFields = ["name", "email", "role"];
+  if (req.currentUser.id === req.params.u_id) {
+    const allowedFields = ["name", "email"];
     const fieldsToUpdate = Object.keys(req.body).filter((key) =>
       allowedFields.includes(key),
     );
 
-    if (fieldsToUpdate.includes("role") && req.currentUser.role !== "admin") {
-      const error = appError.create(
-        "You don't have permission to edit roles",
-        403,
-        httpStatusText.FAIL,
-      );
-      return next(error);
-    }
     if (fieldsToUpdate.includes("email")) {
       const validate = await pool.query(
         "select * from users where email = $1",
@@ -259,8 +153,7 @@ const editUser = asyncWrapper(async (req, res, next) => {
             WHERE u_id = '${req.params.u_id}'
             RETURNING *;
         `;
-      console.log(req.currentUser.image);
-      console.log(values[values.length - 1]);
+
       try {
         const result = await pool.query(query, values);
         if (req.currentUser.image != "default.jfif" && req.file) {
@@ -343,14 +236,12 @@ const changePassword = asyncWrapper(async (req, res, next) => {
   const error = appError.create("User not found", 404, httpStatusText.FAIL);
   return next(error);
 });
+
 module.exports = {
-  getAllUsers,
   getUser,
   registerUser,
-  registerSeller,
   login,
   logout,
-  registerAdmin,
   deleteUser,
   editUser,
   changePassword,
