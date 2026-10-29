@@ -1,0 +1,16 @@
+/* Skeleton look: a soft block that follows the theme (light + dark).
+   Bootstrap's .placeholder / .placeholder-wave do the shape and the animation. */
+.placeholder {
+  background-color: color-mix(in srgb, var(--dz-text) 13%, transparent);
+  opacity: 1;
+  border-radius: var(--dz-radius);
+  min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .placeholder-wave {
+    animation: none;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+}

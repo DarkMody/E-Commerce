@@ -88,6 +88,15 @@ function Nav() {
                     </Link>
                   </li>
                 )}
+              {login &&
+                JSON.parse(localStorage.getItem("userData")).role ===
+                  "manager" && (
+                  <li className="nav-item">
+                    <Link className="nav-link" to={`/manager`}>
+                      Manager Dashboard
+                    </Link>
+                  </li>
+                )}
               <li className="nav-item">
                 <Link className="nav-link" to="/product">
                   Products
@@ -137,31 +146,33 @@ function Nav() {
                   </span>
                 </Link>
               </li>
-              <li className="nav-item">
-                <Link
-                  className="nav-link d-flex align-items-center"
-                  to="/history"
-                >
-                  <span className="fs-4 me-lg-none me-1">
-                    <i className="fa-solid fa-clock-rotate-left"></i>
-                  </span>
-                  <span className="d-lg-none">History</span>
-                </Link>
-              </li>
               {login && (
-                <li className="nav-item">
-                  <Link
-                    id="logout"
-                    className="nav-link d-flex align-items-center"
-                    to="/"
-                    onClick={logoutClick}
-                  >
-                    <span className="fs-4 me-lg-none me-1">
-                      <i className="fa-solid fa-right-from-bracket"></i>
-                    </span>
-                    <span className="d-lg-none">Logout</span>
-                  </Link>
-                </li>
+                <>
+                  <li className="nav-item">
+                    <Link
+                      className="nav-link d-flex align-items-center"
+                      to="/history"
+                    >
+                      <span className="fs-4 me-lg-none me-1">
+                        <i className="fa-solid fa-clock-rotate-left"></i>
+                      </span>
+                      <span className="d-lg-none">History</span>
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link
+                      id="logout"
+                      className="nav-link d-flex align-items-center"
+                      to="/"
+                      onClick={logoutClick}
+                    >
+                      <span className="fs-4 me-lg-none me-1">
+                        <i className="fa-solid fa-right-from-bracket"></i>
+                      </span>
+                      <span className="d-lg-none">Logout</span>
+                    </Link>
+                  </li>
+                </>
               )}
             </ul>
           </div>

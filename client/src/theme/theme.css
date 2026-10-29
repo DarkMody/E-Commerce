@@ -1,0 +1,194 @@
+:root,
+[data-bs-theme="light"] {
+  --dz-bg: #f6f6f4;
+  --dz-surface: #ffffff;
+  --dz-surface-2: #efefec;          /* inputs, hover rows, skeletons */
+  --dz-text: #111111;
+  --dz-muted: #6b6b66;
+  --dz-border: #e4e4df;
+
+  --dz-primary: #111111;            /* main buttons */
+  --dz-primary-rgb: 17, 17, 17;
+  --dz-primary-hover: #2b2b2b;
+  --dz-on-primary: #ffffff;
+
+  --dz-accent: #84cc16;             /* badges, highlights, charts */
+  --dz-accent-rgb: 132, 204, 22;
+  --dz-on-accent: #111111;
+
+  --dz-success: #15803d;  --dz-success-rgb: 21, 128, 61;   --dz-success-bg: #dcfce7; --dz-success-border: #bbf7d0;
+  --dz-warning: #b45309;  --dz-warning-rgb: 180, 83, 9;    --dz-warning-bg: #fef3c7; --dz-warning-border: #fde68a;
+  --dz-danger:  #dc2626;  --dz-danger-rgb: 220, 38, 38;    --dz-danger-bg:  #fee2e2; --dz-danger-border:  #fecaca;
+  --dz-info:    #1d4ed8;  --dz-info-rgb: 29, 78, 216;      --dz-info-bg:    #dbeafe; --dz-info-border:    #bfdbfe;
+
+  --dz-radius: 10px;
+  --dz-radius-lg: 16px;
+  --dz-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* ---------- 2. Tokens: dark ---------- */
+[data-bs-theme="dark"] {
+  --dz-bg: #0b0b0c;
+  --dz-surface: #151517;
+  --dz-surface-2: #1d1d20;
+  --dz-text: #f4f4f2;
+  --dz-muted: #a0a09a;
+  --dz-border: #2a2a2e;
+
+  --dz-primary: #c6f432;
+  --dz-primary-rgb: 198, 244, 50;
+  --dz-primary-hover: #b3e02b;
+  --dz-on-primary: #0b0b0c;
+
+  --dz-accent: #c6f432;
+  --dz-accent-rgb: 198, 244, 50;
+  --dz-on-accent: #0b0b0c;
+
+  --dz-success: #4ade80;  --dz-success-rgb: 74, 222, 128;   --dz-success-bg: #0f2a17; --dz-success-border: #14532d;
+  --dz-warning: #fbbf24;  --dz-warning-rgb: 251, 191, 36;   --dz-warning-bg: #2b2108; --dz-warning-border: #78350f;
+  --dz-danger:  #f87171;  --dz-danger-rgb: 248, 113, 113;   --dz-danger-bg:  #2e1313; --dz-danger-border:  #7f1d1d;
+  --dz-info:    #60a5fa;  --dz-info-rgb: 96, 165, 250;      --dz-info-bg:    #11233f; --dz-info-border:    #1e3a8a;
+
+  --dz-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- 3. Point Bootstrap at our tokens ---------- */
+:root,
+[data-bs-theme="light"],
+[data-bs-theme="dark"] {
+  --bs-body-bg: var(--dz-bg);
+  --bs-body-color: var(--dz-text);
+  --bs-emphasis-color: var(--dz-text);
+  --bs-secondary-color: var(--dz-muted);
+  --bs-tertiary-bg: var(--dz-surface-2);
+  --bs-secondary-bg: var(--dz-surface-2);
+  --bs-border-color: var(--dz-border);
+  --bs-border-radius: var(--dz-radius);
+  --bs-link-color: var(--dz-text);
+  --bs-link-hover-color: var(--dz-muted);
+
+  --bs-primary: var(--dz-primary);   --bs-primary-rgb: var(--dz-primary-rgb);
+  --bs-success: var(--dz-success);   --bs-success-rgb: var(--dz-success-rgb);
+  --bs-warning: var(--dz-warning);   --bs-warning-rgb: var(--dz-warning-rgb);
+  --bs-danger: var(--dz-danger);     --bs-danger-rgb: var(--dz-danger-rgb);
+  --bs-info: var(--dz-info);         --bs-info-rgb: var(--dz-info-rgb);
+
+  /* alerts and badges use these "subtle" variables */
+  --bs-success-bg-subtle: var(--dz-success-bg);  --bs-success-border-subtle: var(--dz-success-border);  --bs-success-text-emphasis: var(--dz-success);
+  --bs-warning-bg-subtle: var(--dz-warning-bg);  --bs-warning-border-subtle: var(--dz-warning-border);  --bs-warning-text-emphasis: var(--dz-warning);
+  --bs-danger-bg-subtle:  var(--dz-danger-bg);   --bs-danger-border-subtle:  var(--dz-danger-border);   --bs-danger-text-emphasis:  var(--dz-danger);
+  --bs-info-bg-subtle:    var(--dz-info-bg);     --bs-info-border-subtle:    var(--dz-info-border);     --bs-info-text-emphasis:    var(--dz-info);
+}
+
+/* Surfaces that should sit above the page background */
+.card,
+.modal-content,
+.dropdown-menu,
+.list-group,
+.accordion {
+  --bs-card-bg: var(--dz-surface);
+  --bs-modal-bg: var(--dz-surface);
+  --bs-dropdown-bg: var(--dz-surface);
+  --bs-list-group-bg: var(--dz-surface);
+  --bs-accordion-bg: var(--dz-surface);
+  --bs-border-radius-lg: var(--dz-radius-lg);
+}
+.card, .modal-content { border-radius: var(--dz-radius-lg); box-shadow: var(--dz-shadow); }
+.table { --bs-table-bg: transparent; --bs-table-color: var(--dz-text); --bs-table-border-color: var(--dz-border); }
+
+/* Forms */
+.form-control, .form-select {
+  background-color: var(--dz-surface);
+  color: var(--dz-text);
+  border-color: var(--dz-border);
+}
+.form-control::placeholder { color: var(--dz-muted); }
+.form-control:focus, .form-select:focus {
+  background-color: var(--dz-surface);
+  color: var(--dz-text);
+  border-color: var(--dz-primary);
+  box-shadow: 0 0 0 0.2rem rgba(var(--dz-primary-rgb), 0.25);
+}
+.form-control:disabled, .form-select:disabled { background-color: var(--dz-surface-2); }
+
+/* Buttons: primary = ink in light, lime in dark */
+.btn-primary,
+.btn-dark-zon {
+  --bs-btn-color: var(--dz-on-primary);
+  --bs-btn-bg: var(--dz-primary);
+  --bs-btn-border-color: var(--dz-primary);
+  --bs-btn-hover-color: var(--dz-on-primary);
+  --bs-btn-hover-bg: var(--dz-primary-hover);
+  --bs-btn-hover-border-color: var(--dz-primary-hover);
+  --bs-btn-active-color: var(--dz-on-primary);
+  --bs-btn-active-bg: var(--dz-primary-hover);
+  --bs-btn-active-border-color: var(--dz-primary-hover);
+  --bs-btn-disabled-color: var(--dz-on-primary);
+  --bs-btn-disabled-bg: var(--dz-primary);
+  --bs-btn-disabled-border-color: var(--dz-primary);
+  --bs-btn-focus-shadow-rgb: var(--dz-primary-rgb);
+  border-radius: var(--dz-radius);
+  font-weight: 600;
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--dz-text);
+  --bs-btn-border-color: var(--dz-border);
+  --bs-btn-hover-color: var(--dz-on-primary);
+  --bs-btn-hover-bg: var(--dz-primary);
+  --bs-btn-hover-border-color: var(--dz-primary);
+  --bs-btn-active-color: var(--dz-on-primary);
+  --bs-btn-active-bg: var(--dz-primary);
+  --bs-btn-active-border-color: var(--dz-primary);
+  --bs-btn-focus-shadow-rgb: var(--dz-primary-rgb);
+}
+.btn-accent {
+  --bs-btn-color: var(--dz-on-accent);
+  --bs-btn-bg: var(--dz-accent);
+  --bs-btn-border-color: var(--dz-accent);
+  --bs-btn-hover-color: var(--dz-on-accent);
+  --bs-btn-hover-bg: var(--dz-accent);
+  --bs-btn-hover-border-color: var(--dz-accent);
+  --bs-btn-active-color: var(--dz-on-accent);
+  --bs-btn-active-bg: var(--dz-accent);
+  --bs-btn-active-border-color: var(--dz-accent);
+  font-weight: 600;
+}
+.btn:focus-visible, a:focus-visible, .form-check-input:focus-visible {
+  outline: 2px solid var(--dz-primary);
+  outline-offset: 2px;
+}
+
+/* Pagination */
+.pagination {
+  --bs-pagination-color: var(--dz-text);
+  --bs-pagination-bg: var(--dz-surface);
+  --bs-pagination-border-color: var(--dz-border);
+  --bs-pagination-hover-color: var(--dz-text);
+  --bs-pagination-hover-bg: var(--dz-surface-2);
+  --bs-pagination-hover-border-color: var(--dz-border);
+  --bs-pagination-focus-color: var(--dz-text);
+  --bs-pagination-focus-bg: var(--dz-surface-2);
+  --bs-pagination-active-color: var(--dz-on-primary);
+  --bs-pagination-active-bg: var(--dz-primary);
+  --bs-pagination-active-border-color: var(--dz-primary);
+  --bs-pagination-disabled-color: var(--dz-muted);
+  --bs-pagination-disabled-bg: var(--dz-surface);
+  --bs-pagination-disabled-border-color: var(--dz-border);
+}
+
+/* ---------- 4. Temporary compatibility with your OLD variables ----------
+   Lets old CSS keep working while we refactor page by page.
+   Delete this block when no CSS file uses these names anymore. */
+:root,
+[data-bs-theme="light"],
+[data-bs-theme="dark"] {
+  --section: var(--dz-bg);
+  --light: var(--dz-surface);
+  --dark: var(--dz-text);
+  --place-holder: var(--dz-muted);
+  --search-bg: var(--dz-surface-2);
+  /* solid status fills: same in both themes, the pills set their own text color */
+  --green: #84cc16;
+  --red: #dc2626;
+  --yellow: #ffc40c;
+}

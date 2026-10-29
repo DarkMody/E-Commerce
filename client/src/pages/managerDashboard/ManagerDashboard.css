@@ -1,0 +1,68 @@
+/* Uses the same :root variables as History.css (imported by AdminOrders). */
+.manager-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: calc(100vh - 76px); /* below the top nav */
+  background: var(--section, #f2f0f1);
+}
+
+/* ---------- Sidebar ---------- */
+.manager-sidebar {
+  background: var(--light, #fff);
+  padding: 24px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-right: 1px solid #eee;
+}
+.manager-link {
+  padding: 10px 16px;
+  border-radius: 10px;
+  color: var(--dark, #000);
+  font-weight: 600;
+  text-decoration: none;
+}
+.manager-link:hover { background: var(--search-bg, #f0f0f0); color: var(--dark, #000); }
+.manager-link.active { background: var(--dark, #000); color: var(--light, #fff); }
+.manager-link:focus-visible { outline: 3px solid var(--yellow, #ffc40c); outline-offset: 2px; }
+
+/* ---------- Content ---------- */
+.manager-content { padding: 32px 28px; min-width: 0; }
+.manager-title { font-weight: 800; font-size: 2rem; margin-bottom: 24px; }
+.manager-panel {
+  background: var(--light, #fff);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.manager-search { max-width: 420px; border-radius: 999px; padding: 10px 18px; }
+
+/* ---------- Stat cards ---------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+.stat-card {
+  background: var(--light, #fff);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.stat-card__label { color: #6b7280; margin: 0 0 6px; }
+.stat-card__value { font-weight: 800; font-size: 2.4rem; margin: 0; }
+
+/* ---------- Small screens: sidebar becomes a top bar ---------- */
+@media (max-width: 768px) {
+  .manager-shell { grid-template-columns: 1fr; }
+  .manager-sidebar { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid #eee; padding: 12px; }
+  .manager-link { white-space: nowrap; }
+  .manager-content { padding: 20px 14px; }
+}
+
+.manager-tabs { max-width: 220px; }
+.manager-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.manager-filters .form-control, .manager-filters .form-select { max-width: 260px; }
+.manager-detail { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #eee; }
+.manager-detail span:first-child { color: #6b7280; }
+.manager-detail span:last-child { font-weight: 600; text-align: right; }

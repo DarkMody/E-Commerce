@@ -1,55 +1,48 @@
-#toast-box {
-  position: fixed;
-  bottom: 0;
-  right: 0;
+/* ---------- Toasts (created by utils/toast.js) ---------- */
+.toast-box {
   z-index: 1100;
-  overflow: hidden;
   width: 400px;
   max-width: 100%;
-  float: right;
+  pointer-events: none; /* clicks pass through the empty area */
 }
+
 .toasty {
-  width: 100%;
-  max-width: 400px;
-  height: 80px;
-  background-color: var(--light);
-  margin-bottom: 30px;
-  font-weight: bold;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  position: relative;
-  padding: 0 20px 0 0;
+  --toast-color: var(--dz-success);
+  min-height: 64px;
+  background-color: var(--dz-surface);
+  color: var(--dz-text);
+  border: 1px solid var(--dz-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  pointer-events: auto;
 }
-.toasty svg {
-  padding: 10px;
-  font-size: 35px;
-  color: var(--green);
+.toasty.error {
+  --toast-color: var(--dz-danger);
 }
-.toasty.error svg {
-  color: var(--red);
+.toasty.invalid {
+  --toast-color: var(--dz-warning);
 }
-.toasty.invalid svg {
-  color: var(--yellow);
+
+.toasty svg,
+.toasty i {
+  flex-shrink: 0;
+  font-size: 1.6rem;
+  color: var(--toast-color);
 }
+
+/* countdown bar */
 .toasty::after {
   content: "";
   position: absolute;
   left: 0;
   bottom: 0;
   width: 100%;
-  height: 5px;
-  background-color: var(--green);
-  animation: cooldown 5s linear forwards;
+  height: 4px;
+  background-color: var(--toast-color);
+  animation: toast-cooldown 5s linear forwards;
 }
-.toasty.error::after {
-  background-color: var(--red);
-}
-.toasty.invalid::after {
-  background-color: var(--yellow);
-}
-@keyframes cooldown {
-  100% {
+
+@keyframes toast-cooldown {
+  to {
     width: 0;
   }
 }

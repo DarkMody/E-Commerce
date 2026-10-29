@@ -7,6 +7,7 @@ import Follow from "../../components/follow/follow";
 import { BASE_URL, SERVER_URL } from "../../config";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { PageLoader } from "../../components/loading";
 
 function Home() {
   const [topSelling, setTopSelling] = useState([]);
@@ -46,15 +47,7 @@ function Home() {
     const top = main.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: "smooth" });
   }
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <PageLoader fullScreen />;
   return (
     <>
       <Nav></Nav>
