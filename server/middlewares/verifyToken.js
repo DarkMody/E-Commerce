@@ -5,20 +5,6 @@ const httpStatusText = require("../utils/httpStatusText");
 const generateToken = require("../utils/generateToken");
 const pool = require("../config/db");
 
-// async function refreshAccessToken(refreshToken) {
-//   const response = await axios.post("https://auth-provider.com/oauth/token", {
-//     grant_type: "refresh_token",
-//     refresh_token: refreshToken,
-//     client_id: process.env.CLIENT_ID,
-//     client_secret: process.env.CLIENT_SECRET,
-//   });
-
-//   return {
-//     accessToken: response.data.access_token,
-//     refreshToken: response.data.refresh_token, // if provider rotates it
-//   };
-// }
-
 async function verifyToken(req, res, next) {
   const accessToken = req.cookies.accessToken;
   const refreshToken = req.cookies.refreshToken;

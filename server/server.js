@@ -3,21 +3,9 @@ const pool = require("./config/db");
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const multer = require("multer");
 const path = require("path");
-const imageValidating = require("./middlewares/imageChecking");
 const port = process.env.PORT || 5000;
-const userController = require("./controllers/userController");
-const sellerController = require("./controllers/sellerController");
-const adminController = require("./controllers/adminController");
-const productController = require("./controllers/productController");
-const categoryController = require("./controllers/categoryController");
-const commentController = require("./controllers/commentController");
-const cartController = require("./controllers/cartController");
-const orderController = require("./controllers/orderController");
 const createTables = require("./data/createTables");
-const verifyToken = require("./middlewares/verifyToken");
-const verifyRole = require("./middlewares/verifyRole");
 const cookieParser = require("cookie-parser");
 const FrontURL = "http://localhost:3000";
 
@@ -28,8 +16,11 @@ app.use(
     credentials: true, // allows cookies to be sent cross-origin
   }),
 );
+
+// For handling images
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.json());
+
 // Connecting DB & Server & Tables
 pool.connect().then(() => {
   console.log("connected");
@@ -39,114 +30,8 @@ app.listen(port, () => {
   console.log(`Working on port ${port}`);
 });
 
-// User APIS
-app.get("/api/user", verifyToken, userController.getUser);
-app.post("/api/register/user", userController.registerUser);
-app.post("/api/login", userController.login);
-app.post("/api/logout", verifyToken, userController.logout);
-app.delete("/api/user/delete/:u_id", verifyToken, userController.deleteUser);
-app.patch(
-  "/api/user/edit/:u_id",
-  verifyToken,
-  imageValidating.profileImageValidating,
-  userController.editUser,
-);
-app.patch("/api/user/password", verifyToken, userController.changePassword);
-
-//Product APIS
-app.get("/api/products", productController.getAllProducts);
-app.get(
-  "/api/seller/product",
-  verifyToken,
-  productController.getSellerProducts,
-);
-app.get("/api/products/:p_id", productController.getProduct);
-app.post(
-  "/api/product/add",
-  verifyToken,
-  imageValidating.productImageValidating,
-  productController.addProduct,
-);
-app.delete(
-  "/api/product/delete/:p_id",
-  verifyToken,
-  productController.deleteProduct,
-);
-app.patch(
-  "/api/product/edit/:p_id",
-  verifyToken,
-  imageValidating.productImageValidating,
-  productController.editProduct,
-);
-
-//Category APIS
-app.get("/api/category", categoryController.getAllCategories);
-
-//Comment APIS
-app.get("/api/comment/:p_id", commentController.getProductComments);
-app.get("/api/comment/me/:p_id", verifyToken, commentController.getMyComment);
-app.post("/api/comment/:p_id", verifyToken, commentController.addComment);
-app.patch("/api/comment/:c_id", verifyToken, commentController.editComment);
-app.delete("/api/comment/:c_id", verifyToken, commentController.deleteComment);
-
-//Cart APIS
-app.get("/api/cart", verifyToken, cartController.getCart);
-app.get("/api/cart/:p_id", verifyToken, cartController.isInCart);
-app.post("/api/cart/:p_id", verifyToken, cartController.addToCart);
-app.delete("/api/cart/:p_id", verifyToken, cartController.deleteFromCart);
-app.patch("/api/cart/:p_id", verifyToken, cartController.editCart);
-
-//Order APIS
-app.get("/api/user/order", verifyToken, orderController.getOrders);
-app.post("/api/order", verifyToken, orderController.makeOrder);
-app.patch("/api/order/:o_id", verifyToken, orderController.editOrder);
-app.get(
-  "/api/order/product/:o_id",
-  verifyToken,
-  orderController.getOrderProduct,
-);
-
-//Admin APIS
-app.post("/api/register/admin", adminController.registerAdmin); // Temporary
-app.get(
-  "/api/admin/stats",
-  verifyToken,
-  verifyRole("admin"),
-  adminController.getStatus,
-);
-app.get(
-  "/api/users",
-  verifyToken,
-  verifyRole("admin", "manager"),
-  adminController.getAllUsers,
-);
-app.get(
-  "/api/order",
-  verifyToken,
-  verifyRole("admin", "manager"),
-  adminController.getAllOrders,
-);
-app.patch(
-  "/api/role/edit/:u_id",
-  verifyToken,
-  verifyRole("admin"),
-  adminController.editRoles,
-);
-app.delete(
-  "/api/delete/user/:u_id",
-  verifyToken,
-  verifyRole("admin"),
-  adminController.deleteUser,
-);
-
-// Seller APIS
-app.post("/api/register/seller", sellerController.registerSeller);
-app.get(
-  "/api/seller/stats",
-  verifyToken,
-  verifyRole("seller"),
-  sellerController.getStats,
-);
+// Routes
+app.use("/api", require("./router/router"));
 
 // Error Handeling
 app.use((req, res) => {
