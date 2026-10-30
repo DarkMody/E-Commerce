@@ -1,181 +1,475 @@
-.filter-sidebar {
-  background: #f7f7f7;
-  border-radius: 8px;
+/* Products page styling. Uses tokens from theme.css */
+
+.products-page {
+  min-height: 80vh;
+}
+
+/* ==========================================================================
+   1. FILTER SIDEBAR & CARD
+   ========================================================================== */
+.filter-card {
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+  box-shadow: var(--dz-shadow);
+  padding: 1.5rem;
   position: sticky;
-  top: 20px;
-}
-.form-control,
-.form-select {
-  box-shadow: none !important;
-}
-.form-control:focus,
-.form-select:focus {
-  border-color: var(--dark) !important;
+  top: 5rem;
 }
 
-/* Start Category */
-.selected-categories {
+.filter-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.category-tag {
-  font-weight: bold;
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px 6px 14px;
-  border-radius: 20px;
-  background-color: var(--dark);
-  color: var(--light);
-  font-size: 14px;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--dz-border);
 }
 
-.category-tag button {
+.filter-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--dz-text);
+  margin: 0;
+}
+
+.filter-clear-btn {
   background: none;
   border: none;
-  color: var(--light);
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
+  color: var(--dz-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
   padding: 0;
+  cursor: pointer;
+  transition: color 0.2s ease;
 }
 
-.category-search-wrapper {
+.filter-clear-btn:hover {
+  color: var(--dz-accent);
+}
+
+.filter-close-btn {
+  background: none;
+  border: none;
+  color: var(--dz-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--dz-radius);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.filter-close-btn:hover {
+  color: var(--dz-text);
+  background-color: var(--dz-surface-2);
+}
+
+.filter-group {
+  margin-bottom: 1.5rem;
+}
+
+.filter-group-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--dz-text);
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ==========================================================================
+   2. CATEGORY PICKER
+   ========================================================================== */
+.filter-category-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.filter-category-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--dz-surface-2);
+  border: 1px solid var(--dz-border);
+  color: var(--dz-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.filter-category-tag button {
+  background: none;
+  border: none;
+  color: var(--dz-muted);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.filter-category-tag button:hover {
+  color: var(--dz-danger);
+}
+
+.filter-category-search-box {
   position: relative;
-  width: 100%;
 }
 
-.category-search-input {
-  width: 100%;
+.filter-category-input {
+  background-color: var(--dz-surface-2) !important;
+  border: 1px solid var(--dz-border) !important;
+  color: var(--dz-text) !important;
+  border-radius: var(--dz-radius) !important;
+  font-size: 0.875rem !important;
+  padding: 0.45rem 0.75rem !important;
 }
 
-.category-dropdown {
+.filter-category-input:focus {
+  border-color: var(--dz-primary) !important;
+  box-shadow: 0 0 0 2px rgba(var(--dz-primary-rgb), 0.15) !important;
+}
+
+.filter-category-dropdown {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  max-height: 220px;
+  max-height: 190px;
   overflow-y: auto;
-  background-color: var(--light);
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 20;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  padding: 4px;
+}
+
+.filter-category-item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--dz-text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
   text-align: left;
-}
-
-.category-dropdown-item {
-  padding: 10px 14px;
   cursor: pointer;
-  font-size: 14px;
+  transition: background-color 0.15s ease;
 }
 
-.category-dropdown-item:hover {
-  background-color: #f0f0f0;
+.filter-category-item:hover {
+  background-color: var(--dz-surface-2);
 }
 
-.category-dropdown-item.disabled {
-  cursor: default;
-  color: #999;
+.filter-category-empty {
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  color: var(--dz-muted);
+  text-align: center;
 }
 
-.category-dropdown-item.disabled:hover {
-  background-color: transparent;
-}
-/* End category */
-
-/* ---- Pagination bar ---- */
-.pagination {
+/* ==========================================================================
+   3. PRICE RANGE SLIDER (Pure CSS Dual Slider)
+   ========================================================================== */
+.price-inputs {
   display: flex;
   align-items: center;
-  gap: 6px;
-  list-style: none;
-  padding: 0;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.price-input-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: var(--dz-surface-2);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius);
+  padding: 4px 8px;
+}
+
+.price-currency {
+  font-size: 0.85rem;
+  color: var(--dz-muted);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.price-input-box input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--dz-text);
+  font-size: 0.85rem;
+  outline: none;
+  padding: 2px 0;
+}
+
+.range-slider {
+  position: relative;
+  height: 6px;
+  background-color: var(--dz-surface-2);
+  border-radius: 999px;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.range-slider__track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background-color: var(--dz-accent);
+  border-radius: 999px;
+}
+
+.range-slider__input {
+  position: absolute;
+  top: -7px;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
   margin: 0;
 }
 
-.page-item {
-  display: flex;
+.range-slider__input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--dz-surface);
+  border: 2px solid var(--dz-accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.15s ease;
 }
 
-.page-link {
+.range-slider__input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--dz-surface);
+  border: 2px solid var(--dz-accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.range-slider__input::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* ==========================================================================
+   4. RATING FILTER (Repeated 5 Stars)
+   ========================================================================== */
+.filter-rating-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-rating-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  height: 40px;
-  padding: 0 14px;
-  border: 1px solid #e0e0e0;
-  border-radius: 20px;
-  background-color: #fff;
-  color: #000;
-  font-size: 14px;
-  font-weight: 500;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: 1px solid transparent;
+  padding: 6px 10px;
+  border-radius: var(--dz-radius);
   cursor: pointer;
   transition: all 0.15s ease;
-  text-decoration: none;
+  text-align: left;
 }
 
-.page-link:hover {
-  background-color: #f0f0f0;
-  border-color: #ccc;
+.filter-rating-row:hover {
+  background-color: var(--dz-surface-2);
 }
 
-.page-item.active .page-link {
-  background-color: #000;
-  color: #fff;
-  border-color: #000;
+.filter-rating-row.is-active {
+  background-color: var(--dz-surface-2);
+  border-color: var(--dz-accent);
 }
 
-.page-item.disabled .page-link {
-  color: #bbb;
-  border-color: #eee;
-  background-color: #fafafa;
-  cursor: not-allowed;
+.filter-rating-stars {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
 }
 
-.page-item.disabled .page-link:hover {
-  background-color: #fafafa;
-  border-color: #eee;
+.star-filled {
+  color: #eab308;
 }
 
-/* Previous/Next buttons slightly wider than number buttons */
-.page-item:first-child .page-link,
-.page-item:last-child .page-link {
-  min-width: 90px;
+.star-empty {
+  color: var(--dz-border);
+}
+
+.filter-rating-label {
+  font-size: 0.85rem;
+  color: var(--dz-text);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   5. STOCK RADIO GROUP (Option B: All / In Stock / Out of Stock)
+   ========================================================================== */
+.filter-stock-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-stock-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--dz-radius);
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--dz-text);
+  transition: background-color 0.15s ease;
+  margin: 0;
+}
+
+.filter-stock-label:hover {
+  background-color: var(--dz-surface-2);
+}
+
+.filter-stock-label.is-selected {
+  background-color: var(--dz-surface-2);
   font-weight: 600;
 }
 
-/* Ellipsis */
-.page-item.disabled .page-link {
+.filter-stock-label input[type="radio"] {
+  cursor: pointer;
+  accent-color: var(--dz-accent);
+}
+
+/* ==========================================================================
+   6. MOBILE DRAWER / OFFCANVAS
+   ========================================================================== */
+.mobile-filter-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100%;
+  height: 100dvh;
+  z-index: 1050;
+  display: flex;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.mobile-filter-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.mobile-filter-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 85%;
+  max-width: 360px;
+  height: 100%;
+  background-color: var(--dz-surface);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 1.5rem;
+  z-index: 10;
+  animation: slideInLeft 0.25s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ==========================================================================
+   7. MAIN CONTENT & HEADER
+   ========================================================================== */
+.products-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--dz-border);
+}
+
+.products-count {
+  font-size: 0.95rem;
+  color: var(--dz-muted);
+}
+
+.products-sort-select {
+  width: auto;
+  min-width: 180px;
+  background-color: var(--dz-surface) !important;
+  color: var(--dz-text) !important;
+  border: 1px solid var(--dz-border) !important;
+  border-radius: var(--dz-radius) !important;
+  font-size: 0.875rem !important;
+  padding: 0.45rem 2rem 0.45rem 0.75rem !important;
+}
+
+.products-search-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--dz-surface-2);
+  border: 1px solid var(--dz-border);
+  color: var(--dz-text);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.products-search-badge button {
+  background: none;
   border: none;
-  background: transparent;
-  min-width: 24px;
-  padding: 0 4px;
+  color: var(--dz-muted);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
 }
 
-@media (max-width: 576px) {
-  .pagination {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 4px;
-  }
-
-  .page-item:first-child .page-link,
-  .page-item:last-child .page-link {
-    min-width: 70px;
-    font-size: 13px;
-  }
-
-  .page-link {
-    min-width: 34px;
-    height: 34px;
-    padding: 0 10px;
-    font-size: 13px;
-  }
+.products-search-badge button:hover {
+  color: var(--dz-danger);
 }
-/* End Pagination bar */

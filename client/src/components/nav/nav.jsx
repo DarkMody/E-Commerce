@@ -252,11 +252,11 @@ function Nav() {
                     <span className="d-lg-none">Logout</span>
                   </button>
                 </li>
-                <li className="nav-item">
-                  <ThemeToggle />
-                </li>
               </>
             )}
+            <li className="nav-item">
+              <ThemeToggle />
+            </li>
           </ul>
         </div>
       </div>

@@ -13,6 +13,7 @@
   --dz-on-primary: #ffffff;
 
   --dz-accent: #84cc16;             /* badges, highlights, charts */
+  --dz-hover: #84cc16;
   --dz-accent-rgb: 132, 204, 22;
   --dz-on-accent: #111111;
 
@@ -41,6 +42,7 @@
   --dz-on-primary: #0b0b0c;
 
   --dz-accent: #c6f432;
+  --dz-hover: #f4f4f2;
   --dz-accent-rgb: 198, 244, 50;
   --dz-on-accent: #0b0b0c;
 

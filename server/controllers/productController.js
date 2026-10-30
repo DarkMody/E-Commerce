@@ -77,7 +77,12 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
     query += ` ORDER BY ${sort.split("-").join(" ")} `;
   }
   const count = await pool.query(query, values);
-
+  const priceValues = category.length ? [category] : [];
+  const price = await pool.query(
+    `SELECT COALESCE(MAX(product.price), 1000) AS max,
+    COALESCE(MIN(product.price), 0) AS min FROM (${subQuery}) AS product`,
+    priceValues,
+  );
   if (!page) page = 1;
   query += ` LIMIT ${pageSize} OFFSET $${i++} `;
   values.push((page - 1) * pageSize);
@@ -90,6 +95,7 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
     status: httpStatusText.SUCCESS,
     data: result.rows,
     pagination: { page, totalItems, totalPages },
+    price: price.rows,
   });
 });
 
