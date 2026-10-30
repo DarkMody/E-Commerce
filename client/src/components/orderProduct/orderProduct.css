@@ -1,43 +1,53 @@
-#cart #product-cart .product {
+/* Read-only product row inside an order. Same look as the cart row, without the controls.
+   Colors come from theme.css. No page IDs needed anymore. */
+
+.order-product {
   width: 95%;
   max-width: 600px;
-  background-color: var(--light);
-  border-radius: 1rem;
-  transition: 0.5s;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
 }
-#cart #product-cart .product img {
-  width: 90%;
-  padding: 10px;
+
+/* ---------- Image ---------- */
+.order-product__image {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background-color: var(--dz-surface-2);
+  border-radius: var(--dz-radius);
+}
+.order-product__image img {
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem;
   object-fit: contain;
 }
-#cart #product-cart .product a {
+
+/* ---------- Title ---------- */
+.order-product__link {
+  min-width: 0;
+  color: var(--dz-text);
   text-decoration: none;
-  color: var(--dark);
-  transition: 0.3s;
 }
-#cart #product-cart .product a:hover {
-  color: var(--green);
+.order-product__link:hover {
+  color: var(--dz-muted);
+  text-decoration: underline;
 }
-#cart #product-cart .product .title {
-  overflow: hidden;
+.order-product__title {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
 }
-#cart #product-cart .product .delete {
-  color: var(--red);
-  transition: 0.3s;
-  cursor: pointer;
-  margin-left: 1rem;
-}
-#cart #product-cart .product .delete:hover {
-  color: var(--dark);
-  /* background-color: var(--red); */
-}
-#cart #product-cart .product .quantity {
-  background-color: var(--light);
-}
-#cart #product-cart .product .quantity input {
-  width: 50px;
-  /* border: 2px solid black; */
+
+/* ---------- Quantity pill ---------- */
+.order-product__qty {
+  padding: 0.35rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--dz-text);
+  background-color: var(--dz-surface-2);
+  border-radius: 999px;
 }

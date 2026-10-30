@@ -1,21 +1,230 @@
-/* Start Welcom */
-.welcome {
-  background-color: var(--section);
-  height: calc(100dvh - 52px);
-}
-.welcome .title {
-  font-family: "Boldonse", system-ui;
-}
-/* End Welcome */
+/* Home page styling. Uses tokens from theme.css */
 
-/* Start Main */
-.main {
-  width: 90%;
-  margin: auto;
-  /* background-color: var(--light) !important; */
+.home-page {
+  min-height: 80vh;
 }
-.main h2 {
-  font-family: "boldest", sans-serif;
-  font-size: 3rem;
+
+/* ==========================================================================
+   1. HERO SECTION ("B. Search first")
+   ========================================================================== */
+.home-hero {
+  padding: 3rem 1rem 2.5rem;
 }
-/* End Main */
+
+@media (min-width: 768px) {
+  .home-hero {
+    padding: 4rem 1.5rem 3rem;
+  }
+}
+
+.home-hero__card {
+  max-width: 980px;
+  margin: 0 auto;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+  box-shadow: var(--dz-shadow);
+  padding: 3.5rem 1.5rem 3rem;
+  text-align: center;
+  transition: border-color 0.25s ease;
+}
+
+@media (min-width: 768px) {
+  .home-hero__card {
+    padding: 4.5rem 3rem 4rem;
+  }
+}
+
+/* Headline */
+.home-hero__headline {
+  font-size: clamp(2rem, 5.5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--dz-text);
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+
+/* Lime highlight behind "want" */
+.home-hero__highlight {
+  position: relative;
+  display: inline-block;
+  background-color: var(--dz-accent);
+  color: var(--dz-on-accent);
+  padding: 0.05em 0.38em 0.12em;
+  border-radius: 8px;
+  line-height: 1;
+}
+
+/* Subtitle */
+.home-hero__subtitle {
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  color: var(--dz-muted);
+  margin-bottom: 2.25rem;
+  font-weight: 400;
+}
+
+/* Search bar */
+.home-hero__search-form {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.home-hero__search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: 9999px;
+  padding: 6px 8px 6px 18px;
+  box-shadow: var(--dz-shadow);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.home-hero__search-bar:focus-within {
+  border-color: var(--dz-primary);
+  box-shadow: 0 0 0 3px rgba(var(--dz-primary-rgb), 0.15);
+}
+
+.home-hero__search-icon {
+  color: var(--dz-muted);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-hero__search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--dz-text);
+  font-size: 1.05rem;
+  outline: none;
+  padding: 0.4rem 0.25rem;
+}
+
+.home-hero__search-input::placeholder {
+  color: var(--dz-muted);
+}
+
+.home-hero__search-btn {
+  border-radius: 9999px !important;
+  padding: 0.65rem 1.6rem !important;
+  font-weight: 600 !important;
+  flex-shrink: 0;
+}
+
+/* Category Chips */
+.home-hero__chips {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 1.5rem;
+}
+
+.home-hero__chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--dz-border);
+  background-color: var(--dz-surface);
+  color: var(--dz-text);
+  padding: 7px 18px;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    color 0.18s ease;
+  user-select: none;
+}
+
+.home-hero__chip:hover,
+.home-hero__chip:focus-visible {
+  background-color: var(--dz-surface-2);
+  border-color: var(--dz-text);
+  color: var(--dz-text);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   2. PRODUCT SECTIONS (Top Selling & New Arrival)
+   ========================================================================== */
+.home-section {
+  padding: 2.5rem 0;
+}
+
+.home-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.home-section__eyebrow {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--dz-accent);
+  margin-bottom: 0.2rem;
+}
+
+.home-section__title {
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--dz-text);
+  margin: 0;
+}
+
+.home-section__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--dz-primary);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: var(--dz-radius);
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+  white-space: nowrap;
+}
+
+.home-section__link:hover {
+  color: var(--dz-accent);
+  transform: translateX(3px);
+}
+
+.home-section__link svg {
+  transition: transform 0.2s ease;
+}
+
+.home-section__link:hover svg {
+  transform: translateX(2px);
+}
+
+/* Empty state if no products are returned */
+.home-section__empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--dz-muted);
+  background-color: var(--dz-surface);
+  border: 1px dashed var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+}

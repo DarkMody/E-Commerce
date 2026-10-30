@@ -1,10 +1,5 @@
 import useTheme from "./useTheme";
 
-/**
- * Sun/moon button. Put it in the Nav next to your other icons:
- *   <ThemeToggle />
- * Uses plain Bootstrap classes, no icon library needed.
- */
 export default function ThemeToggle() {
   const [theme, toggleTheme] = useTheme();
   const isDark = theme === "dark";

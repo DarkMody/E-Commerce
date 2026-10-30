@@ -1,35 +1,111 @@
-/* Nav Start */
-nav {
-  background-color: var(--light);
-  padding: 0.25rem !important;
-}
-nav .navbar-brand {
-  font-family: "Boldonse", system-ui;
-}
-.navbar .navbar-nav .nav-link {
-  color: var(--dark);
-  background-color: transparent;
-  transition: 0.5s;
-  width: fit-content;
-  padding: 0.5rem;
-  font-weight: bold;
-}
-.navbar .navbar-nav .nav-link.active,
-.navbar .navbar-nav .nav-link:hover {
-  color: var(--green);
-}
-nav .search svg {
-  color: var(--dark);
-}
-/* Nav End */
+/* Navbar: "Classic underline". Everything is scoped to .dz-nav
+   (the old global `nav {}` rule is gone, so other <nav> elements are no longer affected). */
 
-/* Start Collapse Button */
-nav .navbar-toggler {
-  color: var(--dark);
-  font-size: 2rem;
-  border: none;
+.dz-nav {
+  background-color: var(--dz-surface);
+  border-bottom: 1px solid var(--dz-border);
+  padding: 0.35rem 0.5rem;
 }
-nav .navbar-toggler:focus {
+.dz-nav__brand {
+  font-family: "Boldonse", system-ui;
+  color: var(--dz-text);
+}
+.dz-nav__brand:hover {
+  color: var(--dz-text);
+}
+
+/* ---------- Text links ---------- */
+.dz-nav__link {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  color: var(--dz-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.dz-nav__link::after {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0;
+  height: 3px;
+  background-color: var(--dz-accent);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+.dz-nav__link:hover,
+.dz-nav__link.active {
+  color: var(--dz-text);
+}
+.dz-nav__link:hover::after,
+.dz-nav__link.active::after {
+  transform: scaleX(1);
+}
+
+/* ---------- Icon links (cart, profile, history, logout) ---------- */
+.dz-nav__icon-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  font-weight: 600;
+  color: var(--dz-text);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.dz-nav__icon-link:hover,
+.dz-nav__icon-link.active {
+  color: var(--dz-text);
+  background-color: var(--dz-surface-2);
+}
+.dz-nav button:focus-visible {
+  outline: 2px solid var(--dz-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Search ---------- */
+.dz-nav__search {
+  width: 100%;
+}
+
+/* ---------- Mobile menu button ---------- */
+.dz-nav__toggler {
+  padding: 0.25rem;
+  color: var(--dz-text);
+  border: 0;
+}
+.dz-nav__toggler:focus {
   box-shadow: none;
 }
-/* End Collapse Button */
+
+/* ---------- Desktop ---------- */
+@media (min-width: 992px) {
+  .dz-nav__search {
+    width: 230px;
+  }
+  /* icons only on desktop, round hover circle */
+  .dz-nav__icon-link {
+    width: 2.5rem;
+    height: 2.5rem;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dz-nav__link,
+  .dz-nav__link::after,
+  .dz-nav__icon-link {
+    transition: none;
+  }
+}

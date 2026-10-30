@@ -1,143 +1,227 @@
-import "./cartProduct.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { SERVER_URL } from "../../config";
+import "./cartProduct.css";
 
-function CartProduct(param) {
-  const product = param.product;
-  const [quantity, setQuantity] = useState(product.quantity);
+const REMOVE_MS = 400; // fade-out time, must match the transition in cartProduct.css
 
-  const quantityHandling = async (value) => {
-    if (window.loggedIn) {
-      await fetch(`${SERVER_URL}/api/cart/${product.p_id}`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ quantity: value }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status == "success") {
-            setQuantity(value);
-            param.onQuantityChange(product.p_id, value);
-          } else {
-            window.toast(data.status, data.message);
-            if (data.status == "error") {
-              let temp = data.message.split(" ");
-              const maxLimit = temp[temp.length - 1];
-              setQuantity(maxLimit);
-              param.onQuantityChange(product.p_id, maxLimit);
-            }
-          }
-        });
-    } else {
-      const response = await fetch(
-        `${SERVER_URL}/api/products/${product.p_id}`,
-      );
-      const data = await response.json();
-      if (data.data.product.quantity >= value) setQuantity(value);
-      else {
-        setQuantity(data.data.product.quantity);
-        param.onQuantityChange(product.p_id, data.data.product.quantity);
-        window.toast(
-          "error",
-          `The stock is just ${data.data.product.quantity}`,
-        );
-      }
-      let cart = JSON.parse(localStorage.getItem("localCart")) || [];
-      let newCart = cart.map((ele) => {
-        if (ele.productId == product.p_id)
-          ele.quantity = Math.min(data.data.product.quantity, value);
-        return ele;
-      });
-      localStorage.setItem("localCart", JSON.stringify(newCart));
+/* ---------- Guest cart (localStorage) ---------- */
+const readLocalCart = () => {
+  try {
+    return JSON.parse(localStorage.getItem("localCart")) || [];
+  } catch {
+    return [];
+  }
+};
+const writeLocalCart = (cart) =>
+  localStorage.setItem("localCart", JSON.stringify(cart));
+
+/* ---------- Server calls. Each one returns the quantity that is really saved ---------- */
+
+// Logged-in user: the server checks the stock.
+// When the stock is too low it answers status "error" with the limit as the LAST NUMBER
+// in the message. TODO: better if the server sends it as its own field (e.g. data.maxQuantity).
+const saveQuantityOnServer = async (productId, wanted, current) => {
+  const res = await fetch(`${SERVER_URL}/api/cart/${productId}`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ quantity: wanted }),
+  });
+  const data = await res.json();
+
+  if (data.status === "success") return wanted;
+
+  window.toast(data.status, data.message);
+  if (data.status === "error") {
+    const max = Number(String(data.message).match(/(\d+)\D*$/)?.[1]);
+    if (max >= 1) return max;
+  }
+  return current;
+};
+
+// Guest: we ask the product for its stock ourselves, then update localStorage.
+const saveQuantityLocally = async (productId, wanted) => {
+  const res = await fetch(`${SERVER_URL}/api/products/${productId}`);
+  const data = await res.json();
+  const stock = Number(data.data.product.quantity);
+  const saved = Math.min(stock, wanted);
+
+  if (stock < wanted) window.toast("error", `The stock is just ${stock}`);
+
+  writeLocalCart(
+    readLocalCart().map((item) =>
+      item.productId == productId ? { ...item, quantity: saved } : item,
+    ),
+  );
+  return saved;
+};
+
+/**
+ * One product row in the cart.
+ * Props
+ *  - product            { p_id, name, image, price, quantity }
+ *  - onQuantityChange   (p_id, newQuantity) => void   called after every successful change
+ *  - onRemove           (p_id) => void                called after the fade-out
+ */
+function CartProduct({
+  product,
+  onQuantityChange = () => {},
+  onRemove = () => {},
+}) {
+  const [quantity, setQuantity] = useState(Number(product.quantity));
+  const [inputValue, setInputValue] = useState(String(product.quantity));
+  const [busy, setBusy] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const removeTimer = useRef(null);
+
+  // Follow the parent if it changes the quantity
+  useEffect(() => {
+    setQuantity(Number(product.quantity));
+    setInputValue(String(product.quantity));
+  }, [product.quantity]);
+
+  useEffect(() => () => clearTimeout(removeTimer.current), []);
+
+  const productPath = `/product/${product.p_id}`;
+  const unitPrice = Number(product.price);
+  const locked = busy || removing;
+
+  const updateQuantity = async (next) => {
+    const wanted = Math.max(1, Math.floor(Number(next)) || 1);
+    if (locked || wanted === quantity) {
+      setInputValue(String(quantity)); // undo whatever was typed
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const saved = window.loggedIn
+        ? await saveQuantityOnServer(product.p_id, wanted, quantity)
+        : await saveQuantityLocally(product.p_id, wanted);
+
+      setQuantity(saved);
+      setInputValue(String(saved));
+      if (saved !== quantity) onQuantityChange(product.p_id, saved);
+    } catch {
+      window.toast("error", "Could not update the quantity.");
+      setInputValue(String(quantity));
+    } finally {
+      setBusy(false);
     }
   };
 
-  const test = (e) => {
-    const val = parseInt(e.target.value);
-    setQuantity(val);
-  };
-
-  const blurQuantityHandling = (e) => {
-    if (e.target.value === "" || parseInt(e.target.value) < 1) {
-      quantityHandling(1);
-      e.target.value = 1;
-    } else quantityHandling(e.target.value);
-  };
-
-  const deleteProductFromCart = async (e) => {
-    if (window.loggedIn) {
-      await fetch(`${SERVER_URL}/api/cart/${product.p_id}`, {
-        method: "DELETE",
-        credentials: "include",
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status == "success") {
-            e.target.closest(".product").style.opacity = "0";
-            setTimeout(() => {
-              param.onRemove(product.p_id);
-              e.target.closest(".product").remove();
-            }, 500);
-          }
-          window.toast(data.status, data.message);
+  const removeFromCart = async () => {
+    if (locked) return;
+    setBusy(true);
+    try {
+      if (window.loggedIn) {
+        const res = await fetch(`${SERVER_URL}/api/cart/${product.p_id}`, {
+          method: "DELETE",
+          credentials: "include",
         });
-    } else {
-      let cart = JSON.parse(localStorage.getItem("localCart")) || [];
-      let newCart = cart.filter((ele) => ele.productId != product.p_id);
-      localStorage.setItem("localCart", JSON.stringify(newCart));
+        const data = await res.json();
+        window.toast(data.status, data.message);
+        if (data.status !== "success") return;
+      } else {
+        writeLocalCart(
+          readLocalCart().filter((item) => item.productId != product.p_id),
+        );
+      }
 
-      e.target.closest(".product").style.opacity = "0";
-      setTimeout(() => {
-        param.onRemove(product.p_id);
-        e.target.closest(".product").remove();
-      }, 500);
+      // fade out, then tell the parent to drop it from the list
+      setRemoving(true);
+      removeTimer.current = setTimeout(() => onRemove(product.p_id), REMOVE_MS);
+    } catch {
+      window.toast("error", "Could not remove the product.");
+    } finally {
+      setBusy(false);
     }
   };
 
   return (
-    <div className="product p-3">
-      <div className="row">
-        <div className="col-4 d-flex align-items-center">
-          <img src={`${SERVER_URL}/uploads/${product.image}`} alt="" />
+    <article className={`cart-product p-3 ${removing ? "is-removing" : ""}`}>
+      <div className="row g-3 align-items-center">
+        <div className="col-4">
+          <Link
+            to={productPath}
+            className="cart-product__image d-block"
+            tabIndex={-1}
+            aria-hidden="true"
+          >
+            <img src={`${SERVER_URL}/uploads/${product.image}`} alt="" />
+          </Link>
         </div>
-        <div className="col-8 text-start d-flex flex-column justify-content-between">
-          <div className="top d-flex justify-content-between align-items-center">
-            <Link to={`/product/${product.p_id}`}>
-              <h4 className="title">{product.name}</h4>
+
+        <div className="col-8 d-flex flex-column gap-3 text-start">
+          <div className="d-flex justify-content-between align-items-start gap-2">
+            <Link to={productPath} className="cart-product__link">
+              <h3 className="cart-product__title fs-5 fw-semibold mb-0">
+                {product.name}
+              </h3>
             </Link>
-            <div className="delete fs-4" onClick={deleteProductFromCart}>
-              <i className="fa-solid fa-trash-can"></i>
-            </div>
+            <button
+              type="button"
+              className="btn cart-product__icon-btn cart-product__delete"
+              onClick={removeFromCart}
+              disabled={locked}
+              aria-label={`Remove ${product.name} from cart`}
+            >
+              <i className="fa-solid fa-trash-can" aria-hidden="true"></i>
+            </button>
           </div>
-          <div className="bottom d-flex justify-content-between align-items-center">
-            <div className="fs-2 fw-bold price">
-              ${(product.price * quantity).toFixed(2)}
+
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              <div className="fs-3 fw-bold lh-1">
+                ${(unitPrice * quantity).toFixed(2)}
+              </div>
+              {quantity > 1 && (
+                <div className="small text-secondary mt-1">
+                  ${unitPrice.toFixed(2)} each
+                </div>
+              )}
             </div>
-            <div className="quantity rounded-pill px-1">
+
+            <div
+              className="cart-product__qty d-inline-flex align-items-center rounded-pill px-1"
+              role="group"
+              aria-label={`Quantity of ${product.name}`}
+            >
               <button
-                onClick={() => quantityHandling(Math.max(1, quantity - 1))}
+                type="button"
+                className="btn cart-product__icon-btn"
+                onClick={() => updateQuantity(quantity - 1)}
+                disabled={locked || quantity <= 1}
+                aria-label="Decrease quantity"
               >
-                <i className="fa-solid fa-minus"></i>
+                <i className="fa-solid fa-minus" aria-hidden="true"></i>
               </button>
               <input
                 type="number"
-                className=" rounded-pill px-1 py-1 text-center"
-                value={quantity}
-                onChange={test}
-                onBlur={blurQuantityHandling}
+                min="1"
+                inputMode="numeric"
+                value={inputValue}
+                disabled={locked}
+                aria-label="Quantity"
+                onChange={(e) => setInputValue(e.target.value)}
+                onBlur={() => updateQuantity(inputValue)}
+                onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
               />
-              <button onClick={() => quantityHandling(quantity + 1)}>
-                <i className="fa-solid fa-plus"></i>
+              <button
+                type="button"
+                className="btn cart-product__icon-btn"
+                onClick={() => updateQuantity(quantity + 1)}
+                disabled={locked}
+                aria-label="Increase quantity"
+              >
+                <i className="fa-solid fa-plus" aria-hidden="true"></i>
               </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 

@@ -70,61 +70,63 @@ function Pay() {
     setPlacing(true);
 
     try {
-      const newUser = await fetch(`${SERVER_URL}/api/register/user`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: email.split("@")[0],
-          email,
-          password,
-        }),
-      });
-      const ans = await newUser.json();
-      if (ans.status == "success") {
-        localStorage.setItem("userData", JSON.stringify(ans.data));
-        window.loggedIn = true;
-        // Adding choosen product to add to this user's cart
-        const localCart = JSON.parse(localStorage.getItem("localCart"));
-        if (localCart) {
-          localCart.map(async (product) => {
-            await fetch(`${SERVER_URL}/api/cart/${product.productId}`, {
-              method: "POST",
-              credentials: "include",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ quantity: product.quantity }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                console.log(data);
-              });
-          });
-        }
-        localStorage.removeItem("localCart");
-        const res = await fetch(`${SERVER_URL}/api/order`, {
+      if (!window.loggedIn) {
+        const newUser = await fetch(`${SERVER_URL}/api/register/user`, {
           method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            location: address,
-            phoneNumber: phone,
-            method,
+            name: email.split("@")[0],
+            email,
+            password,
           }),
         });
-        const data = await res.json();
-        if (data.status == "success") {
-          navigate("/history");
+        const ans = await newUser.json();
+        if (ans.status == "success") {
+          localStorage.setItem("userData", JSON.stringify(ans.data));
+          window.loggedIn = true;
+          // Adding choosen product to add to this user's cart
+          const localCart = JSON.parse(localStorage.getItem("localCart"));
+          if (localCart) {
+            localCart.map(async (product) => {
+              await fetch(`${SERVER_URL}/api/cart/${product.productId}`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ quantity: product.quantity }),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  console.log(data);
+                });
+            });
+          }
+          localStorage.removeItem("localCart");
+        } else {
+          window.toast(ans.status, ans.message);
         }
-        window.toast(data.status, data.message);
-      } else {
-        window.toast(ans.status, ans.message);
       }
+      const res = await fetch(`${SERVER_URL}/api/order`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          location: address,
+          phoneNumber: phone,
+          method,
+        }),
+      });
+      const data = await res.json();
+      if (data.status == "success") {
+        navigate("/history");
+      }
+      window.toast(data.status, data.message);
     } finally {
       setPlacing(false);
     }

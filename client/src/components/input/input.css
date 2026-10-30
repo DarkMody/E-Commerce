@@ -1,26 +1,151 @@
-input {
+/* Underline input. Everything is scoped to .dz-field, so no other <input> on the site is touched.
+   Colors come from theme.css. */
+
+.dz-field {
   width: 100%;
-  border: 1px solid #e2e2e2;
-  background: #f7f7f7;
-  font-size: 15px;
-  color: #222;
+  text-align: start;
+}
+
+/* ---------- Label ---------- */
+.dz-field__label {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dz-text);
+}
+.dz-field__star {
+  color: var(--dz-danger);
+}
+
+/* ---------- Control ---------- */
+.dz-field__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dz-field__input {
+  width: 100%;
+  padding: 0.5rem 0.125rem;
+  font-size: 1rem;
+  color: var(--dz-text);
+  background: transparent;
+  border: 0;
+  border-bottom: 1.5px solid var(--dz-border);
+  border-radius: 0;
+  outline: none;
+  box-shadow: none;
   transition:
     border-color 0.2s ease,
-    background 0.2s ease,
     box-shadow 0.2s ease;
-  outline: none;
+}
+.dz-field__input::placeholder {
+  color: var(--dz-muted);
+  opacity: 0.75;
+}
+.dz-field__input:hover:not(:disabled):not(:focus) {
+  border-bottom-color: var(--dz-muted);
+}
+.dz-field__input:focus {
+  border-bottom-color: var(--dz-primary);
+  box-shadow: 0 1px 0 0 var(--dz-primary); /* makes the line thicker without moving the layout */
 }
 
-input::placeholder {
-  color: var(--place-holder);
+/* ---------- States ---------- */
+.dz-field__input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dz-field__input:read-only:not(:disabled) {
+  border-bottom-style: dashed;
 }
 
-input:hover {
-  border-color: #cfcfcf;
+.dz-field--error .dz-field__input,
+.dz-field--error .dz-field__input:hover:not(:disabled):not(:focus),
+.dz-field--error .dz-field__input:focus {
+  border-bottom-color: var(--dz-danger);
+}
+.dz-field--error .dz-field__input:focus {
+  box-shadow: 0 1px 0 0 var(--dz-danger);
 }
 
-input:focus {
-  border-color: #000;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+/* Chrome autofill paints a blue background: keep it transparent in both themes */
+.dz-field__input:-webkit-autofill {
+  -webkit-text-fill-color: var(--dz-text);
+  transition: background-color 600000s 0s;
+}
+
+/* ---------- Sizes ---------- */
+.dz-field--sm .dz-field__input {
+  padding-block: 0.25rem;
+  font-size: 0.875rem;
+}
+.dz-field--lg .dz-field__input {
+  padding-block: 0.75rem;
+  font-size: 1.125rem;
+}
+
+/* ---------- Icon (left) ---------- */
+.dz-field__icon {
+  position: absolute;
+  left: 0.125rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  color: var(--dz-muted);
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+.dz-field.has-icon .dz-field__input {
+  padding-left: 1.9rem;
+}
+.dz-field__control:focus-within .dz-field__icon {
+  color: var(--dz-text);
+}
+
+/* ---------- Password show/hide button (right) ---------- */
+.dz-field.has-toggle .dz-field__input {
+  padding-right: 2.25rem;
+}
+.dz-field__toggle {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  padding: 0.25rem;
+  color: var(--dz-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.dz-field__toggle:hover:not(:disabled) {
+  color: var(--dz-text);
+}
+.dz-field__toggle:focus-visible {
+  outline: 2px solid var(--dz-primary);
+  outline-offset: 1px;
+}
+.dz-field__toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- Helper / error message ---------- */
+.dz-field__message {
+  margin: 0.35rem 0 0 0.125rem;
+  font-size: 0.8rem;
+  color: var(--dz-muted);
+}
+.dz-field__message--error {
+  color: var(--dz-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dz-field__input,
+  .dz-field__icon {
+    transition: none;
+  }
 }

@@ -1,6 +1,50 @@
-#cart {
-  background-color: var(--section);
+/* Cart page. Colors come from theme.css. */
+
+.cart-page {
+  min-height: 60vh; /* keeps the footer from jumping while the cart loads */
 }
-#cart h1 {
+.cart-page__title {
   font-family: "boldest", sans-serif;
+}
+
+/* In this page the cart rows fill their column (the row itself is max 600px elsewhere) */
+.cart-page__list .cart-product {
+  width: 100%;
+  max-width: none;
+}
+
+/* ---------- Order summary ---------- */
+.cart-summary {
+  position: sticky;
+  top: 5.5rem; /* just below the sticky nav */
+  text-align: start;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+}
+.cart-summary .cart-summary-link {
+  color: var(--dz-primary);
+  text-decoration: none;
+  transition: 0.2s;
+}
+.cart-summary .cart-summary-link:hover {
+  color: var(--dz-accent);
+}
+
+/* ---------- Empty cart ---------- */
+.cart-empty__icon {
+  width: 5.5rem;
+  height: 5.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dz-muted);
+  background-color: var(--dz-surface-2);
+  border-radius: 50%;
+}
+
+@media (max-width: 991.98px) {
+  .cart-summary {
+    position: static;
+  }
 }

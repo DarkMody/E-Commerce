@@ -1,48 +1,113 @@
-#cart #product-cart .product {
+/* Cart line item. Colors come from theme.css. No page IDs needed anymore. */
+
+.cart-product {
   width: 95%;
   max-width: 600px;
-  background-color: var(--light);
-  border-radius: 1rem;
-  transition: 0.5s;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease; /* keep 0.4s in sync with REMOVE_MS in cartProduct.jsx */
 }
-#cart #product-cart .product img {
-  width: 90%;
-  padding: 10px;
+.cart-product.is-removing {
+  opacity: 0;
+  transform: translateX(24px) scale(0.98);
+  pointer-events: none;
+}
+
+/* ---------- Image ---------- */
+.cart-product__image {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background-color: var(--dz-surface-2);
+  border-radius: var(--dz-radius);
+}
+.cart-product__image img {
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem;
   object-fit: contain;
 }
-#cart #product-cart .product a {
+
+/* ---------- Title ---------- */
+.cart-product__link {
+  min-width: 0;
+  color: var(--dz-text);
   text-decoration: none;
-  color: var(--dark);
-  transition: 0.3s;
 }
-#cart #product-cart .product a:hover {
-  color: var(--green);
+.cart-product__link:hover {
+  color: var(--dz-muted);
 }
-#cart #product-cart .product .title {
-  overflow: hidden;
+.cart-product__title {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+  transition: color 0.2s ease;
 }
-#cart #product-cart .product .delete {
-  color: var(--red);
-  transition: 0.3s;
-  cursor: pointer;
-  margin-left: 1rem;
+.cart-product__title:hover {
+  color: var(--dz-accent);
 }
-#cart #product-cart .product .delete:hover {
-  color: var(--dark);
-  /* background-color: var(--red); */
+
+/* ---------- Round icon buttons (delete, minus, plus) ---------- */
+.cart-product__icon-btn {
+  --bs-btn-color: var(--dz-text);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-color: var(--dz-text);
+  --bs-btn-hover-bg: var(--dz-border);
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-color: var(--dz-text);
+  --bs-btn-active-bg: var(--dz-border);
+  --bs-btn-active-border-color: transparent;
+  --bs-btn-disabled-color: var(--dz-muted);
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: transparent;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
 }
-#cart #product-cart .product .quantity {
-  background-color: var(--section);
+
+.cart-product__delete {
+  --bs-btn-color: var(--dz-muted);
+  --bs-btn-hover-color: var(--dz-danger);
+  --bs-btn-hover-bg: var(--dz-danger-bg);
+  --bs-btn-active-color: var(--dz-danger);
+  --bs-btn-active-bg: var(--dz-danger-bg);
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
 }
-#cart #product-cart .product .quantity input {
-  width: 50px;
-  /* border: 2px solid black; */
+
+/* ---------- Quantity stepper ---------- */
+.cart-product__qty {
+  background-color: var(--dz-surface-2);
 }
-#cart #product-cart .product .quantity button {
-  cursor: pointer;
-  border: none;
-  background-color: transparent;
+.cart-product__qty input {
+  width: 3rem;
+  padding: 0.25rem 0;
+  text-align: center;
+  font-weight: 600;
+  color: var(--dz-text);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+}
+.cart-product__qty input:focus-visible {
+  outline: 2px solid var(--dz-primary);
+}
+.cart-product__qty input:disabled {
+  color: var(--dz-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-product {
+    transition: none;
+  }
 }

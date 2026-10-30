@@ -1,33 +1,57 @@
-import "./orderProduct.css";
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { SERVER_URL } from "../../config";
+import "./orderProduct.css";
 
-function OrderProduct(param) {
-  const product = param.product;
-  const [quantity, setQuantity] = useState(product.ordered_quantity);
+/**
+ * One product line inside an order (read only).
+ * Props
+ *  - product  { p_id, name, image, price, ordered_quantity }
+ *
+ * NOTE for the backend: `price` should be the price the customer PAID when ordering,
+ * not the product's current price, otherwise old orders change when a seller edits a price.
+ */
+function OrderProduct({ product }) {
+  const quantity = Number(product.ordered_quantity) || 0;
+  const unitPrice = Number(product.price) || 0;
+  const productPath = `/product/${product.p_id}`;
 
   return (
-    <div className="product p-3">
-      <div className="row">
-        <div className="col-4 d-flex align-items-center">
-          <img src={`${SERVER_URL}/uploads/${product.image}`} alt="" />
+    <article className="order-product p-3">
+      <div className="row g-3 align-items-center">
+        <div className="col-4">
+          <Link
+            to={productPath}
+            className="order-product__image d-block"
+            tabIndex={-1}
+            aria-hidden="true"
+          >
+            <img src={`${SERVER_URL}/uploads/${product.image}`} alt="" />
+          </Link>
         </div>
-        <div className="col-8 text-start d-flex flex-column justify-content-between">
-          <div className="top d-flex justify-content-between align-items-center">
-            <Link to={`/product/${product.p_id}`}>
-              <h4 className="title">{product.name}</h4>
-            </Link>
-          </div>
-          <div className="bottom d-flex justify-content-between align-items-center">
-            <div className="fs-2 fw-bold price">
-              ${(product.price * quantity).toFixed(2)}
+
+        <div className="col-8 d-flex flex-column gap-3 text-start">
+          <Link to={productPath} className="order-product__link">
+            <h3 className="order-product__title fs-5 fw-semibold mb-0">
+              {product.name}
+            </h3>
+          </Link>
+
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              <div className="fs-3 fw-bold lh-1">
+                ${(unitPrice * quantity).toFixed(2)}
+              </div>
+              {quantity > 1 && (
+                <div className="small text-secondary mt-1">
+                  ${unitPrice.toFixed(2)} each
+                </div>
+              )}
             </div>
-            <h5>Quantity: {quantity}</h5>
+            <span className="order-product__qty">Qty: {quantity}</span>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
