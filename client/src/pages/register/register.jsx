@@ -1,196 +1,316 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import AuthLayout from "../../components/authLayout/authLayout";
 import Button from "../../components/button/button";
 import Input from "../../components/input/input";
-import Footer from "../../components/footer/footer";
-import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { migrateLocalCart } from "../../utils/migrateLocalCart";
 import { SERVER_URL } from "../../config";
 import "./register.css";
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+const INITIAL_VALUES = {
+  name: "",
+  email: "",
+  password: "",
+  confirm: "",
+  storeName: "",
+  storeLocation: "",
+};
+
+/* Small icons for the fields */
+const ICONS = {
+  user: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+    </>
+  ),
+  mail: (
+    <>
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </>
+  ),
+  lock: (
+    <>
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </>
+  ),
+  store: (
+    <>
+      <path d="M3 9l1.5-5h15L21 9" />
+      <path d="M4 9v11h16V9" />
+      <path d="M10 20v-6h4v6" />
+    </>
+  ),
+  pin: (
+    <>
+      <path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z" />
+      <circle cx="12" cy="9" r="2.5" />
+    </>
+  ),
+};
+
+function FieldIcon({ name }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {ICONS[name]}
+    </svg>
+  );
+}
+
+const validate = (v, isSeller) => {
+  const errors = {};
+  if (v.name.trim().length < 3)
+    errors.name = "Username must be at least 3 characters";
+  if (!EMAIL_REGEX.test(v.email.trim()))
+    errors.email = "Enter a valid email address";
+  if (v.password.trim().length < 5)
+    errors.password = "Password must be at least 5 characters";
+  if (v.confirm.trim() !== v.password.trim())
+    errors.confirm = "Passwords don't match";
+  if (isSeller) {
+    if (!v.storeName.trim()) errors.storeName = "Enter your store name";
+    if (!v.storeLocation.trim())
+      errors.storeLocation = "Enter your store location";
+  }
+  return errors;
+};
+
 function Register() {
   const navigate = useNavigate();
-  const [validEmail, setEmail] = useState(false);
-  const [validPassword, setPassword] = useState(false);
-  const [validUser, setUser] = useState(false);
-  const [isSeller, setSeller] = useState(false);
 
-  useEffect(() => {
-    const userName = document.querySelector("#username");
-    const email = document.querySelector("#email");
-    const password = document.querySelector("#password");
-    let regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    userName.addEventListener("input", () => {
-      if (userName.value.length >= 3) setUser(true);
-      else setUser(false);
-    });
-    email.addEventListener("input", () => {
-      if (regex.test(email.value)) setEmail(true);
-      else setEmail(false);
-    });
-    password.addEventListener("input", () => {
-      if (password.value.length < 5) setPassword(false);
-      else setPassword(true);
-    });
+  const [accountType, setAccountType] = useState("customer");
+  const [values, setValues] = useState(INITIAL_VALUES);
+  const [touched, setTouched] = useState({});
+  const [loading, setLoading] = useState(false);
 
-    const checkbox = document.querySelector("#is-seller");
-    checkbox.addEventListener("change", () => {
-      setSeller(checkbox.checked);
-    });
-  }, []);
+  const isSeller = accountType === "seller";
+  const errors = validate(values, isSeller);
 
-  const registerClick = async () => {
-    const name = document.querySelector("#username").value.trim();
-    const email = document.querySelector("#email").value.trim();
-    const password = document.querySelector("#password").value.trim();
-    const confirm = document.querySelector("#confirm").value.trim();
-    if (validEmail && validPassword && confirm == password && validUser) {
-      let response;
-      if (isSeller) {
-        const store_name = document.querySelector("#store-name").value.trim();
-        const store_location = document
-          .querySelector("#store-location")
-          .value.trim();
-        if (store_name == "" || store_location == "") {
-          window.toast("invalid", "Plz fill all store fields");
-          return;
-        } else {
-          response = await apiRegisterSeller({
-            name,
-            email,
-            password,
-            store_name,
-            store_location,
-          });
-        }
-      } else {
-        response = await apiRegisterUser({ name, email, password });
-      }
-      if (response.status == "success") {
-        localStorage.setItem("userData", JSON.stringify(response.data));
-        window.loggedIn = true;
-        window.toast("success", "Email created successfully");
+  const setField = (field) => (e) =>
+    setValues((prev) => ({ ...prev, [field]: e.target.value }));
+  const touch = (field) => () =>
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  const errorOf = (field) => (touched[field] ? errors[field] : undefined);
 
-        // Adding choosen product to add to this user's cart
-        const localCart = JSON.parse(localStorage.getItem("localCart"));
-        console.log(localCart);
-        if (localCart) {
-          localCart.map(async (product) => {
-            await fetch(`${SERVER_URL}/api/cart/${product.productId}`, {
-              method: "POST",
-              credentials: "include",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ quantity: product.quantity }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                console.log(data);
-              });
-          });
-        }
-        localStorage.removeItem("localCart");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+    setTouched(
+      Object.fromEntries(Object.keys(INITIAL_VALUES).map((k) => [k, true])),
+    );
+    if (Object.keys(errors).length > 0) {
+      window.toast("invalid", "Please fix the highlighted fields");
+      return;
+    }
 
-        navigate("/");
-      } else window.toast("error", response.message);
-    } else if (!validUser) {
-      window.toast("invalid", "Username must be 3 letters at least");
-    } else if (!validEmail) {
-      window.toast(
-        "invalid",
-        "Email's format must be like this => example@gmail.com",
+    const name = values.name.trim();
+    const email = values.email.trim();
+    const password = values.password.trim();
+
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `${SERVER_URL}/api/register/${isSeller ? "seller" : "user"}`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+            isSeller
+              ? {
+                  name,
+                  email,
+                  password,
+                  store_name: values.storeName.trim(),
+                  store_location: values.storeLocation.trim(),
+                }
+              : { name, email, password },
+          ),
+        },
       );
-    } else if (!password) {
-      window.toast("invalid", "Password must be 5 letters at least");
-    } else {
-      window.toast("invalid", "Confirm password dosen't equal password");
+      const data = await res.json();
+
+      if (data.status === "success") {
+        localStorage.setItem("userData", JSON.stringify(data.data));
+        window.loggedIn = true;
+        window.toast("success", "Account created successfully");
+        await migrateLocalCart();
+        navigate("/");
+      } else {
+        window.toast("error", data.message || "Registration failed");
+      }
+    } catch {
+      window.toast("error", "Network error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const apiRegisterUser = (data) => {
-    return fetch(`${SERVER_URL}/api/register/user`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((res) => res.json())
-      .then((data) => data);
-  };
-
-  const apiRegisterSeller = (data) => {
-    return fetch(`${SERVER_URL}/api/register/seller`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((res) => res.json())
-      .then((data) => data);
-  };
   return (
-    <div className="row main-register">
-      <div className="col-md-6 col-lg-6 col-12 p-0">
-        <div className="intro d-flex justify-content-center align-items-center flex-column gap-2 p-5 text-center">
-          <Link className="rounded-pill fw-bold go-to-home" to="/">
-            &lt;- Home
-          </Link>
-          <h1 className="fw-bold fs-1">Welcome To DarkZon</h1>
-          <p className="text-white-50">
-            The best place to find whatever you want with the best prices go and
-            have your journey
+    <AuthLayout>
+      <form className="auth-form" onSubmit={handleSubmit} noValidate>
+        <Link to="/" className="auth-back-link back-link-copy">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
+          Back to Home
+        </Link>
+        <div>
+          <h2 className="auth-title">Create account</h2>
+          <p className="auth-sub">
+            Join DarkZon and start shopping in a minute.
           </p>
         </div>
-      </div>
-      <div className="col-md-6 col-lg-6 col-12 p-0 d-flex align-items-center">
-        <div
-          className="m-auto py-5 px-3 d-flex flex-column align-items-center gap-3"
-          id="register"
-        >
-          <h1 className="fw-bold">Register</h1>
-          <Input placeholder="Username" type="text" id="username"></Input>
-          <Input placeholder="Email" type="Email" id="email"></Input>
-          <Input placeholder="Password" type="Password" id="password"></Input>
-          <Input
-            placeholder="Confirm Password"
-            type="Password"
-            id="confirm"
-          ></Input>
-          <div>
-            <input type="checkbox" id="is-seller" className="me-1 text-start" />
-            <label htmlFor="is-seller">Are you seller ?</label>
+
+        <fieldset className="register-type">
+          <legend className="register-type__legend">I want to</legend>
+          <div className="register-segment">
+            <input
+              type="radio"
+              name="accountType"
+              id="type-customer"
+              checked={!isSeller}
+              onChange={() => setAccountType("customer")}
+              disabled={loading}
+            />
+            <label htmlFor="type-customer">Buy products</label>
+            <input
+              type="radio"
+              name="accountType"
+              id="type-seller"
+              checked={isSeller}
+              onChange={() => setAccountType("seller")}
+              disabled={loading}
+            />
+            <label htmlFor="type-seller">Sell products</label>
           </div>
-          {isSeller && (
-            <>
-              <Input
-                placeholder="Store name"
-                type="text"
-                id="store-name"
-              ></Input>
-              <Input
-                placeholder="Store location"
-                type="text"
-                id="store-location"
-              ></Input>
-            </>
-          )}
-          <Button
-            text="Register"
-            id="register-btn"
-            onclick={registerClick}
-          ></Button>
-          <div>
-            Already have account ?{" "}
-            <Link className="fw-bold" to="/login">
-              Login
-            </Link>
+          <p className="auth-sub mt-2">
+            {isSeller
+              ? "Add your own products and track your sales."
+              : "Shop from sellers across DarkZon."}
+          </p>
+        </fieldset>
+
+        <Input
+          label="Username"
+          name="name"
+          placeholder="Your name"
+          autoComplete="name"
+          value={values.name}
+          onChange={setField("name")}
+          onBlur={touch("name")}
+          error={errorOf("name")}
+          icon={<FieldIcon name="user" />}
+          required
+          disabled={loading}
+        />
+        <Input
+          label="Email"
+          type="email"
+          name="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          value={values.email}
+          onChange={setField("email")}
+          onBlur={touch("email")}
+          error={errorOf("email")}
+          icon={<FieldIcon name="mail" />}
+          required
+          disabled={loading}
+        />
+        <Input
+          label="Password"
+          type="password"
+          name="password"
+          placeholder="At least 5 characters"
+          autoComplete="new-password"
+          value={values.password}
+          onChange={setField("password")}
+          onBlur={touch("password")}
+          error={errorOf("password")}
+          icon={<FieldIcon name="lock" />}
+          required
+          disabled={loading}
+        />
+        <Input
+          label="Confirm password"
+          type="password"
+          name="confirm"
+          placeholder="Repeat your password"
+          autoComplete="new-password"
+          value={values.confirm}
+          onChange={setField("confirm")}
+          onBlur={touch("confirm")}
+          error={errorOf("confirm")}
+          icon={<FieldIcon name="lock" />}
+          required
+          disabled={loading}
+        />
+
+        {/* Seller only */}
+        {isSeller && (
+          <div className="register-store d-flex flex-column gap-3">
+            <Input
+              label="Store name"
+              name="storeName"
+              placeholder="e.g. Tech Corner"
+              value={values.storeName}
+              onChange={setField("storeName")}
+              onBlur={touch("storeName")}
+              error={errorOf("storeName")}
+              icon={<FieldIcon name="store" />}
+              required
+              disabled={loading}
+            />
+            <Input
+              label="Store location"
+              name="storeLocation"
+              placeholder="City, country"
+              autoComplete="street-address"
+              value={values.storeLocation}
+              onChange={setField("storeLocation")}
+              onBlur={touch("storeLocation")}
+              error={errorOf("storeLocation")}
+              icon={<FieldIcon name="pin" />}
+              required
+              disabled={loading}
+            />
           </div>
-        </div>
-      </div>
-    </div>
+        )}
+
+        <Button type="submit" featured fullWidth loading={loading}>
+          {isSeller ? "Create seller account" : "Create account"}
+        </Button>
+
+        <p className="auth-switch">
+          Already have an account? <Link to="/login">Sign in</Link>
+        </p>
+      </form>
+    </AuthLayout>
   );
 }
 

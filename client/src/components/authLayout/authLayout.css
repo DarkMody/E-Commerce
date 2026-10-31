@@ -1,0 +1,185 @@
+.auth-page {
+  display: flex;
+  min-height: 100dvh;
+  background-color: var(--dz-bg);
+  color: var(--dz-text);
+}
+
+/* ---------- Brand panel (hidden on mobile) ---------- */
+.auth-brand-panel {
+  --brand-bg: var(--dz-primary);
+  --brand-fg: var(--dz-on-primary);
+  --brand-bar: var(--dz-accent);
+  display: none;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100dvh;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: var(--brand-bg);
+  color: var(--brand-fg);
+}
+.back-link-copy {
+  display: block;
+}
+[data-bs-theme="dark"] .auth-brand-panel {
+  --brand-bar: var(--dz-on-primary);
+}
+@media (min-width: 768px) {
+  .auth-brand-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45%;
+  }
+  .back-link-copy {
+    display: none !important;
+  }
+}
+@media (min-width: 1200px) {
+  .auth-brand-panel {
+    width: 50%;
+  }
+}
+
+.auth-brand-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 480px;
+  padding: 3rem 3.5rem;
+}
+
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--brand-fg);
+  text-decoration: none;
+  transition: 0.3s;
+}
+.auth-back-link:hover {
+  color: var(--dz-hover);
+}
+
+.auth-brand-name {
+  margin: 0;
+  font-family: "Boldonse", "boldest", sans-serif;
+  font-size: clamp(2.4rem, 4.5vw, 3.5rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.auth-brand-tagline {
+  max-width: 320px;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.auth-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.auth-pill {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--brand-fg);
+  background-color: color-mix(in srgb, var(--brand-fg) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand-fg) 25%, transparent);
+  border-radius: 99px;
+}
+.auth-accent-bar {
+  width: 56px;
+  height: 4px;
+  margin-top: 0.5rem;
+  background-color: var(--brand-bar);
+  border-radius: 2px;
+}
+
+/* ---------- Form panel ---------- */
+.auth-form-panel {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.25rem 2rem;
+  background-color: var(--dz-bg);
+}
+.auth-theme-toggle {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+}
+
+/* ---------- Shared form content ---------- */
+.auth-form {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+.auth-title {
+  margin: 0 0 0.25rem;
+  font-family: "boldest", sans-serif;
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--dz-text);
+}
+.auth-sub {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--dz-muted);
+}
+.auth-switch {
+  margin: 0;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--dz-muted);
+}
+.auth-switch a {
+  font-weight: 700;
+  color: var(--dz-text);
+  text-decoration: underline;
+  text-decoration-color: var(--dz-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.auth-switch a:hover {
+  color: var(--dz-muted);
+}
+
+/* ---------- Mobile: no brand panel, small brand name on top ---------- */
+@media (max-width: 767px) {
+  .auth-page {
+    flex-direction: column;
+  }
+  .auth-page::before {
+    content: "DarkZon";
+    display: block;
+    padding: 1.5rem 1rem 0;
+    text-align: center;
+    font-family: "Boldonse", "boldest", sans-serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--dz-text);
+  }
+  .auth-form-panel {
+    padding-top: 1.5rem;
+  }
+  .auth-theme-toggle {
+    top: 1rem;
+  }
+}

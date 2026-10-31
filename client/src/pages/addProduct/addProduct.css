@@ -1,227 +1,217 @@
-#add-product input,
-#add-product .app-input,
-#add-product .app-textarea {
+/* Add product page. Colors come from theme.css; fields use the shared underline input styles. */
+
+.add-product__card {
   width: 100%;
-  border: 1px solid #e2e2e2;
-  background: #f7f7f7;
-  font-size: 15px;
-  color: #222;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
-  outline: none;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+}
+@media (min-width: 768px) {
+  .add-product__card {
+    padding: 2.5rem;
+  }
+}
+.add-product__title {
+  margin: 0;
+  font-family: "boldest", sans-serif;
+  font-size: 1.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
-#add-product input,
-#add-product .app-input {
-  height: 52px;
-  border-radius: 999px;
-  padding: 0 22px;
+/* label used above the categories / images blocks (same look as the input labels) */
+.add-product__label {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dz-text);
+}
+.add-product__hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--dz-muted);
+}
+.add-product__error {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: var(--dz-danger);
 }
 
-#add-product input::placeholder,
-#add-product .app-textarea::placeholder {
-  color: #9b9b9b;
-}
-
-#add-product input:hover,
-#add-product .app-input:hover {
-  border-color: #cfcfcf;
-}
-
-#add-product input:focus,
-#add-product .app-input:focus {
-  border-color: #000;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
-}
-
-/* Textarea */
-#add-product .app-textarea {
-  min-height: 180px;
-  border-radius: 16px;
-  padding: 16px 18px;
+/* Description textarea reuses .dz-field__input (underline look) */
+.add-product__textarea {
+  min-height: 7rem;
   resize: vertical;
   line-height: 1.5;
   font-family: inherit;
 }
 
-#add-product .app-textarea:focus {
-  border-color: #000;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
-}
-
-/* Row spacing for price/quantity pair */
-#add-product .col-md-6 {
-  margin-bottom: 12px;
-}
-
-@media (min-width: 768px) {
-  #add-product .col-md-6:first-child {
-    padding-right: 10px;
-  }
-  #add-product .col-md-6:last-child {
-    padding-left: 10px;
-  }
-}
-
-.upload-label {
-  text-align: left;
-  font-weight: 600;
-  margin-bottom: 10px;
-  width: 100%;
-}
-
-.image-upload-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 14px;
-  width: 100%;
-}
-
-.image-tile {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #f1f1f1;
-}
-
-.image-tile img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.remove-image-btn {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.3s;
-}
-
-.remove-image-btn span {
-  transform: translate(-5%, -10%);
-}
-
-.remove-image-btn:hover {
-  background-color: var(--red);
-}
-.upload-tile {
-  border: 2px dashed #ccc;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease;
-}
-
-.upload-tile:hover,
-.upload-tile.dragging {
-  border-color: #000;
-  background: #eaeaea;
-}
-
-.upload-plus {
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.upload-text {
-  font-size: 12px;
-  margin-top: 4px;
-  color: #555;
-}
-
-/* Start Category */
+/* ---------- Categories ---------- */
 .selected-categories {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  width: 100%;
-  margin-bottom: 10px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
-
+/* Same look as the selected categories in the products page filter */
 .category-tag {
-  font-weight: bold;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px 6px 14px;
-  border-radius: 20px;
-  background-color: #000;
-  color: #fff;
-  font-size: 14px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--dz-text);
+  background-color: var(--dz-surface-2);
+  border: 1px solid var(--dz-border);
+  border-radius: 999px;
 }
-
 .category-tag button {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--dz-muted);
   background: none;
   border: none;
-  color: #fff;
-  font-size: 16px;
-  line-height: 1;
   cursor: pointer;
-  padding: 0;
+}
+.category-tag button:hover {
+  color: var(--dz-danger);
+}
+.category-tag button:focus-visible {
+  outline: 2px solid var(--dz-primary);
+  outline-offset: 2px;
+  border-radius: 50%;
 }
 
 .category-search-wrapper {
   position: relative;
-  width: 100%;
 }
-
-.category-search-input {
-  width: 100%;
-}
-
 .category-dropdown {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   right: 0;
+  z-index: 20;
   max-height: 220px;
   overflow-y: auto;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 20;
-  text-align: left;
+  text-align: start;
+  background-color: var(--dz-surface) !important;
+  border: 1px solid var(--dz-border) !important;
+  border-radius: var(--dz-radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
-
 .category-dropdown-item {
-  padding: 10px 14px;
+  display: block;
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.9rem;
+  text-align: start;
+  color: var(--dz-text);
+  background: transparent;
+  border: 0;
   cursor: pointer;
-  font-size: 14px;
 }
-
-.category-dropdown-item:hover {
-  background-color: #f0f0f0;
+.category-dropdown-item:hover,
+.category-dropdown-item:focus-visible {
+  background-color: var(--dz-surface-2) !important;
+  outline: none;
 }
-
 .category-dropdown-item.disabled {
+  color: var(--dz-muted);
   cursor: default;
-  color: #999;
 }
-
 .category-dropdown-item.disabled:hover {
   background-color: transparent;
 }
-/* End category */
+
+/* ---------- Images ---------- */
+.image-upload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.9rem;
+}
+.image-tile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background-color: var(--dz-surface-2) !important;
+  border-radius: var(--dz-radius);
+}
+.image-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.remove-image-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: #fff; /* sits on top of a photo, so it stays white in both themes */
+  background-color: rgba(0, 0, 0, 0.75);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.remove-image-btn:hover {
+  background-color: var(--dz-danger);
+}
+.remove-image-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}
+
+.upload-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+  color: var(--dz-text) !important;
+  border: 2px dashed var(--dz-border) !important;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+.upload-tile:hover,
+.upload-tile:focus-visible,
+.upload-tile.dragging {
+  border-color: var(--dz-primary) !important;
+  background-color: var(--dz-border) !important;
+  outline: none;
+}
+.upload-plus {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.upload-text {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--dz-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-tile,
+  .remove-image-btn {
+    transition: none;
+  }
+}
