@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import Nav from "../../components/nav/nav";
 import Button from "../../components/button/button";
 import Footer from "../../components/footer/footer";
-import Follow from "../../components/follow/follow";
 import CartProduct from "../../components/cartProduct/cartProduct";
 import { Skeleton, useDelayedLoading } from "../../components/loading";
 import { SERVER_URL } from "../../config";
@@ -236,7 +235,6 @@ function Cart() {
         </h1>
         {content}
       </main>
-      <Follow />
       <Footer />
     </>
   );

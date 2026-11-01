@@ -4,7 +4,6 @@ import Nav from "../../components/nav/nav";
 import Button from "../../components/button/button";
 import Input from "../../components/input/input";
 import Footer from "../../components/footer/footer";
-import Follow from "../../components/follow/follow";
 import { SERVER_URL } from "../../config";
 import "./addProduct.css";
 
@@ -450,7 +449,6 @@ function AddProduct() {
           </Button>
         </form>
       </main>
-      <Follow />
       <Footer />
     </>
   );

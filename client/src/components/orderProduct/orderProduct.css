@@ -31,7 +31,6 @@
 }
 .order-product__link:hover {
   color: var(--dz-muted);
-  text-decoration: underline;
 }
 .order-product__title {
   display: -webkit-box;
@@ -39,6 +38,10 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.3;
+  transition: color 0.2s ease;
+}
+.order-product__title:hover {
+  color: var(--dz-accent);
 }
 
 /* ---------- Quantity pill ---------- */

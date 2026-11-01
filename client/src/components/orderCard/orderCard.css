@@ -1,0 +1,207 @@
+/* Order card. Colors come from theme.css. */
+
+/* Grid used by every page that lists order cards (.history-grid kept for the older pages) */
+.order-grid,
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.order-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+  padding: 1.25rem;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+  box-shadow: var(--dz-shadow);
+}
+
+/* ---------- Top: id + date, status ---------- */
+.order-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.order-card__id {
+  font-weight: 700;
+  color: var(--dz-text);
+  text-decoration: none;
+}
+.order-card__id:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--dz-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.order-card__date {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  color: var(--dz-muted);
+}
+
+/* ---------- Status pills (soft colors, readable in both themes) ---------- */
+.status-pill {
+  padding: 0.2rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+  color: var(--dz-muted);
+  background-color: var(--dz-surface-2);
+  border: 1px solid var(--dz-border);
+  border-radius: 999px;
+}
+.status-pill--processing {
+  color: var(--dz-warning);
+  background-color: var(--dz-warning-bg);
+  border-color: var(--dz-warning-border);
+}
+.status-pill--shipped {
+  color: var(--dz-info);
+  background-color: var(--dz-info-bg);
+  border-color: var(--dz-info-border);
+}
+.status-pill--delivered {
+  color: var(--dz-success);
+  background-color: var(--dz-success-bg);
+  border-color: var(--dz-success-border);
+}
+.status-pill--cancelled {
+  color: var(--dz-danger);
+  background-color: var(--dz-danger-bg);
+  border-color: var(--dz-danger-border);
+}
+
+/* ---------- Progress line ---------- */
+.order-progress {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.order-progress__step {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--dz-muted);
+}
+/* line between two dots */
+.order-progress__step + .order-progress__step::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background-color: var(--dz-border);
+}
+.order-progress__step.is-done + .order-progress__step.is-done::before {
+  background-color: var(--dz-primary);
+}
+.order-progress__dot {
+  position: relative; /* above the line */
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  background-color: var(--dz-surface);
+  border: 2px solid var(--dz-border);
+  border-radius: 50%;
+}
+.order-progress__step.is-done {
+  color: var(--dz-text);
+}
+.order-progress__step.is-done .order-progress__dot {
+  background-color: var(--dz-primary);
+  border-color: var(--dz-primary);
+}
+.order-progress__step.is-current .order-progress__dot {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--dz-accent) 40%, transparent);
+}
+
+.order-card__cancelled {
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--dz-danger);
+  background-color: var(--dz-danger-bg);
+  border: 1px solid var(--dz-danger-border);
+  border-radius: var(--dz-radius);
+}
+
+/* ---------- Total + details ---------- */
+.order-card__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 1rem;
+  border-top: 1px solid var(--dz-border);
+}
+.order-card__total span {
+  color: var(--dz-muted);
+}
+.order-card__total strong {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.order-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+}
+.order-card__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+.order-card__row dt {
+  flex-shrink: 0;
+  font-weight: 400;
+  color: var(--dz-muted);
+}
+.order-card__row dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: end;
+  word-break: break-word;
+}
+
+/* ---------- Buttons area ---------- */
+.order-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto; /* pins the buttons to the bottom so cards in a row line up */
+  padding-top: 1rem;
+  border-top: 1px solid var(--dz-border);
+}
+.order-card__actions .btn {
+  flex: 1 1 auto;
+}
+/* red outline button (cancel) */
+.order-card__actions .order-action--danger {
+  --bs-btn-color: var(--dz-danger);
+  --bs-btn-border-color: var(--dz-danger-border);
+  --bs-btn-hover-color: var(--dz-danger);
+  --bs-btn-hover-bg: var(--dz-danger-bg);
+  --bs-btn-hover-border-color: var(--dz-danger);
+  --bs-btn-active-color: var(--dz-danger);
+  --bs-btn-active-bg: var(--dz-danger-bg);
+  --bs-btn-active-border-color: var(--dz-danger);
+  --bs-btn-disabled-color: var(--dz-danger);
+  --bs-btn-disabled-border-color: var(--dz-danger-border);
+}

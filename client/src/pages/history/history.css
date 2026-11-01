@@ -1,123 +1,26 @@
+/* History page. The card itself is styled in components/orderCard/orderCard.css */
+
 .history-page {
-  background: var(--section);
-  min-height: 100vh;
-  padding: 40px 16px;
-}
-.history-wrap {
-  max-width: 1000px;
-  margin: 0 auto;
+  min-height: 70vh;
 }
 .history-title {
-  font-weight: 800;
+  font-family: "boldest", sans-serif;
   font-size: 2rem;
-  margin-bottom: 24px;
-}
-.history-empty {
-  color: #6b7280;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
-.history-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-/* ---------- Order card ---------- */
-.order-card {
-  background: var(--light);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.order-card__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #eee;
-}
-.order-card__row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-.order-card__label {
-  color: #6b7280;
-  margin: 0;
-}
-.order-card__value {
-  font-weight: 600;
-  margin: 0;
-}
-.order-id {
-  text-decoration: none;
-  font-weight: bold;
-  color: var(--dark);
-  transition: 0.3s;
-}
-.order-id:hover {
-  color: var(--green);
-}
-
-/* ---------- Status pills ---------- */
-.status-pill {
-  padding: 4px 14px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: capitalize;
-  color: var(--light);
-}
-.status-green {
-  background: var(--green);
-}
-.status-yellow {
-  background: var(--yellow);
-  color: var(--dark);
-}
-.status-red {
-  background: var(--red);
-}
-.status-blue {
-  background: var(--blue);
-}
-.status-grey {
-  background: var(--place-holder);
-  color: var(--dark);
-}
-
-/* ---------- Buttons (matches profile page "Edit profile") ---------- */
-.btn-dark-zon {
-  --bs-btn-active-bg: #222;
-  background: var(--dark);
-  color: var(--light);
-  border: 1px solid var(--dark);
-  border-radius: 10px;
-  padding: 10px 18px;
-  font-weight: 600;
-  margin-top: 4px;
-}
-.btn-dark-zon:hover:not(:disabled) {
-  background: #222;
-  color: var(--light);
-}
-.btn-dark-zon:focus-visible {
-  outline: 3px solid var(--yellow);
-  outline-offset: 2px;
-}
-.co-selected {
-  margin-top: 12px;
-  padding: 12px 16px;
-  border-radius: 14px;
-  border-left: 5px solid var(--green);
-  background: var(--search-bg);
+/* Address shown inside the edit dialog */
+.order-location {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
   font-size: 0.9rem;
   line-height: 1.4;
+  background-color: var(--dz-surface-2);
+  border-left: 4px solid var(--dz-accent);
+  border-radius: var(--dz-radius);
 }
-.co-selected.is-empty {
-  border-left-color: var(--place-holder);
-  color: #8a8a8a;
+.order-location.is-empty {
+  color: var(--dz-muted);
+  border-left-color: var(--dz-border);
 }

@@ -3,7 +3,6 @@ import { Link, useSearchParams } from "react-router-dom";
 import Nav from "../../components/nav/nav";
 import Card from "../../components/card/card";
 import Footer from "../../components/footer/footer";
-import Follow from "../../components/follow/follow";
 import Button from "../../components/button/button";
 import Pagination from "../../components/pagination/Pagination";
 import { ProductGridSkeleton } from "../../components/loading";
@@ -570,9 +569,7 @@ function Products() {
             className="mobile-filter-backdrop"
             onClick={() => setMobileDrawerOpen(false)}
           />
-          <div className="mobile-filter-content">
-            {renderFilterPanel(true)}
-          </div>
+          <div className="mobile-filter-content">{renderFilterPanel(true)}</div>
         </div>
       )}
 
@@ -732,7 +729,6 @@ function Products() {
         </div>
       </main>
 
-      <Follow />
       <Footer />
     </>
   );

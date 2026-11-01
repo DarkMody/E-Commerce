@@ -1,30 +1,53 @@
+import Icon from "../icons/icons";
+import { CONTACT, gmailCompose, whatsappLink } from "../../contactInfo";
 import "./footer.css";
+
+const TAGLINE = "A full-stack portfolio project";
+
+// Your details live in src/contactInfo.js. To add a link here, add one more line to this list.
+const LINKS = [
+  { label: "GitHub", href: CONTACT.github, icon: "github" },
+  { label: "LinkedIn", href: CONTACT.linkedin, icon: "linkedin" },
+  {
+    label: "Email",
+    href: gmailCompose(CONTACT.email, "Hello from the DarkZon project"),
+    icon: "mail",
+  },
+  {
+    label: "WhatsApp",
+    href: whatsappLink("Hi, I'm contacting you from the DarkZon project"),
+    icon: "whatsapp",
+  },
+];
 
 function Footer() {
   return (
-    <div className="footer p-5 d-flex justify-content-center align-items-center flex-column text-md-start">
-      <h1 className="logo">DarkZon</h1>
-      <p className="text-black-50 fs-3">
-        Hope you had a good time get into these links for more info about the
-        developer
+    <footer className="dz-footer">
+      <p className="dz-footer__brand">DarkZon</p>
+      <p className="dz-footer__tagline">{TAGLINE}</p>
+
+      <ul className="dz-footer__links">
+        {LINKS.map(({ label, href, icon }) => (
+          <li key={label}>
+            <a
+              className="dz-footer__link"
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${label} (opens in a new tab)`}
+              title={label}
+            >
+              <Icon name={icon} />
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <p className="dz-footer__bottom">
+        © {new Date().getFullYear()} DarkZon · Built by {CONTACT.developerName}
       </p>
-      <div className="links d-flex gap-4">
-        <a
-          target="_blank"
-          href="https://github.com/DarkMody"
-          className="fs-3 text-decoration-none"
-        >
-          <i className="fa-brands fa-github"></i>Github
-        </a>
-        <a
-          target="_blank"
-          href="https://www.linkedin.com/in/mahmoud-mohamed-194441348/"
-          className="fs-3 text-decoration-none"
-        >
-          <i className="fa-brands fa-linkedin"></i>LinkedIn
-        </a>
-      </div>
-    </div>
+    </footer>
   );
 }
+
 export default Footer;

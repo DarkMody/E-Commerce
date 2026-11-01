@@ -17,6 +17,7 @@ import Pay from "./pages/pay/pay";
 import Profile from "./pages/profile/profile";
 import History from "./pages/history/history";
 import HistoryOrder from "./pages/historyOrder/historyOrder";
+import Contact from "./pages/contact/contact";
 
 // Seller
 import AddProduct from "./pages/addProduct/addProduct";
@@ -80,6 +81,7 @@ function App() {
         <Route path="/user/profile" element={<Profile />} />
         <Route path="/history" element={<History />} />
         <Route path="/history/:o_id" element={<HistoryOrder />} />
+        <Route path="/contact" element={<Contact />} />
 
         {/* Seller */}
         <Route path="/product/add" element={<AddProduct />} />

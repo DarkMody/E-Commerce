@@ -1,16 +1,81 @@
-.footer {
-  background-color: var(--section);
-  min-height: 300px;
+/* Footer: "Minimal centered". Colors come from theme.css. */
+
+.dz-footer {
+  padding: 2.5rem 1rem 1.5rem;
+  text-align: center;
+  color: var(--dz-muted);
+  background-color: var(--dz-surface);
+  border-top: 1px solid var(--dz-border);
 }
-.footer .logo {
-  color: var(--dark);
+
+.dz-footer__brand {
+  margin: 0;
   font-family: "Boldonse", system-ui;
+  font-size: 1.6rem;
+  color: var(--dz-text);
 }
-.footer .links a {
-  color: var(--dark);
-  transition: 0.3s;
-  font-weight: bold;
+.dz-footer__tagline {
+  margin: 0.5rem 0 0;
 }
-.footer .links a:hover {
-  color: var(--green);
+
+/* ---------- Round icon links ---------- */
+.dz-footer__links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  padding: 0;
+  list-style: none;
+}
+.dz-footer__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--dz-text);
+  border: 1px solid var(--dz-border);
+  border-radius: 50%;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+.dz-footer__link:hover,
+.dz-footer__link:focus-visible {
+  color: var(--dz-on-primary);
+  background-color: var(--dz-primary);
+  border-color: var(--dz-primary);
+}
+
+/* ---------- Visible email + WhatsApp number ---------- */
+.dz-footer__contact {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+}
+.dz-footer__contact a {
+  color: var(--dz-text);
+  text-decoration: underline;
+  text-decoration-color: var(--dz-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  word-break: break-all;
+}
+.dz-footer__contact a:hover {
+  color: var(--dz-muted);
+}
+
+/* ---------- Bottom line ---------- */
+.dz-footer__bottom {
+  margin: 0;
+  padding-top: 1rem;
+  font-size: 0.8rem;
+  border-top: 1px solid var(--dz-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dz-footer__link {
+    transition: none;
+  }
 }

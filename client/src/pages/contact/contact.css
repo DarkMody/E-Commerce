@@ -1,0 +1,83 @@
+/* Contact page. Colors come from theme.css. */
+
+.contact-page {
+  min-height: 70vh;
+}
+.contact-title {
+  font-family: "boldest", sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.contact-card {
+  padding: 1.75rem 1.5rem;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+}
+@media (min-width: 576px) {
+  .contact-card {
+    padding: 2rem;
+  }
+}
+.contact-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  color: var(--dz-text);
+  background-color: var(--dz-surface-2);
+  border-radius: 50%;
+}
+
+/* Subject dropdown: same underline look as the inputs */
+.contact-select.form-select {
+  padding-left: 0.125rem;
+  background-color: transparent;
+  border-width: 0 0 1.5px 0;
+  border-radius: 0;
+  box-shadow: none;
+  background-color: var(--dz-surface);
+}
+.contact-select.form-select option:hover {
+  background-color: var(--dz-accent) !important;
+}
+.contact-select.form-select:focus {
+  border-bottom-color: var(--dz-primary);
+  box-shadow: 0 1px 0 0 var(--dz-primary);
+}
+
+.contact-textarea {
+  min-height: 9rem;
+  resize: vertical;
+  line-height: 1.5;
+  font-family: inherit;
+}
+.contact-counter {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--dz-muted);
+  white-space: nowrap;
+}
+
+/* the plain link under the button */
+.contact-card a.contact-link {
+  color: var(--dz-text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--dz-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.contact-card a.contact-link:hover {
+  color: var(--dz-muted);
+}
+
+.contact-number {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}

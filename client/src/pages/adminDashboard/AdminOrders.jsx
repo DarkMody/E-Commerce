@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { SERVER_URL } from "../../config";
-import OrderCard from "../history/orderCard";
+// import OrderCard from "../history/orderCard";
 import Pagination from "../../components/pagination/Pagination";
 import "../history/history.css"; // order card + status pill styles
 
@@ -65,10 +65,10 @@ export default function AdminOrders() {
       )}
 
       {/* No onEdit prop => no edit button on admin cards */}
-      <div className="history-grid">
+      {/* <div className="history-grid">
         {!loading &&
           orders.map((o) => <OrderCard key={o._id} order={o} showId />)}
-      </div>
+      </div> */}
 
       <Pagination page={page} totalPages={totalPages} onChange={setPage} />
     </>

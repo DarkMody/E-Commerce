@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Nav from "../../components/nav/nav";
-import Follow from "../../components/follow/follow";
 import Footer from "../../components/footer/footer";
 import Button from "../../components/button/button";
 import Input from "../../components/input/input";
@@ -182,8 +181,6 @@ function PasswordModal({ onClose }) {
 
     setSaving(true);
     try {
-      // ===================== BACKEND CONNECTION =====================
-      // PATCH /api/user/password { currentPassword, newPassword } returns { status, message }
       const res = await fetch(`${SERVER_URL}/api/user/password`, {
         method: "PATCH",
         credentials: "include",
@@ -191,8 +188,6 @@ function PasswordModal({ onClose }) {
         body: JSON.stringify({ currentPassword, newPassword }),
       });
       const data = await res.json();
-      // ===============================================================
-
       if (data.status === "success") onClose();
       window.toast(data.status, data.message);
     } catch {
@@ -273,18 +268,15 @@ function DeleteModal({ user, onClose }) {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      // ===================== BACKEND CONNECTION =====================
-      // DELETE /api/user/delete/:id returns { status, message }
       const res = await fetch(`${SERVER_URL}/api/user/delete/${user.id}`, {
         method: "DELETE",
         credentials: "include",
       });
       const data = await res.json();
-      // ===============================================================
 
       window.toast(data.status, data.message);
       if (data.status === "success") {
-        window.location.href = "/"; // full reload so the app forgets the old session
+        window.location.href = "/";
         return;
       }
     } catch {
@@ -340,13 +332,12 @@ function Profile() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState(null); // null | "edit" | "password" | "delete"
+  const [modal, setModal] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
     const fetchUser = async () => {
       try {
-        // GET /api/user returns { data: { id, name, email, image, role, created_at } }
         const res = await fetch(`${SERVER_URL}/api/user`, {
           credentials: "include",
         });
@@ -450,7 +441,6 @@ function Profile() {
         <DeleteModal user={user} onClose={closeModal} />
       )}
 
-      <Follow />
       <Footer />
     </>
   );

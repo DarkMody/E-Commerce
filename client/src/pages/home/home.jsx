@@ -4,7 +4,6 @@ import Nav from "../../components/nav/nav";
 import Button from "../../components/button/button";
 import Card from "../../components/card/card";
 import Footer from "../../components/footer/footer";
-import Follow from "../../components/follow/follow";
 import { ProductGridSkeleton } from "../../components/loading";
 import { SERVER_URL } from "../../config";
 import "./home.css";
@@ -322,7 +321,6 @@ function Home() {
         </section>
       </main>
 
-      <Follow />
       <Footer />
     </>
   );

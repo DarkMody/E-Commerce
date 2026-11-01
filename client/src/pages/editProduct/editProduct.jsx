@@ -4,7 +4,6 @@ import Nav from "../../components/nav/nav";
 import Button from "../../components/button/button";
 import Input from "../../components/input/input";
 import Footer from "../../components/footer/footer";
-import Follow from "../../components/follow/follow";
 import { Skeleton } from "../../components/loading";
 import { SERVER_URL } from "../../config";
 import "../addProduct/addProduct.css";
@@ -555,7 +554,6 @@ function EditProduct() {
     <>
       <Nav />
       <main className="container py-4 py-lg-5">{content}</main>
-      <Follow />
       <Footer />
     </>
   );

@@ -1,7 +1,6 @@
 import "./historyOrder.css";
 import Nav from "../../components/nav/nav";
 import Footer from "../../components/footer/footer";
-import Follow from "../../components/follow/follow";
 import OrderProduct from "../../components/orderProduct/orderProduct";
 import { SERVER_URL } from "../../config";
 import { useState, useEffect } from "react";
@@ -60,7 +59,6 @@ function HistoryOrder() {
         </div>
       )}
 
-      <Follow></Follow>
       <Footer></Footer>
     </>
   );

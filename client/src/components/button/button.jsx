@@ -1,26 +1,14 @@
 import "./button.css";
 
 const VARIANTS = {
-  primary: "btn-primary", // everyday: soft hover
+  primary: "btn-primary",
   outline: "btn-outline-primary",
-  accent: "btn-accent", // lime
+  accent: "btn-accent",
   ghost: "btn-ghost",
   danger: "btn-danger",
 };
 const SIZES = { sm: "btn-sm", md: "", lg: "btn-lg" };
 
-/**
- * Props
- *  - children        button text (or `text`, the old prop, still works)
- *  - variant         "primary" | "outline" | "accent" | "ghost" | "danger"   (default "primary")
- *  - size            "sm" | "md" | "lg"                                      (default "md")
- *  - featured        true = signature accent-sweep hover (primary variant only).
- *                    Use on the 2-3 main actions: Add to cart, Pay, Checkout.
- *  - loading         shows a spinner and blocks clicks
- *  - disabled, fullWidth, icon (any node, shown before the text)
- *  - onClick         (old `onclick` still works)
- *  - type, id, className, and any other normal button attribute
- */
 function Button({
   children,
   text,

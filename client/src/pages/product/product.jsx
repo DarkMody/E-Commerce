@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import Nav from "../../components/nav/nav";
-import Follow from "../../components/follow/follow";
 import Footer from "../../components/footer/footer";
 import Button from "../../components/button/button";
 import Pagination from "../../components/pagination/Pagination";
@@ -89,7 +88,8 @@ function Product() {
           throw new Error(data.message || "Product not found.");
         }
       } catch (err) {
-        if (!cancelled) setError(err.message || "Failed to load product details.");
+        if (!cancelled)
+          setError(err.message || "Failed to load product details.");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -109,7 +109,9 @@ function Product() {
         .catch(() => {});
 
       // Fetch user's own comment if logged in
-      fetch(`${SERVER_URL}/api/comment/me/${productId}`, { credentials: "include" })
+      fetch(`${SERVER_URL}/api/comment/me/${productId}`, {
+        credentials: "include",
+      })
         .then((res) => res.json())
         .then((data) => {
           if (!cancelled && data.data && data.data.length > 0) {
@@ -142,7 +144,7 @@ function Product() {
       setCommentsLoading(true);
       try {
         const res = await fetch(
-          `${SERVER_URL}/api/comment/${productId}?page=${pageToLoad}`
+          `${SERVER_URL}/api/comment/${productId}?page=${pageToLoad}`,
         );
         const data = await res.json();
         if (data.status === "success" && Array.isArray(data.data)) {
@@ -158,7 +160,7 @@ function Product() {
         setCommentsLoading(false);
       }
     },
-    [productId]
+    [productId],
   );
 
   useEffect(() => {
@@ -196,7 +198,9 @@ function Product() {
     } else {
       try {
         const cart = JSON.parse(localStorage.getItem("localCart") || "[]");
-        if (!cart.some((item) => String(item.productId) === String(productId))) {
+        if (
+          !cart.some((item) => String(item.productId) === String(productId))
+        ) {
           cart.push({ productId, quantity: 1 });
           localStorage.setItem("localCart", JSON.stringify(cart));
           setInCart(true);
@@ -233,7 +237,9 @@ function Product() {
     } else {
       try {
         const cart = JSON.parse(localStorage.getItem("localCart") || "[]");
-        const updated = cart.filter((item) => String(item.productId) !== String(productId));
+        const updated = cart.filter(
+          (item) => String(item.productId) !== String(productId),
+        );
         localStorage.setItem("localCart", JSON.stringify(updated));
         setInCart(false);
         window.toast("success", "Removed from your cart.");
@@ -273,8 +279,17 @@ function Product() {
       const data = await res.json();
 
       if (data.status === "success") {
-        window.toast("success", myComment ? "Review updated!" : "Review submitted!");
-        setMyComment(data.data || { c_id: myComment?.c_id, rate: rating, comment: commentText });
+        window.toast(
+          "success",
+          myComment ? "Review updated!" : "Review submitted!",
+        );
+        setMyComment(
+          data.data || {
+            c_id: myComment?.c_id,
+            rate: rating,
+            comment: commentText,
+          },
+        );
         setCommentPage(1);
         loadComments(1);
       } else {
@@ -288,7 +303,10 @@ function Product() {
   };
 
   const handleReviewDelete = async () => {
-    if (!myComment || !window.confirm("Are you sure you want to delete your review?")) {
+    if (
+      !myComment ||
+      !window.confirm("Are you sure you want to delete your review?")
+    ) {
       return;
     }
 
@@ -329,7 +347,12 @@ function Product() {
                 <Skeleton height="460px" rounded="16px" className="mb-3" />
                 <div className="d-flex gap-2">
                   {[0, 1, 2, 3].map((i) => (
-                    <Skeleton key={i} width="68px" height="68px" rounded="10px" />
+                    <Skeleton
+                      key={i}
+                      width="68px"
+                      height="68px"
+                      rounded="10px"
+                    />
                   ))}
                 </div>
               </div>
@@ -339,7 +362,12 @@ function Product() {
                 <Skeleton width="30%" height="24px" />
                 <Skeleton width="45%" height="46px" className="my-2" />
                 <Skeleton width="100%" height="100px" />
-                <Skeleton width="50%" height="48px" rounded="999px" className="mt-3" />
+                <Skeleton
+                  width="50%"
+                  height="48px"
+                  rounded="999px"
+                  className="mt-3"
+                />
               </div>
             </div>
           </div>
@@ -357,7 +385,9 @@ function Product() {
         <main className="product-page py-5">
           <div className="container text-center py-5">
             <h2 className="fw-bold mb-3">Product Not Found</h2>
-            <p className="text-muted mb-4">{error || "The product you're looking for doesn't exist."}</p>
+            <p className="text-muted mb-4">
+              {error || "The product you're looking for doesn't exist."}
+            </p>
             <Link to="/product">
               <Button variant="primary">Browse All Products</Button>
             </Link>
@@ -368,7 +398,11 @@ function Product() {
     );
   }
 
-  const { product, image: images = [], category: categories = [] } = productData;
+  const {
+    product,
+    image: images = [],
+    category: categories = [],
+  } = productData;
   const inStock = Number(product.quantity) > 0;
   const currentImageUrl =
     images.length > 0 && images[activeImageIndex]
@@ -387,7 +421,14 @@ function Product() {
               to="/product"
               className="text-decoration-none text-muted d-inline-flex align-items-center gap-2 small fw-semibold"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <polyline points="15 18 9 12 15 6" />
               </svg>
               <span>Back to all products</span>
@@ -428,12 +469,19 @@ function Product() {
                         className="product-gallery__nav-btn product-gallery__nav-prev"
                         onClick={() =>
                           setActiveImageIndex((prev) =>
-                            prev === 0 ? images.length - 1 : prev - 1
+                            prev === 0 ? images.length - 1 : prev - 1,
                           )
                         }
                         aria-label="Previous image"
                       >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                        >
                           <polyline points="15 18 9 12 15 6" />
                         </svg>
                       </button>
@@ -443,12 +491,19 @@ function Product() {
                         className="product-gallery__nav-btn product-gallery__nav-next"
                         onClick={() =>
                           setActiveImageIndex((prev) =>
-                            prev === images.length - 1 ? 0 : prev + 1
+                            prev === images.length - 1 ? 0 : prev + 1,
                           )
                         }
                         aria-label="Next image"
                       >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                        >
                           <polyline points="9 18 15 12 9 6" />
                         </svg>
                       </button>
@@ -463,7 +518,11 @@ function Product() {
 
                 {/* Thumbnails Row */}
                 {images.length > 1 && (
-                  <div className="product-gallery__thumbs" role="tablist" aria-label="Product thumbnails">
+                  <div
+                    className="product-gallery__thumbs"
+                    role="tablist"
+                    aria-label="Product thumbnails"
+                  >
                     {images.map((img, idx) => (
                       <button
                         type="button"
@@ -499,7 +558,7 @@ function Product() {
                       <Link
                         key={cat.c_id}
                         to={`/product?category=${encodeURIComponent(
-                          JSON.stringify({ c_id: cat.c_id, name: cat.name })
+                          JSON.stringify({ c_id: cat.c_id, name: cat.name }),
                         )}`}
                         className="product-category-pill"
                       >
@@ -515,7 +574,10 @@ function Product() {
                 {/* Seller */}
                 {product.seller_name && (
                   <div className="product-seller">
-                    Sold by: <span className="fw-semibold text-body">{product.seller_name}</span>
+                    Sold by:{" "}
+                    <span className="fw-semibold text-body">
+                      {product.seller_name}
+                    </span>
                   </div>
                 )}
 
@@ -528,7 +590,11 @@ function Product() {
                         width="18"
                         height="18"
                         viewBox="0 0 24 24"
-                        fill={star <= Math.round(Number(product.rate || 0)) ? "currentColor" : "none"}
+                        fill={
+                          star <= Math.round(Number(product.rate || 0))
+                            ? "currentColor"
+                            : "none"
+                        }
                         stroke="currentColor"
                         strokeWidth="1.5"
                       >
@@ -557,14 +623,28 @@ function Product() {
                 >
                   {inStock ? (
                     <>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                      >
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                       <span>In Stock ({product.quantity} units available)</span>
                     </>
                   ) : (
                     <>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                      >
                         <line x1="18" y1="6" x2="6" y2="18" />
                         <line x1="6" y1="6" x2="18" y2="18" />
                       </svg>
@@ -585,7 +665,14 @@ function Product() {
                       loading={cartBusy}
                       onClick={handleDeleteFromCart}
                       icon={
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
                           <polyline points="3 6 5 6 21 6" />
                           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                         </svg>
@@ -602,7 +689,14 @@ function Product() {
                       loading={cartBusy}
                       onClick={handleAddToCart}
                       icon={
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
                           <circle cx="9" cy="21" r="1" />
                           <circle cx="20" cy="21" r="1" />
                           <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
@@ -638,7 +732,11 @@ function Product() {
                             width="20"
                             height="20"
                             viewBox="0 0 24 24"
-                            fill={star <= Math.round(Number(product.rate || 0)) ? "currentColor" : "none"}
+                            fill={
+                              star <= Math.round(Number(product.rate || 0))
+                                ? "currentColor"
+                                : "none"
+                            }
                             stroke="currentColor"
                             strokeWidth="1.5"
                           >
@@ -647,7 +745,8 @@ function Product() {
                         ))}
                       </div>
                       <div className="text-muted small">
-                        Based on {commentTotalItems || product.people || 0} reviews
+                        Based on {commentTotalItems || product.people || 0}{" "}
+                        reviews
                       </div>
                     </div>
                   </div>
@@ -661,8 +760,14 @@ function Product() {
                     </h5>
                     <form onSubmit={handleReviewSubmit}>
                       <div className="mb-2">
-                        <label className="form-label small text-muted">Your Rating:</label>
-                        <div className="review-star-picker" role="radiogroup" aria-label="Rating stars">
+                        <label className="form-label small text-muted">
+                          Your Rating:
+                        </label>
+                        <div
+                          className="review-star-picker"
+                          role="radiogroup"
+                          aria-label="Rating stars"
+                        >
                           {[1, 2, 3, 4, 5].map((val) => {
                             const isLit = val <= (hoveredRating || rating);
                             return (
@@ -727,7 +832,8 @@ function Product() {
                 ) : (
                   <div className="review-form-card text-center py-4">
                     <p className="text-muted small mb-3">
-                      Have you purchased or tried this product? Sign in to share your thoughts.
+                      Have you purchased or tried this product? Sign in to share
+                      your thoughts.
                     </p>
                     <Link to="/login">
                       <Button variant="outline" size="sm">
@@ -754,7 +860,11 @@ function Product() {
                         <div className="d-flex gap-3 mb-2">
                           <Skeleton width="42px" height="42px" rounded="50%" />
                           <div className="flex-grow-1">
-                            <Skeleton width="140px" height="18px" className="mb-1" />
+                            <Skeleton
+                              width="140px"
+                              height="18px"
+                              className="mb-1"
+                            />
                             <Skeleton width="80px" height="14px" />
                           </div>
                         </div>
@@ -780,11 +890,15 @@ function Product() {
                                 />
                               ) : (
                                 <div className="review-avatar-placeholder">
-                                  {comment.name ? comment.name.charAt(0).toUpperCase() : "U"}
+                                  {comment.name
+                                    ? comment.name.charAt(0).toUpperCase()
+                                    : "U"}
                                 </div>
                               )}
                               <div>
-                                <div className="review-author">{comment.name || "Customer"}</div>
+                                <div className="review-author">
+                                  {comment.name || "Customer"}
+                                </div>
                                 <div className="product-rating-stars">
                                   {[1, 2, 3, 4, 5].map((s) => (
                                     <svg
@@ -792,7 +906,11 @@ function Product() {
                                       width="14"
                                       height="14"
                                       viewBox="0 0 24 24"
-                                      fill={s <= Number(comment.rate) ? "currentColor" : "none"}
+                                      fill={
+                                        s <= Number(comment.rate)
+                                          ? "currentColor"
+                                          : "none"
+                                      }
                                       stroke="currentColor"
                                       strokeWidth="1.5"
                                     >
@@ -802,7 +920,9 @@ function Product() {
                                 </div>
                               </div>
                             </div>
-                            <span className="review-time">{timeAgo(comment.created_at)}</span>
+                            <span className="review-time">
+                              {timeAgo(comment.created_at)}
+                            </span>
                           </div>
                           <p className="review-text">{comment.comment}</p>
                         </article>
@@ -819,7 +939,8 @@ function Product() {
                 ) : (
                   <div className="review-card text-center py-5">
                     <p className="text-muted mb-0">
-                      No reviews yet for this product. Be the first to leave a review!
+                      No reviews yet for this product. Be the first to leave a
+                      review!
                     </p>
                   </div>
                 )}
@@ -829,7 +950,6 @@ function Product() {
         </div>
       </main>
 
-      <Follow />
       <Footer />
     </>
   );

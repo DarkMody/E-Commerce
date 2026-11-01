@@ -1,135 +1,116 @@
-import { useEffect, useState } from "react";
-import { SERVER_URL } from "../../config";
+import { useState } from "react";
+import Modal from "../../components/modal/modal";
+import Button from "../../components/button/button";
+import Input from "../../components/input/input";
 import AddressPicker from "../../components/addressPicker/addressPicker";
+import { statusKey, parseLocation, canCustomerEdit, STATUS } from "../../components/orderCard/orderUtils";
+import { SERVER_URL } from "../../config";
 
+/**
+ * Customer edits an order.
+ *  - phone: while the order is processing or shipped
+ *  - location: only while it is processing
+ * Props: order, onClose, onSaved(updatedOrder)
+ */
 export default function OrderEditModal({ order, onClose, onSaved }) {
-  const [phone, setPhone] = useState(order.phone_number || "");
-  const [location, setLocation] = useState(JSON.parse(order.location) || "");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const canEditLocation = String(order.status).toLowerCase() === "processing";
-  const canEditPhone =
-    String(order.status).toLowerCase() === "processing" ||
-    String(order.status).toLowerCase === "shipped";
+  const key = statusKey(order);
+  const canEditLocation = key === STATUS.PROCESSING;
+  const canEditPhone = canCustomerEdit(key);
 
-  useEffect(() => {
-    const onKey = (e) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  const [phone, setPhone] = useState(order.phone_number || "");
+  const [location, setLocation] = useState(parseLocation(order.location));
+  const [touched, setTouched] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const phoneError = touched && canEditPhone && !phone.trim() ? "Phone number is required" : undefined;
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!phone.trim()) return setError("Phone number is required.");
-    if (canEditLocation && !location)
-      return window.toast("error", "Location is required.");
+    if (saving) return;
+    setTouched(true);
+    if (!phone.trim()) return;
+    if (canEditLocation && !location) {
+      window.toast("error", "Location is required.");
+      return;
+    }
 
     setSaving(true);
     try {
-      const body = canEditLocation ? { phone, location } : { phone };
+      const body = canEditLocation
+        ? { phone: phone.trim(), location }
+        : { phone: phone.trim() };
+
+      // ===================== BACKEND CONNECTION =====================
+      // PATCH /api/order/:o_id  { phone, location? }  returns { status, message }
       const res = await fetch(`${SERVER_URL}/api/order/${order.o_id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(body),
       });
-      const updated = await res.json();
-      window.toast(updated.status, updated.message);
+      const result = await res.json();
+      // ===============================================================
+
+      window.toast(result.status, result.message);
+      if (result.status === "success") {
+        // the list updates itself, no need to load the orders again
+        onSaved({
+          ...order,
+          phone_number: phone.trim(),
+          ...(canEditLocation && { location: JSON.stringify(location) }),
+        });
+      }
+    } catch {
+      window.toast("error", "Network error. Please try again.");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <>
-      <div className="modal-backdrop show"></div>
+    <Modal
+      title={`Edit order #${order.o_id}`}
+      onClose={onClose}
+      closeDisabled={saving}
+      footer={
+        <>
+          <Button variant="outline" onClick={onClose} disabled={saving}>
+            Cancel
+          </Button>
+          <Button type="submit" form="edit-order-form" loading={saving}>
+            Save changes
+          </Button>
+        </>
+      }
+    >
+      <form id="edit-order-form" className="d-flex flex-column gap-4" onSubmit={handleSave} noValidate>
+        <Input
+          label="Phone number"
+          type="tel"
+          name="phone"
+          autoComplete="tel"
+          inputMode="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          onBlur={() => setTouched(true)}
+          error={phoneError}
+          required
+          disabled={!canEditPhone || saving}
+        />
 
-      <div
-        className="modal d-block"
-        tabIndex="-1"
-        role="dialog"
-        aria-modal="true"
-        onClick={onClose}
-      >
-        <div
-          className="modal-dialog modal-dialog-centered"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <form className="modal-content" onSubmit={handleSave}>
-            <div className="modal-header">
-              <h5 className="modal-title">Edit order</h5>
-              <button
-                type="button"
-                className="btn-close"
-                aria-label="Close"
-                onClick={onClose}
-              ></button>
-            </div>
-
-            <div className="modal-body">
-              {error && <div className="alert alert-danger">{error}</div>}
-
-              <div className="mb-3">
-                <label htmlFor="order-phone" className="form-label">
-                  Phone number
-                </label>
-                <input
-                  id="order-phone"
-                  type="tel"
-                  className="form-control"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  disabled={!canEditPhone}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="order-location" className="form-label">
-                  Location
-                </label>
-                {canEditLocation && (
-                  <AddressPicker onSelect={setLocation} def={location} />
-                )}
-                <div className={`co-selected ${location ? "" : "is-empty"}`}>
-                  {location
-                    ? location.formattedAddress
-                    : "No location picked yet"}
-                </div>
-                {!canEditLocation && (
-                  <div className="form-text">
-                    The location can't be changed once the order has left
-                    processing.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-outline-secondary"
-                onClick={onClose}
-                disabled={saving}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn btn-dark-zon"
-                disabled={saving}
-              >
-                {saving ? (
-                  <span className="spinner-border spinner-border-sm"></span>
-                ) : (
-                  "Save changes"
-                )}
-              </button>
-            </div>
-          </form>
+        <div>
+          <p className="dz-field__label mb-2">Location</p>
+          {canEditLocation && <AddressPicker onSelect={setLocation} def={location} />}
+          <div className={`order-location ${location ? "" : "is-empty"}`}>
+            {location?.formattedAddress || "No location picked yet"}
+          </div>
+          {!canEditLocation && (
+            <p className="dz-field__message">
+              The location can't be changed once the order has left processing.
+            </p>
+          )}
         </div>
-      </div>
-    </>
+      </form>
+    </Modal>
   );
 }

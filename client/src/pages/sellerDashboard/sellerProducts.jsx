@@ -3,7 +3,6 @@ import Nav from "../../components/nav/nav";
 import Button from "../../components/button/button";
 import Card from "../../components/card/card";
 import Footer from "../../components/footer/footer";
-import Follow from "../../components/follow/follow";
 import { BASE_URL, SERVER_URL } from "../../config";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -88,7 +87,6 @@ function MyProduct() {
           <Button text="Add New Product"></Button>
         </Link>
       </div>
-      <Follow></Follow>
       <Footer></Footer>
     </>
   );

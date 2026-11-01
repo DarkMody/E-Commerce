@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import OrderCard from "../history/orderCard"; // TODO: adjust to where your OrderCard lives
+// import OrderCard from "../history/orderCard"; // TODO: adjust to where your OrderCard lives
 import Pagination from "../../components/pagination/Pagination";
 import ManagerOrderModal from "./ManagerOrderModal";
 import { SERVER_URL } from "../../config";
@@ -94,7 +94,7 @@ export default function ManagerOrders() {
         <p className="text-secondary">No orders found.</p>
       )}
 
-      <div className="history-grid">
+      {/* <div className="history-grid">
         {!loading &&
           orders.map((o) => (
             <OrderCard
@@ -105,7 +105,7 @@ export default function ManagerOrders() {
               onEdit={setSelected}
             />
           ))}
-      </div>
+      </div> */}
 
       <Pagination page={page} totalPages={totalPages} onChange={setPage} />
 
