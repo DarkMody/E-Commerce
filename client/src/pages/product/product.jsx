@@ -68,6 +68,7 @@ function Product() {
 
   const reviewsSectionRef = useRef(null);
   const isLoggedIn = Boolean(window.loggedIn);
+  const [boughtIt, setBoughtIt] = useState(false);
 
   /* ---------- 1. Fetch Product Data ---------- */
   useEffect(() => {
@@ -107,7 +108,15 @@ function Product() {
           }
         })
         .catch(() => {});
-
+      fetch(`${SERVER_URL}/api/product/me/${productId}`, {
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!cancelled && data.data) {
+            setBoughtIt(true);
+          }
+        });
       // Fetch user's own comment if logged in
       fetch(`${SERVER_URL}/api/comment/me/${productId}`, {
         credentials: "include",
@@ -753,7 +762,7 @@ function Product() {
                 </div>
 
                 {/* Add / Edit Review Card */}
-                {isLoggedIn ? (
+                {isLoggedIn && boughtIt ? (
                   <div className="review-form-card">
                     <h5 className="review-form-title">
                       {myComment ? "Edit Your Review" : "Leave a Review"}
@@ -829,7 +838,7 @@ function Product() {
                       </div>
                     </form>
                   </div>
-                ) : (
+                ) : !isLoggedIn ? (
                   <div className="review-form-card text-center py-4">
                     <p className="text-muted small mb-3">
                       Have you purchased or tried this product? Sign in to share
@@ -840,6 +849,13 @@ function Product() {
                         Sign in to review
                       </Button>
                     </Link>
+                  </div>
+                ) : (
+                  <div className="review-form-card text-center py-4">
+                    <p className="text-muted small mb-3">
+                      You have to buy the product to comment. Buy and tell use
+                      your opinion.
+                    </p>
                   </div>
                 )}
               </div>

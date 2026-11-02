@@ -75,14 +75,30 @@ const addComment = asyncWrapper(async (req, res, next) => {
       [req.currentUser.id, req.params.p_id],
     );
     if (commentedBeforeCheck.rows.length === 0) {
-      const result = await pool.query(
-        `INSERT INTO comments (rate,comment,product_id,user_id) values ($1, $2, $3, $4) RETURNING *`,
-        [rate, comment, req.params.p_id, req.currentUser.id],
+      const boughtCheck = await pool.query(
+        `SELECT * FROM products AS p
+        LEFT JOIN order_product AS op ON op.product_id = p.p_id
+        LEFT JOIN orders AS o ON o.o_id = op.order_id
+        LEFT JOIN users AS u ON u.u_id = o.user_id
+        WHERE u.u_id = $1 AND p.p_id = $2 AND o.status = 'Delivered'`,
+        [req.currentUser.id, req.params.p_id],
       );
-      res.json({
-        status: httpStatusText.SUCCESS,
-        data: result.rows[0],
-      });
+      if (boughtCheck.rows.length) {
+        const result = await pool.query(
+          `INSERT INTO comments (rate,comment,product_id,user_id) values ($1, $2, $3, $4) RETURNING *`,
+          [rate, comment, req.params.p_id, req.currentUser.id],
+        );
+        return res.json({
+          status: httpStatusText.SUCCESS,
+          data: result.rows[0],
+        });
+      }
+      const error = appError.create(
+        "You have to buy and test the product first",
+        403,
+        httpStatusText.FAIL,
+      );
+      return next(error);
     }
     const error = appError.create(
       "You commented before you can't do it again edit your comment if needed",

@@ -20,12 +20,6 @@ const SearchIcon = () => (
   </svg>
 );
 
-/**
- * All orders. Shared by the admin (/admin/orders) and the manager (/manager/orders):
- * the server allows both roles on these requests.
- *   Processing -> "Ship order" (choose a courier) and "Cancel order"
- *   Shipped / Delivered / Cancelled -> view only
- */
 export default function AdminOrders() {
   const [params] = useSearchParams(); // /admin/orders?search=10001&status=Processing (from the main page)
   const [orders, setOrders] = useState([]);
@@ -58,9 +52,6 @@ export default function AdminOrders() {
       setLoading(true);
       setError("");
       try {
-        // ===================== BACKEND CONNECTION =====================
-        // GET /api/order?page=&search=&status= -> getAllOrders in adminController.js
-        // Each order has the customer and courier names (customer_name, customer_email, courier_name).
         const query = new URLSearchParams({
           page,
           search,
@@ -69,7 +60,6 @@ export default function AdminOrders() {
         const res = await fetch(`${SERVER_URL}/api/order?${query}`, { credentials: "include" });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Could not load orders.");
-        // ===============================================================
         if (!cancelled) {
           setOrders(data.data);
           setTotalPages(data.pagination.totalPages);
@@ -178,7 +168,7 @@ export default function AdminOrders() {
           endpoint={`/api/admin/order/${cancelling.o_id}`}
           note={`The customer is not notified. Tell them yourself: ${cancelling.phone_number || "no phone"}${cancelling.customer_email ? ` · ${cancelling.customer_email}` : ""}`}
           onClose={() => setCancelling(null)}
-          onCancelled={(order) => updateOrder({ ...order, status: "Cancelled" })}
+          onCancelled={(order) => updateOrder({ ...order, status: "Cancelled", cancelled_at: new Date()})}
         />
       )}
     </>

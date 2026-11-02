@@ -3,10 +3,6 @@ import Modal from "../../components/modal/modal";
 import Button from "../../components/button/button";
 import { SERVER_URL } from "../../config";
 
-/**
- * Ship an order: choose the courier (an employee), then confirm.
- * Props: order, onClose, onShipped(updatedOrder)
- */
 export default function ShipOrderModal({ order, onClose, onShipped }) {
   const [couriers, setCouriers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,12 +14,9 @@ export default function ShipOrderModal({ order, onClose, onShipped }) {
     let cancelled = false;
     const load = async () => {
       try {
-        // ===================== BACKEND CONNECTION =====================
-        // GET /api/admin/couriers -> { data: [ { u_id, name, email, active_orders } ] }
         const res = await fetch(`${SERVER_URL}/api/admin/couriers`, { credentials: "include" });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Could not load the couriers.");
-        // ===============================================================
         if (!cancelled) setCouriers(data.data);
       } catch (err) {
         if (!cancelled) window.toast("error", err.message);
@@ -47,21 +40,18 @@ export default function ShipOrderModal({ order, onClose, onShipped }) {
 
     setSaving(true);
     try {
-      // ===================== BACKEND CONNECTION =====================
-      // PATCH /api/admin/order/:o_id { status: "Shipped", courierId } -> { status, message }
-      const res = await fetch(`${SERVER_URL}/api/admin/order/${order.o_id}`, {
+        const res = await fetch(`${SERVER_URL}/api/admin/order/${order.o_id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ status: "Shipped", courierId }),
       });
       const result = await res.json();
-      // ===============================================================
 
       window.toast(result.status, result.message);
       if (res.ok && result.status === "success") {
         const courier = couriers.find((c) => c.u_id === courierId);
-        onShipped({ ...order, status: "Shipped", courier_id: courierId, courier_name: courier?.name });
+        onShipped({ ...order, status: "Shipped", shipped_at: new Date(), courier_id: courierId, courier_name: courier?.name });
       }
     } catch {
       window.toast("error", "Network error. Please try again.");

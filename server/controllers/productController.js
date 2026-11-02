@@ -416,6 +416,20 @@ const editProduct = asyncWrapper(async (req, res, next) => {
   next(error);
 });
 
+const boughtProduct = asyncWrapper(async (req, res, next) => {
+  const boughtCheck = await pool.query(
+    `SELECT * FROM products AS p
+        LEFT JOIN order_product AS op ON op.product_id = p.p_id
+        LEFT JOIN orders AS o ON o.o_id = op.order_id
+        LEFT JOIN users AS u ON u.u_id = o.user_id
+        WHERE u.u_id = $1 AND p.p_id = $2 AND o.status = 'Delivered'`,
+    [req.currentUser.id, req.params.p_id],
+  );
+  res.json({
+    status: httpStatusText.SUCCESS,
+    data: boughtCheck.rows.length ? true : false,
+  });
+});
 module.exports = {
   getAllProducts,
   getSellerProducts,
@@ -423,4 +437,5 @@ module.exports = {
   addProduct,
   deleteProduct,
   editProduct,
+  boughtProduct,
 };

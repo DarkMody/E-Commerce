@@ -5,7 +5,11 @@ import "./orderCard.css";
 /* ---------- Status pill (also usable on its own, e.g. on the order details page) ---------- */
 export function StatusPill({ status }) {
   const key = String(status ?? "").toLowerCase();
-  return <span className={`status-pill status-pill--${key || "unknown"}`}>{status}</span>;
+  return (
+    <span className={`status-pill status-pill--${key || "unknown"}`}>
+      {status}
+    </span>
+  );
 }
 
 /* ---------- Progress: Processing -> Shipped -> Delivered ---------- */
@@ -33,23 +37,12 @@ function OrderProgress({ currentKey }) {
   );
 }
 
-/**
- * ONE card for every role. The card only SHOWS the order;
- * each page decides which buttons go under it with the `actions` prop.
- *
- * Props
- *  - order          { o_id, created_at, status, total_price, method, phone_number, location,
- *                     customer_name, customer_email, courier_name }   (last three are optional)
- *  - showCustomer   true for admin / manager / delivery: shows customer name and email
- *  - showCourier    true for admin / manager / delivery: shows the courier ("Not assigned" if none)
- *  - actions        any buttons, shown at the bottom of the card
- *
- * Examples
- *  customer:  <OrderCard order={o} actions={<><Button>Edit order</Button> ...</>} />
- *  manager:   <OrderCard order={o} showCustomer showCourier actions={<Button>Assign courier</Button>} />
- *  delivery:  <OrderCard order={o} showCustomer actions={<Button>Mark as delivered</Button>} />
- */
-function OrderCard({ order, showCustomer = false, showCourier = false, actions }) {
+function OrderCard({
+  order,
+  showCustomer = false,
+  showCourier = false,
+  actions,
+}) {
   const key = statusKey(order);
   const cancelled = key === STATUS.CANCELLED;
   const address = parseLocation(order.location)?.formattedAddress;
@@ -61,6 +54,9 @@ function OrderCard({ order, showCustomer = false, showCourier = false, actions }
     showCustomer && ["Customer", order.customer_name],
     showCustomer && ["Email", order.customer_email],
     showCourier && ["Courier", order.courier_name || "Not assigned"],
+    ["Shipped at", formatDate(order.shipped_at) || "Not assigned"],
+    ["Delivered at", formatDate(order.delivered_at) || "Not assigned"],
+    ["Cancelled at", formatDate(order.cancelled_at) || "Not assigned"],
   ]
     .filter(Boolean)
     .filter(([, value]) => value);

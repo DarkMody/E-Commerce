@@ -10,12 +10,15 @@ export const STATUS = {
 // "Processing" / "processing" -> "processing"
 export const statusKey = (order) => String(order?.status ?? "").toLowerCase();
 
-export const formatDate = (value) =>
-  new Date(value).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+export const formatDate = (value) => {
+  if (value) {
+    return new Date(value).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+};
 
 // The server stores the location as a JSON string. Never crash if it's empty or broken.
 export const parseLocation = (value) => {

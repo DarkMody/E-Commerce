@@ -183,7 +183,7 @@ const getAllUsers = asyncWrapper(async (req, res, next) => {
   const [list, count] = await Promise.all([
     pool.query(
       `SELECT u_id, name, email, role, created_at FROM users
-       WHERE email ILIKE $1 ORDER BY created_at DESC, u_id LIMIT $2 OFFSET $3`,
+        WHERE email ILIKE $1 ORDER BY created_at DESC, u_id LIMIT $2 OFFSET $3`,
       [like, pageSize, (page - 1) * pageSize],
     ),
     pool.query(
@@ -206,7 +206,7 @@ const getAllUsers = asyncWrapper(async (req, res, next) => {
 
 const getAllOrders = asyncWrapper(async (req, res, next) => {
   const page = toPage(req.query.page);
-  const pageSize = 12;
+  const pageSize = 6;
   const digits = String(req.query.search ?? "").replace(/\D/g, "");
   const wanted = String(req.query.status ?? "").toLowerCase();
   const status = ORDER_STATUSES.find((s) => s.toLowerCase() === wanted) ?? "";
@@ -364,7 +364,7 @@ const adminEditOrder = asyncWrapper(async (req, res, next) => {
       if (!courier.rows.length) problem = ["Choose a valid courier.", 400];
       else {
         await client.query(
-          `UPDATE orders SET status = 'Shipped', courier_id = $1 WHERE o_id = $2`,
+          `UPDATE orders SET status = 'Shipped', shipped_at = NOW(), courier_id = $1 WHERE o_id = $2`,
           [courierId, orderId],
         );
       }
@@ -378,7 +378,7 @@ const adminEditOrder = asyncWrapper(async (req, res, next) => {
         [orderId],
       );
       await client.query(
-        `UPDATE orders SET status = 'Cancelled' WHERE o_id = $1`,
+        `UPDATE orders SET status = 'Cancelled', cancelled_at = NOW() WHERE o_id = $1`,
         [orderId],
       );
     } else {
