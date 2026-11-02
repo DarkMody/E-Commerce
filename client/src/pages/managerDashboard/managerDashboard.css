@@ -1,0 +1,48 @@
+.is-refreshing {
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* ---------- Couriers page ---------- */
+.courier-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+  padding: 1.25rem;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+  box-shadow: var(--dz-shadow);
+}
+.courier-card__orders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.courier-card__order {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  background-color: var(--dz-surface-2);
+  border-radius: var(--dz-radius);
+}
+.courier-card__order a {
+  font-weight: 700;
+  color: var(--dz-text);
+  text-decoration: none;
+}
+.courier-card__order a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--dz-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.courier-card__order p {
+  margin: 0.15rem 0 0;
+  color: var(--dz-muted);
+  word-break: break-word;
+}
