@@ -36,6 +36,7 @@ import AdminOrders from "./pages/adminDashboard/AdminOrders";
 import ManagerLayout from "./pages/managerDashboard/ManagerLayout";
 import ManagerMain from "./pages/managerDashboard/ManagerMain";
 import ManagerOrders from "./pages/managerDashboard/ManagerOrders";
+import ManagerCouriers from "./pages/managerDashboard/ManagerCouriers";
 
 const loadCurrentUser = async () => {
   try {
@@ -102,6 +103,7 @@ function App() {
         <Route path="/manager" element={<ManagerLayout />}>
           <Route index element={<ManagerMain />} />
           <Route path="orders" element={<ManagerOrders />} />
+          <Route path="couriers" element={<ManagerCouriers />} />
         </Route>
       </Routes>
     </HashRouter>

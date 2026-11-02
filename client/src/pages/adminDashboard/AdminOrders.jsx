@@ -13,14 +13,22 @@ import { SERVER_URL } from "../../config";
 const TABS = ["All", "Processing", "Shipped", "Delivered", "Cancelled"];
 
 const SearchIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-    strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    aria-hidden="true"
+  >
     <circle cx="11" cy="11" r="7" />
     <path d="M20 20l-3.5-3.5" />
   </svg>
 );
 
-export default function AdminOrders() {
+export default function AdminOrders({ title = "All Orders" }) {
   const [params] = useSearchParams(); // /admin/orders?search=10001&status=Processing (from the main page)
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(1);
@@ -28,7 +36,9 @@ export default function AdminOrders() {
   const [searchInput, setSearchInput] = useState(params.get("search") || "");
   const [search, setSearch] = useState(params.get("search") || ""); // debounced value sent to the server
   const [status, setStatus] = useState(
-    TABS.find((t) => t.toLowerCase() === (params.get("status") || "").toLowerCase()) || "All",
+    TABS.find(
+      (t) => t.toLowerCase() === (params.get("status") || "").toLowerCase(),
+    ) || "All",
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -57,7 +67,9 @@ export default function AdminOrders() {
           search,
           status: status === "All" ? "" : status,
         });
-        const res = await fetch(`${SERVER_URL}/api/order?${query}`, { credentials: "include" });
+        const res = await fetch(`${SERVER_URL}/api/order?${query}`, {
+          credentials: "include",
+        });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Could not load orders.");
         if (!cancelled) {
@@ -77,7 +89,9 @@ export default function AdminOrders() {
   }, [page, search, status, reloadKey]);
 
   const updateOrder = (updated) => {
-    setOrders((prev) => prev.map((o) => (o.o_id === updated.o_id ? updated : o)));
+    setOrders((prev) =>
+      prev.map((o) => (o.o_id === updated.o_id ? updated : o)),
+    );
     setShipping(null);
     setCancelling(null);
   };
@@ -89,7 +103,7 @@ export default function AdminOrders() {
 
   return (
     <>
-      <h1 className="dash-title">All Orders</h1>
+      <h1 className="dash-title">{title}</h1>
 
       <div className="d-flex flex-column gap-3 mb-4">
         <div className="dash-search">
@@ -121,9 +135,18 @@ export default function AdminOrders() {
       {loading && showSkeleton && <OrderGridSkeleton count={6} />}
 
       {error && !loading && (
-        <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
+        <div
+          className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2"
+          role="alert"
+        >
           <span>{error}</span>
-          <Button variant="outline" size="sm" onClick={() => setReloadKey((k) => k + 1)}>Try again</Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setReloadKey((k) => k + 1)}
+          >
+            Try again
+          </Button>
         </div>
       )}
 
@@ -144,8 +167,15 @@ export default function AdminOrders() {
                 actions={
                   isProcessing ? (
                     <>
-                      <Button size="sm" onClick={() => setShipping(order)}>Ship order</Button>
-                      <Button size="sm" variant="outline" className="order-action--danger" onClick={() => setCancelling(order)}>
+                      <Button size="sm" onClick={() => setShipping(order)}>
+                        Ship order
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="order-action--danger"
+                        onClick={() => setCancelling(order)}
+                      >
                         Cancel order
                       </Button>
                     </>
@@ -160,7 +190,11 @@ export default function AdminOrders() {
       <Pagination page={page} totalPages={totalPages} onChange={setPage} />
 
       {shipping && (
-        <ShipOrderModal order={shipping} onClose={() => setShipping(null)} onShipped={updateOrder} />
+        <ShipOrderModal
+          order={shipping}
+          onClose={() => setShipping(null)}
+          onShipped={updateOrder}
+        />
       )}
       {cancelling && (
         <CancelOrderModal
@@ -168,7 +202,13 @@ export default function AdminOrders() {
           endpoint={`/api/admin/order/${cancelling.o_id}`}
           note={`The customer is not notified. Tell them yourself: ${cancelling.phone_number || "no phone"}${cancelling.customer_email ? ` · ${cancelling.customer_email}` : ""}`}
           onClose={() => setCancelling(null)}
-          onCancelled={(order) => updateOrder({ ...order, status: "Cancelled", cancelled_at: new Date()})}
+          onCancelled={(order) =>
+            updateOrder({
+              ...order,
+              status: "Cancelled",
+              cancelled_at: new Date(),
+            })
+          }
         />
       )}
     </>

@@ -35,3 +35,9 @@ export const parseLocation = (value) => {
 export const canCustomerEdit = (key) =>
   key === STATUS.PROCESSING || key === STATUS.SHIPPED; // phone (location only while processing)
 export const canCancel = (key) => key === STATUS.PROCESSING; // customer and manager
+
+// 5 -> "5h", 80 -> "3d"
+export const formatWaiting = (hours) => {
+  const h = Math.max(0, Number(hours) || 0);
+  return h < 48 ? `${Math.max(1, Math.round(h))}h` : `${Math.floor(h / 24)}d`;
+};
