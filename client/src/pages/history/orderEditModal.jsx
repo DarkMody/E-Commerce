@@ -3,15 +3,14 @@ import Modal from "../../components/modal/modal";
 import Button from "../../components/button/button";
 import Input from "../../components/input/input";
 import AddressPicker from "../../components/addressPicker/addressPicker";
-import { statusKey, parseLocation, canCustomerEdit, STATUS } from "../../components/orderCard/orderUtils";
+import {
+  statusKey,
+  parseLocation,
+  canCustomerEdit,
+  STATUS,
+} from "../../components/orderCard/orderUtils";
 import { SERVER_URL } from "../../config";
 
-/**
- * Customer edits an order.
- *  - phone: while the order is processing or shipped
- *  - location: only while it is processing
- * Props: order, onClose, onSaved(updatedOrder)
- */
 export default function OrderEditModal({ order, onClose, onSaved }) {
   const key = statusKey(order);
   const canEditLocation = key === STATUS.PROCESSING;
@@ -22,7 +21,10 @@ export default function OrderEditModal({ order, onClose, onSaved }) {
   const [touched, setTouched] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const phoneError = touched && canEditPhone && !phone.trim() ? "Phone number is required" : undefined;
+  const phoneError =
+    touched && canEditPhone && !phone.trim()
+      ? "Phone number is required"
+      : undefined;
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -37,11 +39,9 @@ export default function OrderEditModal({ order, onClose, onSaved }) {
     setSaving(true);
     try {
       const body = canEditLocation
-        ? { phone: phone.trim(), location }
-        : { phone: phone.trim() };
+        ? { phoneNumber: phone.trim(), location }
+        : { phoneNumber: phone.trim() };
 
-      // ===================== BACKEND CONNECTION =====================
-      // PATCH /api/order/:o_id  { phone, location? }  returns { status, message }
       const res = await fetch(`${SERVER_URL}/api/order/${order.o_id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -49,11 +49,9 @@ export default function OrderEditModal({ order, onClose, onSaved }) {
         body: JSON.stringify(body),
       });
       const result = await res.json();
-      // ===============================================================
 
       window.toast(result.status, result.message);
       if (result.status === "success") {
-        // the list updates itself, no need to load the orders again
         onSaved({
           ...order,
           phone_number: phone.trim(),
@@ -83,7 +81,12 @@ export default function OrderEditModal({ order, onClose, onSaved }) {
         </>
       }
     >
-      <form id="edit-order-form" className="d-flex flex-column gap-4" onSubmit={handleSave} noValidate>
+      <form
+        id="edit-order-form"
+        className="d-flex flex-column gap-4"
+        onSubmit={handleSave}
+        noValidate
+      >
         <Input
           label="Phone number"
           type="tel"
@@ -100,7 +103,9 @@ export default function OrderEditModal({ order, onClose, onSaved }) {
 
         <div>
           <p className="dz-field__label mb-2">Location</p>
-          {canEditLocation && <AddressPicker onSelect={setLocation} def={location} />}
+          {canEditLocation && (
+            <AddressPicker onSelect={setLocation} def={location} />
+          )}
           <div className={`order-location ${location ? "" : "is-empty"}`}>
             {location?.formattedAddress || "No location picked yet"}
           </div>

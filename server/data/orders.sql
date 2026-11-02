@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS orders (
 	status      VARCHAR(25) NOT NULL DEFAULT 'Processing' CHECK (status IN ('Processing', 'Shipped', 'Delivered', 'Cancelled')),
     total_price NUMERIC(12, 2) NOT NULL CHECK (total_price >= 0),
     method      VARCHAR(20) NOT NULL CHECK (method IN ('visa', 'cash')),
+    courier_id  UUID REFERENCES users(u_id),
     created_at  TIMESTAMPTZ    DEFAULT NOW()
 );

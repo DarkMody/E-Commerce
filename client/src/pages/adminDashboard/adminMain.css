@@ -1,0 +1,113 @@
+/* Admin main page extras. Shared dashboard styles are in components/dashboardLayout. */
+
+.admin-statuses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+.admin-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius);
+}
+.admin-status strong {
+  font-size: 1.25rem;
+}
+
+/* Sales | Orders switch above the chart */
+.dash-toggle {
+  display: inline-flex;
+  padding: 3px;
+  background-color: var(--dz-surface-2);
+  border: 1px solid var(--dz-border);
+  border-radius: 999px;
+}
+.dash-toggle button {
+  padding: 0.25rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dz-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.dash-toggle button[aria-pressed="true"] {
+  color: var(--dz-on-primary);
+  background-color: var(--dz-primary);
+}
+.dash-toggle button:focus-visible {
+  outline: 2px solid var(--dz-primary);
+  outline-offset: 2px;
+}
+
+/* simple lists inside panels */
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.admin-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+.admin-list a {
+  font-weight: 600;
+  color: var(--dz-text);
+  text-decoration: none;
+}
+.admin-list a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--dz-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.admin-list .name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-muted {
+  color: var(--dz-muted);
+}
+.admin-badge {
+  padding: 0.1rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 999px;
+  color: var(--dz-warning);
+  background-color: var(--dz-warning-bg);
+  border: 1px solid var(--dz-warning-border);
+}
+.admin-badge--danger {
+  color: var(--dz-danger);
+  background-color: var(--dz-danger-bg);
+  border-color: var(--dz-danger-border);
+}
+
+/* payment methods bars */
+.admin-bar {
+  height: 8px;
+  margin-top: 0.3rem;
+  background-color: var(--dz-surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.admin-bar > span {
+  display: block;
+  height: 100%;
+  background-color: var(--dz-primary);
+  border-radius: 999px;
+}

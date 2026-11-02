@@ -1,8 +1,6 @@
-import { NavLink, Outlet } from "react-router-dom";
-import "./Admin.css";
-import Nav from "../../components/nav/nav";
+import DashboardLayout from "../../components/dashboardLayout/dashboardLayout";
 
-// Sidebar items. Add more later by pushing to this array + adding a <Route>.
+// Sidebar items. Add more later: one line here + one <Route> in App.jsx.
 const LINKS = [
   { to: "/admin", label: "Main", end: true },
   { to: "/admin/roles", label: "Edit Roles" },
@@ -10,29 +8,5 @@ const LINKS = [
 ];
 
 export default function AdminLayout() {
-  return (
-    <>
-      <Nav></Nav>
-      <div className="admin-shell">
-        <aside className="admin-sidebar">
-          {LINKS.map((l) => (
-            <NavLink
-              key={l.to}
-              to={l.to}
-              end={l.end}
-              className={({ isActive }) =>
-                `admin-link ${isActive ? "active" : ""}`
-              }
-            >
-              {l.label}
-            </NavLink>
-          ))}
-        </aside>
-
-        <main className="admin-content">
-          <Outlet />
-        </main>
-      </div>
-    </>
-  );
+  return <DashboardLayout label="Admin" links={LINKS} />;
 }

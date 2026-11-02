@@ -5,7 +5,11 @@ import Footer from "../../components/footer/footer";
 import Button from "../../components/button/button";
 import OrderCard from "../../components/orderCard/orderCard";
 import CancelOrderModal from "../../components/orderCard/cancelOrderModal";
-import { statusKey, canCustomerEdit, canCancel } from "../../components/orderCard/orderUtils";
+import {
+  statusKey,
+  canCustomerEdit,
+  canCancel,
+} from "../../components/orderCard/orderUtils";
 import { OrderGridSkeleton, useDelayedLoading } from "../../components/loading";
 import OrderEditModal from "./orderEditModal";
 import { SERVER_URL } from "../../config";
@@ -28,13 +32,11 @@ export default function History() {
       setLoading(true);
       setError("");
       try {
-        // ===================== BACKEND CONNECTION =====================
-        // GET /api/user/order returns { data: [ { o_id, created_at, status, total_price,
-        //   method, phone_number, location } ] } for the logged-in user
-        const res = await fetch(`${SERVER_URL}/api/user/order`, { credentials: "include" });
+        const res = await fetch(`${SERVER_URL}/api/user/order`, {
+          credentials: "include",
+        });
         if (!res.ok) throw new Error("Could not load your orders.");
         const data = await res.json();
-        // ===============================================================
         if (!cancelled) setOrders(data.data || []);
       } catch (err) {
         if (!cancelled) setError(err.message || "Could not load your orders.");
@@ -51,7 +53,9 @@ export default function History() {
 
   // Replace one order in the list without loading everything again
   const updateOrder = (updated) => {
-    setOrders((prev) => prev.map((o) => (o.o_id === updated.o_id ? updated : o)));
+    setOrders((prev) =>
+      prev.map((o) => (o.o_id === updated.o_id ? updated : o)),
+    );
     setEditing(null);
     setCancelling(null);
   };
@@ -61,9 +65,16 @@ export default function History() {
     content = showSkeleton ? <OrderGridSkeleton count={6} /> : null;
   } else if (error) {
     content = (
-      <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
+      <div
+        className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2"
+        role="alert"
+      >
         <span>{error}</span>
-        <Button variant="outline" size="sm" onClick={() => setReloadKey((k) => k + 1)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setReloadKey((k) => k + 1)}
+        >
           Try again
         </Button>
       </div>
@@ -72,7 +83,9 @@ export default function History() {
     content = (
       <div className="text-center py-5">
         <h2 className="h4 fw-bold mb-2">No orders yet</h2>
-        <p className="text-secondary mb-4">You haven't placed any orders yet.</p>
+        <p className="text-secondary mb-4">
+          You haven't placed any orders yet.
+        </p>
         <Button onClick={() => navigate("/product")}>Browse products</Button>
       </div>
     );
@@ -100,7 +113,13 @@ export default function History() {
               )}
             </>
           );
-          return <OrderCard key={order.o_id} order={order} actions={actions || undefined} />;
+          return (
+            <OrderCard
+              key={order.o_id}
+              order={order}
+              actions={actions || undefined}
+            />
+          );
         })}
       </div>
     );
@@ -115,13 +134,19 @@ export default function History() {
       </main>
 
       {editing && (
-        <OrderEditModal order={editing} onClose={() => setEditing(null)} onSaved={updateOrder} />
+        <OrderEditModal
+          order={editing}
+          onClose={() => setEditing(null)}
+          onSaved={updateOrder}
+        />
       )}
       {cancelling && (
         <CancelOrderModal
           order={cancelling}
           onClose={() => setCancelling(null)}
-          onCancelled={(order) => updateOrder({ ...order, status: "Cancelled" })}
+          onCancelled={(order) =>
+            updateOrder({ ...order, status: "Cancelled" })
+          }
         />
       )}
       <Footer />

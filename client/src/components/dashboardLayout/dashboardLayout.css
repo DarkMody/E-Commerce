@@ -1,0 +1,163 @@
+/* Shared by the dashboards (admin now; seller and manager can move to it too).
+   Colors come from theme.css. */
+
+.dash-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: calc(100vh - 60px); /* below the top nav */
+  background-color: var(--dz-bg);
+}
+
+/* ---------- Sidebar ---------- */
+.dash-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.5rem 0.9rem;
+  background-color: var(--dz-surface);
+  border-right: 1px solid var(--dz-border);
+}
+.dash-link {
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  color: var(--dz-muted);
+  text-decoration: none;
+  border-radius: 999px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+.dash-link:hover {
+  color: var(--dz-text);
+  background-color: var(--dz-surface-2);
+}
+.dash-link.active {
+  color: var(--dz-on-primary);
+  background-color: var(--dz-primary);
+}
+
+/* ---------- Content ---------- */
+.dash-content {
+  min-width: 0;
+  padding: 2rem 1.75rem;
+}
+.dash-title {
+  margin-bottom: 1.5rem;
+  font-family: "boldest", sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.dash-panel {
+  padding: 1.25rem 1.5rem;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+  box-shadow: var(--dz-shadow);
+}
+.dash-panel__title {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.dash-search {
+  max-width: 420px;
+}
+
+/* ---------- Number cards ---------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+.stat-card {
+  padding: 1.25rem 1.5rem;
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+  box-shadow: var(--dz-shadow);
+}
+.stat-card__label {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  color: var(--dz-muted);
+}
+.stat-card__value {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+/* Red outline button (delete) */
+.dash-danger-btn {
+  --bs-btn-color: var(--dz-danger);
+  --bs-btn-border-color: var(--dz-danger-border);
+  --bs-btn-hover-color: var(--dz-danger);
+  --bs-btn-hover-bg: var(--dz-danger-bg);
+  --bs-btn-hover-border-color: var(--dz-danger);
+  --bs-btn-active-color: var(--dz-danger);
+  --bs-btn-active-bg: var(--dz-danger-bg);
+  --bs-btn-active-border-color: var(--dz-danger);
+  --bs-btn-disabled-color: var(--dz-danger);
+  --bs-btn-disabled-border-color: var(--dz-danger-border);
+}
+
+/* Status filter tabs (all orders page) */
+.dash-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.dash-tab {
+  padding: 0.35rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--dz-muted);
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+.dash-tab:hover {
+  color: var(--dz-text);
+  background-color: var(--dz-surface-2);
+}
+.dash-tab[aria-pressed="true"] {
+  color: var(--dz-on-primary);
+  background-color: var(--dz-primary);
+  border-color: var(--dz-primary);
+}
+.dash-tab:focus-visible {
+  outline: 2px solid var(--dz-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Pagination ---------- */
+.admin-pagination .page-link {
+  margin: 0 2px;
+  border-radius: 8px;
+}
+
+/* ---------- Small screens: the sidebar becomes a top bar ---------- */
+@media (max-width: 768px) {
+  .dash-shell {
+    grid-template-columns: 1fr;
+  }
+  .dash-sidebar {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0.75rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--dz-border);
+  }
+  .dash-link {
+    white-space: nowrap;
+  }
+  .dash-content {
+    padding: 1.25rem 0.9rem;
+  }
+}

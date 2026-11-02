@@ -4,9 +4,10 @@ const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
 
 const getOrders = asyncWrapper(async (req, res, next) => {
-  const result = await pool.query(`SELECT * FROM orders WHERE user_id = $1`, [
-    req.currentUser.id,
-  ]);
+  const result = await pool.query(
+    `SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC`,
+    [req.currentUser.id],
+  );
   return res.json({ status: httpStatusText.SUCCESS, data: result.rows });
 });
 
@@ -112,6 +113,13 @@ const editOrder = asyncWrapper(async (req, res, next) => {
           ),
         );
         await Promise.all(changeStock);
+      } else if (status) {
+        const error = appError.create(
+          "You can just cancel the order no thing else",
+          401,
+          httpStatusText.FAIL,
+        );
+        return next(error);
       }
       await pool.query(
         `UPDATE orders SET location = $1, phone_number = $2, status = $3 WHERE o_id = $4`,
@@ -130,21 +138,6 @@ const editOrder = asyncWrapper(async (req, res, next) => {
       );
       return next(error);
     }
-  } else if (
-    req.currentUser.role != "user" &&
-    req.currentUser.role != "seller"
-  ) {
-    await pool.query(`UPDATE orders SET status = $1 WHERE o_id = $2`, [
-      status ?? order.rows[0].status,
-      orderId,
-    ]);
-  } else {
-    const error = appError.create(
-      "You don't have access to edit product",
-      401,
-      httpStatusText.FAIL,
-    );
-    return next(error);
   }
   res.json({
     status: httpStatusText.SUCCESS,
