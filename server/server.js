@@ -7,12 +7,11 @@ const path = require("path");
 const port = process.env.PORT || 5000;
 const createTables = require("./data/createTables");
 const cookieParser = require("cookie-parser");
-const FrontURL = "https://qjv0b2xk-3000.eun1.devtunnels.ms";
 
 app.use(cookieParser());
 app.use(
   cors({
-    origin: FrontURL, // your frontend URL
+    origin: process.env.FrontURL, // your frontend URL
     credentials: true, // allows cookies to be sent cross-origin
   }),
 );
