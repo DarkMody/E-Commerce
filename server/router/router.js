@@ -10,5 +10,6 @@ router.use(require("./adminRoutes"));
 router.use(require("./sellerRoutes"));
 router.use(require("./managerRoutes"));
 router.use(require("./employeeRoutes"));
+router.use(require("./deliveryRoutes"))
 
 module.exports = router;

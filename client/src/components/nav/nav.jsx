@@ -71,6 +71,7 @@ const DASHBOARDS = {
   seller: { to: "/seller", label: "Seller Dashboard" },
   admin: { to: "/admin", label: "Admin Dashboard" },
   manager: { to: "/manager", label: "Manager Dashboard" },
+  employee: { to: "/employee", label: "Employee Dashboard" },
 };
 
 const getUserRole = () => {

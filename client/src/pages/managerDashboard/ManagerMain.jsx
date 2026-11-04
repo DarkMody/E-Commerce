@@ -301,7 +301,7 @@ export default function ManagerMain() {
                       />
                       <Legend wrapperStyle={{ color: "var(--dz-muted)" }} />
                       <Bar dataKey="placed" name="Placed" fill="var(--dz-primary)" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="delivered" name="Delivered" fill="var(--dz-accent)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="delivered" name="Delivered" fill="var(--dz-hover)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

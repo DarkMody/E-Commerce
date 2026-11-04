@@ -259,12 +259,12 @@ export default function AdminRoles() {
                           }
                         >
                           {ROLES.map((r) => {
-                            if (r === "seller") {
+                            if (r === "seller" || r === "admin") {
                               return (
                                 <option
                                   key={r}
                                   disabled={true}
-                                  title="You have to make this user create new seller account"
+                                  title={`You have to make this user create new ${r} account`}
                                   value={r}
                                 >
                                   {r}

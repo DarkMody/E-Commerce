@@ -7,7 +7,7 @@ const path = require("path");
 const port = process.env.PORT || 5000;
 const createTables = require("./data/createTables");
 const cookieParser = require("cookie-parser");
-const FrontURL = "http://localhost:3000";
+const FrontURL = "https://qjv0b2xk-3000.eun1.devtunnels.ms";
 
 app.use(cookieParser());
 app.use(
@@ -26,7 +26,7 @@ pool.connect().then(() => {
   console.log("connected");
   createTables();
 });
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`Working on port ${port}`);
 });
 

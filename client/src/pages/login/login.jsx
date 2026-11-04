@@ -113,7 +113,7 @@ function Login() {
           Back to Home
         </Link>
         <div>
-          <h2 className="auth-title">Sign in</h2>
+          <h2 className="auth-title">Login</h2>
           <p className="auth-sub">Welcome back — good to see you again.</p>
         </div>
 
@@ -155,7 +155,7 @@ function Login() {
         />
 
         <Button type="submit" featured fullWidth loading={loading}>
-          Sign in
+          Login
         </Button>
 
         <p className="auth-switch">

@@ -151,10 +151,11 @@ const getOrderProduct = asyncWrapper(async (req, res, next) => {
   ]);
   if (
     order.rows[0].user_id == req.currentUser.id ||
-    req.currentUser.role == "admin"
+    req.currentUser.role == "admin" ||
+    req.currentUser.role == "manager"
   ) {
     const result = await pool.query(
-      `SELECT p.*, op.quantity AS ordered_quantity, i.image FROM products as p
+      `SELECT p.*, op.quantity AS ordered_quantity, op.price AS product_price, i.image FROM products as p
       JOIN order_product as op ON p.p_id = op.product_id
       JOIN orders as o ON o.o_id = op.order_id
       JOIN images as i ON i.product_id = p.p_id

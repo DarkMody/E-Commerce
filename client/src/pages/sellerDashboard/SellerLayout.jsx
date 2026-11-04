@@ -1,49 +1,20 @@
-import { NavLink, Outlet } from "react-router-dom";
-import Nav from "../../components/nav/nav";
-import "./SellerDashboard.css";
+import DashboardLayout from "../../components/dashboardLayout/dashboardLayout";
 
-// Sidebar items. Add more later by pushing to this array + adding a <Route>.
 const LINKS = [
   { to: "/seller", label: "Main", end: true },
   { to: "/seller/products", label: "My Products" },
+  { to: "/seller/orders", label: "Orders" },
 ];
 
 /**
- * Sidebar + content area.
- *
- * Routes (put in App.jsx):
+ * Routes (App.jsx):
  *   <Route path="/seller" element={<SellerLayout />}>
  *     <Route index element={<SellerMain />} />
- *     <Route path="products" element={<MyProduct />} />   // your sellerProducts.jsx
+ *     <Route path="products" element={<SellerProducts />} />
+ *     <Route path="orders" element={<SellerOrders />} />
  *   </Route>
- *
- * NOTE: if your router already renders <Nav /> globally, delete the Nav import and tag here.
- * TODO (security): only allow role "seller" on this route AND on every /api/seller/* endpoint.
+ * TODO (security): only the role "seller" may open this route.
  */
 export default function SellerLayout() {
-  return (
-    <>
-      <Nav />
-      <div className="seller-shell">
-        <aside className="seller-sidebar">
-          {LINKS.map((l) => (
-            <NavLink
-              key={l.to}
-              to={l.to}
-              end={l.end}
-              className={({ isActive }) =>
-                `seller-link ${isActive ? "active" : ""}`
-              }
-            >
-              {l.label}
-            </NavLink>
-          ))}
-        </aside>
-
-        <main className="seller-content">
-          <Outlet />
-        </main>
-      </div>
-    </>
-  );
+  return <DashboardLayout label="Seller" links={LINKS} />;
 }

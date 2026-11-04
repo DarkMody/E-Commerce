@@ -139,6 +139,32 @@
   border-radius: var(--dz-radius);
 }
 
+/* ---------- Items (seller page) ---------- */
+.order-card__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9rem;
+  list-style: none;
+}
+.order-card__items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.order-card__items li span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.order-card__items li span:last-child {
+  flex-shrink: 0;
+  color: var(--dz-muted);
+}
+
 /* ---------- Total + details ---------- */
 .order-card__total {
   display: flex;

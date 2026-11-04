@@ -25,6 +25,7 @@ import EditProduct from "./pages/editProduct/editProduct";
 import SellerLayout from "./pages/sellerDashboard/SellerLayout";
 import SellerMain from "./pages/sellerDashboard/SellerMain";
 import SellerProducts from "./pages/sellerDashboard/sellerProducts";
+import SellerOrders from "./pages/sellerDashboard/SellerOrders";
 
 // Admin
 import AdminLayout from "./pages/adminDashboard/AdminLayout";
@@ -37,6 +38,9 @@ import ManagerLayout from "./pages/managerDashboard/ManagerLayout";
 import ManagerMain from "./pages/managerDashboard/ManagerMain";
 import ManagerOrders from "./pages/managerDashboard/ManagerOrders";
 import ManagerCouriers from "./pages/managerDashboard/ManagerCouriers";
+
+// Delivery
+import Delivery from "./pages/deliveryDashboard/delivery";
 
 const loadCurrentUser = async () => {
   try {
@@ -90,6 +94,7 @@ function App() {
         <Route path="/seller" element={<SellerLayout />}>
           <Route index element={<SellerMain />} />
           <Route path="products" element={<SellerProducts />} />
+          <Route path="orders" element={<SellerOrders />} />
         </Route>
 
         {/* Admin */}
@@ -105,6 +110,9 @@ function App() {
           <Route path="orders" element={<ManagerOrders />} />
           <Route path="couriers" element={<ManagerCouriers />} />
         </Route>
+
+        {/* Delivery */}
+          <Route path="/employee" element={<Delivery />} />
       </Routes>
     </HashRouter>
   );

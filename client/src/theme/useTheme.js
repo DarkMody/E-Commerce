@@ -15,6 +15,7 @@ export default function useTheme() {
 
   // Apply + save whenever it changes
   useEffect(() => {
+    setTheme(localStorage.getItem(KEY) ?? "light");
     document.documentElement.setAttribute("data-bs-theme", theme);
   }, [theme]);
 

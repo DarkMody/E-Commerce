@@ -1,0 +1,19 @@
+.delivery-page {
+  min-height: 70vh;
+}
+.delivery-title {
+  font-family: "boldest", sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* small "Call" and "Map" buttons under the main two */
+.delivery-links {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+.delivery-links .btn {
+  flex: 1 1 0;
+}

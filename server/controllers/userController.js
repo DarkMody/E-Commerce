@@ -88,7 +88,13 @@ const logout = asyncWrapper(async (req, res, next) => {
 });
 
 const deleteUser = asyncWrapper(async (req, res, next) => {
+  const user = await pool.query(`SELECT * FROM users WHERE u_id = $1`, [
+    req.params.u_id,
+  ]);
   if (req.currentUser.id === req.params.u_id) {
+    if (req.currentUser.img !== "default.jfif") {
+      fs.unlink(path.join(__dirname, "..", "uploads", user.image), () => {});
+    }
     await pool.query(`DELETE FROM users WHERE u_id = $1`, [req.params.u_id]);
     res.clearCookie("accessToken", { path: "/" });
     res.clearCookie("refreshToken", { path: "/" });
