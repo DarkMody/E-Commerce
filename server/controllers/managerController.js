@@ -2,12 +2,12 @@ const pool = require("../config/db");
 const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
+const validations = require("../middlewares/validations");
 
 const PROCESSING_DELAY_HOURS = 24;
 const SHIPPED_DELAY_HOURS = 72;
 
-const MAX_RANGE_DAYS = 366;
-const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+const DATE_REGEX = validations.DATE_REGEX;
 
 const fail = (next, message, code = 400) =>
   next(appError.create(message, code, httpStatusText.FAIL));
@@ -26,8 +26,6 @@ const getStats = asyncWrapper(async (req, res, next) => {
   const days = (new Date(end) - new Date(start)) / 86400000 + 1;
   if (!(days >= 1))
     return fail(next, "The start date must be before the end date.");
-  if (days > MAX_RANGE_DAYS)
-    return fail(next, "Choose a range of up to one year.");
 
   const range = [start, end];
   const PLACED = `created_at >= $1::date AND created_at < ($2::date + 1)`;

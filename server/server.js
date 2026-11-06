@@ -29,6 +29,10 @@ app.listen(port, "0.0.0.0", () => {
   console.log(`Working on port ${port}`);
 });
 
+// Rate Limiting
+// app.set("trust proxy", 1);
+app.use("/api", require("./middlewares/rateLimiters").general);
+
 // Routes
 app.use("/api", require("./router/router"));
 

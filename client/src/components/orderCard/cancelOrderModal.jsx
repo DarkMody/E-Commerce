@@ -9,12 +9,21 @@ function CancelOrderModal({ order, onClose, onCancelled, note }) {
   const handleCancel = async () => {
     setSaving(true);
     try {
-        const res = await fetch(`${SERVER_URL}/api/admin/order/${order.o_id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ status: "Cancelled" }),
-      });
+      console.log(localStorage.getItem("userData"));
+      const res =
+        JSON.parse(localStorage.getItem("userData")).role == "customer"
+          ? await fetch(`${SERVER_URL}/api/order/${order.o_id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ status: "Cancelled" }),
+            })
+          : await fetch(`${SERVER_URL}/api/admin/order/${order.o_id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ status: "Cancelled" }),
+            });
       const result = await res.json();
       window.toast(result.status, result.message);
       if (result.status === "success") onCancelled(order);
@@ -42,7 +51,9 @@ function CancelOrderModal({ order, onClose, onCancelled, note }) {
         </>
       }
     >
-      <p className={note ? "mb-2" : "mb-0"}>This order will be cancelled. This can't be undone.</p>
+      <p className={note ? "mb-2" : "mb-0"}>
+        This order will be cancelled. This can't be undone.
+      </p>
       {note && <p className="text-secondary small mb-0">{note}</p>}
     </Modal>
   );

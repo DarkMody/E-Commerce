@@ -4,12 +4,12 @@ const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
 const generateToken = require("../utils/generateToken");
+const validations = require("../middlewares/validations");
 
 const ROLES = ["customer", "seller", "admin", "manager", "employee"];
 const ORDER_STATUSES = ["Processing", "Shipped", "Delivered", "Cancelled"];
-const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DATE_REGEX = validations.DATE_REGEX;
+const UUID_REGEX = validations.UUID_REGEX;
 
 const fail = (next, message, code = 400) =>
   next(appError.create(message, code, httpStatusText.FAIL));

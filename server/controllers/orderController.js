@@ -2,6 +2,7 @@ const pool = require("../config/db");
 const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
+const validations = require("../middlewares/validations");
 
 const getOrders = asyncWrapper(async (req, res, next) => {
   const result = await pool.query(
@@ -13,7 +14,14 @@ const getOrders = asyncWrapper(async (req, res, next) => {
 
 const makeOrder = asyncWrapper(async (req, res, next) => {
   const { location, phoneNumber, method } = req.body;
-  // /^(?:\+20|0)1[0125]\d{8}$/
+  if (!validations.PHONE_REGEX.test(phoneNumber)) {
+    const error = appError.create(
+      "Plz enter valid phone number",
+      400,
+      httpStatusText.FAIL,
+    );
+    return next(error);
+  }
   const userId = req.currentUser.id;
   const totalPrice = await pool.query(
     `SELECT  sum(c.quantity * p.price) as total_price FROM cart as c
@@ -29,16 +37,29 @@ const makeOrder = asyncWrapper(async (req, res, next) => {
     );
     return next(error);
   }
-  const order = await pool.query(
-    `INSERT INTO orders(user_id, location, phone_number, method, total_price)
-    VALUES($1, $2, $3, $4, $5) RETURNING *`,
-    [userId, location, phoneNumber, method, totalPrice.rows[0].total_price],
-  );
   try {
     const products = await pool.query(`SELECT * FROM cart WHERE user_id = $1`, [
       userId,
     ]);
-
+    const checkAllProducts = products.rows.map(async (product) => {
+      const pro = await pool.query(`SELECT * FROM products WHERE p_id = $1`, [
+        product.product_id,
+      ]);
+      if (pro.rows[0].quantity < product.quantity) {
+        const error = appError.create(
+          `Product (${pro.rows[0].name}) stock is ${pro.rows[0].quantity} not ${product.quantity} plz change the quantity in cart and try again`,
+          409,
+          httpStatusText.FAIL,
+        );
+        return next(error);
+      }
+    });
+    await Promise.all(checkAllProducts);
+    const order = await pool.query(
+      `INSERT INTO orders(user_id, location, phone_number, method, total_price)
+        VALUES($1, $2, $3, $4, $5) RETURNING *`,
+      [userId, location, phoneNumber, method, totalPrice.rows[0].total_price],
+    );
     const insertOrderedProducts = products.rows.map((product) =>
       pool.query(
         `INSERT INTO order_product(order_id, product_id, quantity) VALUES($1, $2, $3)`,

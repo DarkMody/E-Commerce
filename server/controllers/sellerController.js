@@ -7,7 +7,6 @@ const generateToken = require("../utils/generateToken");
 
 const LOW_STOCK = 5;
 const MAX_RANGE_DAYS = 366;
-const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const ORDER_STATUSES = ["Processing", "Shipped", "Delivered", "Cancelled"];
 
 const fail = (next, message, code = 400) =>
@@ -68,9 +67,6 @@ const getStats = asyncWrapper(async (req, res, next) => {
     new Date(today.getTime() - 29 * 86400000).toISOString().slice(0, 10);
   const end = req.query.end || today.toISOString().slice(0, 10);
 
-  if (!DATE_REGEX.test(start) || !DATE_REGEX.test(end)) {
-    return fail(next, "Dates must look like 2026-01-31.");
-  }
   const days = (new Date(end) - new Date(start)) / 86400000 + 1;
   if (!(days >= 1))
     return fail(next, "The start date must be before the end date.");
