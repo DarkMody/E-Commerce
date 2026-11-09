@@ -620,9 +620,27 @@ function Product() {
                 </div>
 
                 {/* Price */}
-                <div className="product-price">
-                  ${Number(product.price).toFixed(2)}
-                </div>
+                {Number(product.discount) > 0 ? (
+                  <div className="d-flex align-items-baseline gap-3 flex-wrap">
+                    <span className="product-price">
+                      $
+                      {(
+                        Number(product.price) *
+                        (1 - Number(product.discount) / 100)
+                      ).toFixed(2)}
+                    </span>
+                    <span className="product-original-price text-decoration-line-through text-muted fs-4">
+                      ${Number(product.price).toFixed(2)}
+                    </span>
+                    <span className="product-discount-badge">
+                      -{product.discount}%
+                    </span>
+                  </div>
+                ) : (
+                  <div className="product-price">
+                    ${Number(product.price).toFixed(2)}
+                  </div>
+                )}
 
                 {/* Stock Status Badge */}
                 <div

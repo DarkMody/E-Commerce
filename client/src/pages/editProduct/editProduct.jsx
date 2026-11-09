@@ -27,12 +27,18 @@ const SearchIcon = () => (
   </svg>
 );
 
-// Same rules as before: name, price > 0, at least one image.
+// Same rules as before: name, price > 0, discount 0-100, at least one image.
 // (Quantity is a CHANGE: positive adds stock, negative removes it, empty = no change.)
-const validate = ({ name, price }, imageCount) => {
+const validate = ({ name, price, discount }, imageCount) => {
   const errors = {};
   if (!name.trim()) errors.name = "Please put a name for the product";
   if (!(Number(price) > 0)) errors.price = "The price must be bigger than 0";
+  if (discount !== undefined && discount !== "") {
+    const d = Number(discount);
+    if (isNaN(d) || d < 0 || d > 100) {
+      errors.discount = "Discount must be between 0 and 100";
+    }
+  }
   if (imageCount === 0) errors.images = "Please add at least one image.";
   return errors;
 };
@@ -53,10 +59,13 @@ function EditSkeleton() {
       <Skeleton width="45%" height="2rem" />
       <Skeleton height="2.6rem" />
       <div className="row g-4">
-        <div className="col-md-6">
+        <div className="col-md-4">
           <Skeleton height="2.6rem" />
         </div>
-        <div className="col-md-6">
+        <div className="col-md-4">
+          <Skeleton height="2.6rem" />
+        </div>
+        <div className="col-md-4">
           <Skeleton height="2.6rem" />
         </div>
       </div>
@@ -83,6 +92,7 @@ function EditProduct() {
     name: "",
     price: "",
     quantity: "",
+    discount: "",
     description: "",
   });
   const [touched, setTouched] = useState({});
@@ -133,6 +143,7 @@ function EditProduct() {
           name: product.name ?? "",
           price: String(product.price ?? ""),
           quantity: "", // empty = don't change the stock
+          discount: String(product.discount ?? 0),
           description: product.description ?? "",
         });
         // Tag existing images so we can tell them apart from new uploads
@@ -270,6 +281,7 @@ function EditProduct() {
     formData.append("name", values.name.trim());
     formData.append("price", values.price || 0);
     formData.append("quantity", values.quantity || 0); // the CHANGE in stock
+    formData.append("discount", values.discount ? Number(values.discount) : 0);
     formData.append("description", values.description);
     formData.append(
       "categories",
@@ -301,7 +313,7 @@ function EditProduct() {
       // ===============================================================
 
       if (data.status === "success") {
-        navigate(`/product/view/${getUserId()}`);
+        navigate(`/seller/products`);
       }
       window.toast(data.status, data.message);
     } catch {
@@ -347,7 +359,7 @@ function EditProduct() {
         />
 
         <div className="row g-4">
-          <div className="col-md-6">
+          <div className="col-md-4">
             <Input
               label="Price ($)"
               type="number"
@@ -364,7 +376,7 @@ function EditProduct() {
               disabled={submitting}
             />
           </div>
-          <div className="col-md-6">
+          <div className="col-md-4">
             <Input
               label="Add to stock"
               type="number"
@@ -375,6 +387,27 @@ function EditProduct() {
               helperText="Enter a negative number to decrease the stock. Leave it empty to keep it as it is."
               value={values.quantity}
               onChange={setField("quantity")}
+              disabled={submitting}
+            />
+          </div>
+          <div className="col-md-4">
+            <Input
+              label="Discount (%)"
+              type="number"
+              name="discount"
+              placeholder="0 - 100"
+              min="0"
+              max="100"
+              inputMode="numeric"
+              value={values.discount}
+              onChange={setField("discount")}
+              onBlur={touch("discount")}
+              error={errorOf("discount")}
+              helperText={
+                Number(values.discount) > 0 && Number(values.price) > 0
+                  ? `Final price: $${(Number(values.price) * (1 - Number(values.discount) / 100)).toFixed(2)}`
+                  : undefined
+              }
               disabled={submitting}
             />
           </div>

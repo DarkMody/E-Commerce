@@ -2,7 +2,6 @@ const pool = require("../config/db");
 const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
-const validations = require("../middlewares/validations");
 
 const getOrders = asyncWrapper(async (req, res, next) => {
   const result = await pool.query(
@@ -14,17 +13,9 @@ const getOrders = asyncWrapper(async (req, res, next) => {
 
 const makeOrder = asyncWrapper(async (req, res, next) => {
   const { location, phoneNumber, method } = req.body;
-  if (!validations.PHONE_REGEX.test(phoneNumber)) {
-    const error = appError.create(
-      "Plz enter valid phone number",
-      400,
-      httpStatusText.FAIL,
-    );
-    return next(error);
-  }
   const userId = req.currentUser.id;
   const totalPrice = await pool.query(
-    `SELECT  sum(c.quantity * p.price) as total_price FROM cart as c
+    `SELECT sum(c.quantity * ROUND(p.price * (1 - COALESCE(p.discount, 0)::numeric / 100), 2)) as total_price FROM cart as c
     INNER JOIN products as p ON p.p_id = c.product_id
     WHERE c.user_id = $1`,
     [userId],
@@ -60,12 +51,17 @@ const makeOrder = asyncWrapper(async (req, res, next) => {
         VALUES($1, $2, $3, $4, $5) RETURNING *`,
       [userId, location, phoneNumber, method, totalPrice.rows[0].total_price],
     );
-    const insertOrderedProducts = products.rows.map((product) =>
-      pool.query(
-        `INSERT INTO order_product(order_id, product_id, quantity) VALUES($1, $2, $3)`,
-        [order.rows[0].o_id, product.product_id, product.quantity],
-      ),
-    );
+    const insertOrderedProducts = products.rows.map(async (product) => {
+      const pro = await pool.query(
+        `SELECT discount FROM products WHERE p_id = $1`,
+        [product.product_id],
+      );
+      const disc = pro.rows[0]?.discount || 0;
+      return pool.query(
+        `INSERT INTO order_product(order_id, product_id, quantity, discount) VALUES($1, $2, $3, $4)`,
+        [order.rows[0].o_id, product.product_id, product.quantity, disc],
+      );
+    });
     const changeStock = products.rows.map((product) =>
       pool.query(
         `UPDATE products SET quantity = quantity - $1, sold = sold + $1 WHERE p_id = $2`,
@@ -176,7 +172,7 @@ const getOrderProduct = asyncWrapper(async (req, res, next) => {
     req.currentUser.role == "manager"
   ) {
     const result = await pool.query(
-      `SELECT p.*, op.quantity AS ordered_quantity, op.price AS product_price, i.image FROM products as p
+      `SELECT p.*, op.quantity AS ordered_quantity, COALESCE(op.discount, p.discount, 0) AS ordered_discount, i.image FROM products as p
       JOIN order_product as op ON p.p_id = op.product_id
       JOIN orders as o ON o.o_id = op.order_id
       JOIN images as i ON i.product_id = p.p_id

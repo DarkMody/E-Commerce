@@ -26,13 +26,19 @@ const SearchIcon = () => (
   </svg>
 );
 
-// Same rules as before: name, price > 0, quantity > 0, at least one image
-const validate = ({ name, price, quantity }, imageCount) => {
+// Same rules as before: name, price > 0, quantity > 0, discount 0-100, at least one image
+const validate = ({ name, price, quantity, discount }, imageCount) => {
   const errors = {};
   if (!name.trim()) errors.name = "Please put a name for the product";
   if (!(Number(price) > 0)) errors.price = "The price must be bigger than 0";
   if (!(Number(quantity) > 0))
     errors.quantity = "The quantity must be bigger than 0";
+  if (discount !== undefined && discount !== "") {
+    const d = Number(discount);
+    if (isNaN(d) || d < 0 || d > 100) {
+      errors.discount = "Discount must be between 0 and 100";
+    }
+  }
   if (imageCount === 0) errors.images = "Please add at least one image.";
   return errors;
 };
@@ -53,6 +59,7 @@ function AddProduct() {
     name: "",
     price: "",
     quantity: "",
+    discount: "",
     description: "",
   });
   const [touched, setTouched] = useState({});
@@ -190,6 +197,7 @@ function AddProduct() {
     formData.append("name", values.name.trim());
     formData.append("price", values.price);
     formData.append("quantity", values.quantity);
+    formData.append("discount", values.discount ? Number(values.discount) : 0);
     formData.append("description", values.description);
     formData.append(
       "categories",
@@ -211,7 +219,7 @@ function AddProduct() {
       // ===============================================================
 
       if (data.status === "success") {
-        navigate(`/product/view/${getUserId()}`);
+        navigate(`/seller/products`);
       }
       window.toast(data.status, data.message);
     } catch {
@@ -243,7 +251,7 @@ function AddProduct() {
           />
 
           <div className="row g-4">
-            <div className="col-md-6">
+            <div className="col-md-4">
               <Input
                 label="Price ($)"
                 type="number"
@@ -260,7 +268,7 @@ function AddProduct() {
                 disabled={submitting}
               />
             </div>
-            <div className="col-md-6">
+            <div className="col-md-4">
               <Input
                 label="Quantity"
                 type="number"
@@ -273,6 +281,27 @@ function AddProduct() {
                 onBlur={touch("quantity")}
                 error={errorOf("quantity")}
                 required
+                disabled={submitting}
+              />
+            </div>
+            <div className="col-md-4">
+              <Input
+                label="Discount (%)"
+                type="number"
+                name="discount"
+                placeholder="0 - 100"
+                min="0"
+                max="100"
+                inputMode="numeric"
+                value={values.discount}
+                onChange={setField("discount")}
+                onBlur={touch("discount")}
+                error={errorOf("discount")}
+                helperText={
+                  Number(values.discount) > 0 && Number(values.price) > 0
+                    ? `Final price: $${(Number(values.price) * (1 - Number(values.discount) / 100)).toFixed(2)}`
+                    : undefined
+                }
                 disabled={submitting}
               />
             </div>

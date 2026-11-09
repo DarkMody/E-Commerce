@@ -11,10 +11,24 @@
 
 /* ---------- Image ---------- */
 .order-product__image {
+  position: relative;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background-color: var(--dz-surface-2);
   border-radius: var(--dz-radius);
+}
+.order-product__discount-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  background-color: #ef4444;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  letter-spacing: -0.01em;
 }
 .order-product__image img {
   width: 100%;
@@ -42,6 +56,15 @@
 }
 .order-product__title:hover {
   color: var(--dz-accent);
+}
+
+/* ---------- Price ---------- */
+.order-product__price--discounted {
+  color: var(--dz-primary);
+}
+.order-product__price--original {
+  color: var(--dz-muted);
+  font-size: 1.1rem;
 }
 
 /* ---------- Quantity pill ---------- */

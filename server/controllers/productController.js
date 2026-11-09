@@ -3,8 +3,6 @@ const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
 const multer = require("multer");
-const { memoryStorage } = require("../utils/image");
-const upload = multer({ storage: memoryStorage });
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const path = require("path");
@@ -147,7 +145,21 @@ const getProduct = asyncWrapper(async (req, res, next) => {
 
 const addProduct = asyncWrapper(async (req, res, next) => {
   const seller_id = req.currentUser.id;
-  const { name, description, price, quantity, categories } = req.body;
+  const { name, description, price, quantity, categories, discount } = req.body;
+
+  const disc =
+    discount !== undefined && discount !== "" && discount !== null
+      ? Number(discount)
+      : 0;
+
+  if (isNaN(disc) || disc < 0 || disc > 100) {
+    const error = appError.create(
+      "Discount must be between 0 and 100",
+      400,
+      httpStatusText.FAIL,
+    );
+    return next(error);
+  }
 
   let category = [];
   if (categories) {
@@ -192,14 +204,15 @@ const addProduct = asyncWrapper(async (req, res, next) => {
       savedFilenames.push(filename);
     }
 
-    const query = `INSERT INTO products (name, description, price, quantity, seller_id)
-      VALUES ($1, $2, $3, $4, $5) RETURNING *`;
+    const query = `INSERT INTO products (name, description, price, quantity, seller_id, discount)
+      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
     const result = await pool.query(query, [
       name,
       description,
       price,
       quantity,
       seller_id,
+      disc,
     ]);
     const p_id = result.rows[0].p_id;
 
@@ -278,8 +291,15 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
 });
 
 const editProduct = asyncWrapper(async (req, res, next) => {
-  const { name, description, price, quantity, categories, existingImages } =
-    req.body;
+  const {
+    name,
+    description,
+    price,
+    quantity,
+    categories,
+    existingImages,
+    discount,
+  } = req.body;
 
   const result = await pool.query(`SELECT * FROM products where p_id = $1`, [
     req.params.p_id,
@@ -361,10 +381,24 @@ const editProduct = asyncWrapper(async (req, res, next) => {
         req.params.p_id,
       ]);
 
+      const disc =
+        discount !== undefined && discount !== "" && discount !== null
+          ? Number(discount)
+          : result.rows[0].discount || 0;
+
+      if (isNaN(disc) || disc < 0 || disc > 100) {
+        const error = appError.create(
+          "Discount must be between 0 and 100",
+          400,
+          httpStatusText.FAIL,
+        );
+        return next(error);
+      }
+
       // editing product
       await pool.query(
-        `UPDATE products SET name = $1, description = $2, price = $3, quantity = GREATEST(quantity + $4 , 0) WHERE p_id = $5;`,
-        [name, description, price, quantity, req.params.p_id],
+        `UPDATE products SET name = $1, description = $2, price = $3, quantity = GREATEST(quantity + $4 , 0), discount = $5 WHERE p_id = $6;`,
+        [name, description, price, quantity, disc, req.params.p_id],
       );
 
       // Adding the new images

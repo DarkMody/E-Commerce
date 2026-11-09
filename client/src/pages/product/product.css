@@ -219,6 +219,19 @@
   color: var(--dz-text);
 }
 
+.product-original-price {
+  color: var(--dz-muted);
+}
+
+.product-discount-badge {
+  background-color: #ef4444;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+}
+
 .product-stock-badge {
   display: inline-flex;
   align-items: center;
@@ -320,7 +333,9 @@
   padding: 2px;
   cursor: pointer;
   color: var(--dz-border);
-  transition: transform 0.15s ease, color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
 }
 
 .review-star-btn:hover {

@@ -46,6 +46,21 @@
   overflow: hidden;
   background-color: var(--dz-surface-2);
 }
+.product-card__discount-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+  background-color: #ef4444; /* vivid red pill like in reference */
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.45);
+  letter-spacing: -0.01em;
+  pointer-events: none;
+}
 .product-card__backdrop {
   position: absolute;
   top: -24px;
@@ -78,6 +93,13 @@
 }
 .product-card__star {
   color: var(--dz-warning);
+}
+.product-card__price--discounted {
+  color: var(--dz-primary); /* clear red price after discount */
+}
+.product-card__price--original {
+  color: var(--dz-muted);
+  font-size: 0.88rem;
 }
 .product-card__stock {
   padding: 0.25rem 0.75rem;

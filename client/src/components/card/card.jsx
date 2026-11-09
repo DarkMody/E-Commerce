@@ -3,7 +3,7 @@ import "./card.css";
 
 /**
  * Props
- *  - product     { p_id, name, image, price, rate, people, quantity }
+ *  - product     { p_id, name, image, price, rate, people, quantity, discount }
  *  - sellerPage  true on the seller's own products page: shows the remaining stock
  */
 function Card({ product, sellerPage = false }) {
@@ -11,12 +11,24 @@ function Card({ product, sellerPage = false }) {
   const hasReviews = Number(product.people) > 0;
   const soldOut = Number(product.quantity) === 0;
 
+  const discount = Number(product.discount) || 0;
+  const hasDiscount = discount > 0;
+  const originalPrice = Number(product.price) || 0;
+  const finalPrice = hasDiscount
+    ? originalPrice * (1 - discount / 100)
+    : originalPrice;
+
   return (
     <article
       className={`product-card text-start ${soldOut ? "is-sold-out" : ""}`}
       id={product.p_id}
     >
       <div className="product-card__image">
+        {/* Discount badge on the top-left */}
+        {hasDiscount && (
+          <span className="product-card__discount-badge">-{discount}%</span>
+        )}
+
         {/* blurred copy fills the empty space, the real photo is always fully visible */}
         <img
           className="product-card__backdrop"
@@ -57,8 +69,21 @@ function Card({ product, sellerPage = false }) {
         </div>
 
         <div className="d-flex justify-content-between align-items-center gap-2 mt-auto">
-          <div className="fw-bold fs-5">
-            ${Number(product.price).toFixed(2)}
+          <div className="d-flex align-items-baseline gap-2 flex-wrap">
+            {hasDiscount ? (
+              <>
+                <span className="product-card__price--discounted fw-bold fs-5">
+                  ${finalPrice.toFixed(2)}
+                </span>
+                <span className="product-card__price--original text-decoration-line-through">
+                  ${originalPrice.toFixed(2)}
+                </span>
+              </>
+            ) : (
+              <span className="fw-bold fs-5">
+                ${originalPrice.toFixed(2)}
+              </span>
+            )}
           </div>
           {soldOut ? (
             <span className="product-card__stock">Out of stock</span>

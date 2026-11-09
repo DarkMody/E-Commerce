@@ -51,7 +51,7 @@ const saveQuantityLocally = async (productId, wanted) => {
 
   writeLocalCart(
     readLocalCart().map((item) =>
-      item.productId == productId ? { ...item, quantity: saved } : item,
+      item.productId === productId ? { ...item, quantity: saved } : item,
     ),
   );
   return saved;
@@ -84,7 +84,12 @@ function CartProduct({
   useEffect(() => () => clearTimeout(removeTimer.current), []);
 
   const productPath = `/product/${product.p_id}`;
-  const unitPrice = Number(product.price);
+  const discount = Number(product.discount) || 0;
+  const hasDiscount = discount > 0;
+  const originalUnitPrice = Number(product.price) || 0;
+  const unitPrice = hasDiscount
+    ? originalUnitPrice * (1 - discount / 100)
+    : originalUnitPrice;
   const locked = busy || removing;
 
   const updateQuantity = async (next) => {
@@ -125,7 +130,7 @@ function CartProduct({
         if (data.status !== "success") return;
       } else {
         writeLocalCart(
-          readLocalCart().filter((item) => item.productId != product.p_id),
+          readLocalCart().filter((item) => item.productId !== product.p_id),
         );
       }
 
@@ -149,6 +154,9 @@ function CartProduct({
             tabIndex={-1}
             aria-hidden="true"
           >
+            {hasDiscount && (
+              <span className="cart-product__discount-badge">-{discount}%</span>
+            )}
             <img src={`${SERVER_URL}/uploads/${product.image}`} alt="" />
           </Link>
         </div>
@@ -173,13 +181,33 @@ function CartProduct({
 
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
-              <div className="fs-3 fw-bold lh-1">
-                ${(unitPrice * quantity).toFixed(2)}
-              </div>
-              {quantity > 1 && (
-                <div className="small text-secondary mt-1">
-                  ${unitPrice.toFixed(2)} each
-                </div>
+              {hasDiscount ? (
+                <>
+                  <div className="d-flex align-items-baseline gap-2 flex-wrap">
+                    <span className="fs-3 fw-bold lh-1 text-danger">
+                      ${(unitPrice * quantity).toFixed(2)}
+                    </span>
+                    <span className="text-secondary small text-decoration-line-through">
+                      ${(originalUnitPrice * quantity).toFixed(2)}
+                    </span>
+                  </div>
+                  {quantity > 1 && (
+                    <div className="small text-secondary mt-1">
+                      ${unitPrice.toFixed(2)} each (was ${originalUnitPrice.toFixed(2)})
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="fs-3 fw-bold lh-1">
+                    ${(unitPrice * quantity).toFixed(2)}
+                  </div>
+                  {quantity > 1 && (
+                    <div className="small text-secondary mt-1">
+                      ${unitPrice.toFixed(2)} each
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

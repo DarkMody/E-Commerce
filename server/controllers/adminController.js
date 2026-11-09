@@ -4,18 +4,14 @@ const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
 const generateToken = require("../utils/generateToken");
-const validations = require("../middlewares/validations");
 
 const ROLES = ["customer", "seller", "admin", "manager", "employee"];
 const ORDER_STATUSES = ["Processing", "Shipped", "Delivered", "Cancelled"];
-const DATE_REGEX = validations.DATE_REGEX;
-const UUID_REGEX = validations.UUID_REGEX;
 
 const fail = (next, message, code = 400) =>
   next(appError.create(message, code, httpStatusText.FAIL));
 const toPage = (value) => Math.max(1, parseInt(value, 10) || 1);
 const round2 = (n) => Math.round(n * 100) / 100;
-const isUuid = (value) => UUID_REGEX.test(String(value));
 // Escape % and _ so a search like "50%" doesn't act as a wildcard
 const likePattern = (text) => `%${String(text).replace(/[\\%_]/g, "\\$&")}%`;
 const currentUserId = (req) => req.currentUser?.id;
@@ -51,10 +47,6 @@ const registerAdmin = asyncWrapper(async (req, res, next) => {
 const getStatus = asyncWrapper(async (req, res, next) => {
   const start = req.query.start || "2020-01-01";
   const end = req.query.end || new Date().toISOString().slice(0, 10);
-
-  if (!DATE_REGEX.test(start) || !DATE_REGEX.test(end)) {
-    return fail(next, "Dates must look like 2026-01-31.");
-  }
   const days = (new Date(end) - new Date(start)) / 86400000 + 1;
   if (!(days >= 1))
     return fail(next, "The start date must be before the end date.");

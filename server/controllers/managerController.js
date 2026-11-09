@@ -19,10 +19,6 @@ const getStats = asyncWrapper(async (req, res, next) => {
   const weekAgo = new Date(today.getTime() - 6 * 86400000);
   const start = req.query.start || weekAgo.toISOString().slice(0, 10);
   const end = req.query.end || today.toISOString().slice(0, 10);
-
-  if (!DATE_REGEX.test(start) || !DATE_REGEX.test(end)) {
-    return fail(next, "Dates must look like 2026-01-31.");
-  }
   const days = (new Date(end) - new Date(start)) / 86400000 + 1;
   if (!(days >= 1))
     return fail(next, "The start date must be before the end date.");

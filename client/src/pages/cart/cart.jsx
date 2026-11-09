@@ -126,10 +126,12 @@ function Cart() {
 
   /* ---------- Totals ---------- */
   const unitCount = cartProduct.reduce((sum, p) => sum + Number(p.quantity), 0);
-  const totalPrice = cartProduct.reduce(
-    (sum, p) => sum + Number(p.price) * Number(p.quantity),
-    0,
-  );
+  const totalPrice = cartProduct.reduce((sum, p) => {
+    const disc = Number(p.discount) || 0;
+    const unit =
+      disc > 0 ? Number(p.price) * (1 - disc / 100) : Number(p.price);
+    return sum + unit * Number(p.quantity);
+  }, 0);
 
   /* ---------- What to show ---------- */
   let content;

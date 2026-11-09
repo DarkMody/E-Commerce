@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS products (
     quantity    INT            NOT NULL DEFAULT 0 CHECK (quantity >= 0),
     seller_id   UUID           NOT NULL REFERENCES users(u_id) ON DELETE CASCADE,
     created_at  TIMESTAMPTZ    DEFAULT NOW(),
-    sold INT DEFAULT 0 
+    sold        INT DEFAULT 0,
+    discount    INT DEFAULT 0 CHECK (discount BETWEEN 0 AND 100)
 );

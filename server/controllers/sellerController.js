@@ -15,7 +15,7 @@ const toPage = (value) => Math.max(1, parseInt(value, 10) || 1);
 const round2 = (n) => Math.round(n * 100) / 100;
 
 // What the customer paid for one line (the saved price, or the product's price for old rows)
-const LINE_PRICE = "COALESCE(op.price, p.price)";
+const LINE_PRICE = "ROUND(p.price * (1 - COALESCE(op.discount, p.discount, 0)::numeric / 100), 2)";
 
 const registerSeller = asyncWrapper(async (req, res, next) => {
   const { name, email, password, store_name, store_location } = req.body;
