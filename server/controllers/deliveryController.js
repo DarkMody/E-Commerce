@@ -73,7 +73,6 @@ const updateMyOrder = asyncWrapper(async (req, res, next) => {
   const orderId = Number(req.params.o_id);
   const { status } = req.body;
 
-  if (!Number.isInteger(orderId)) return fail(next, "Order not found.", 404);
   if (status !== "Delivered" && status !== "Cancelled") {
     return fail(next, "You can mark an order as delivered or rejected.");
   }
