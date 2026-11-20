@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(100) not null,
     email VARCHAR(100) UNIQUE not null,
     password VARCHAR(255) not null,
-    image TEXT DEFAULT 'https://res.cloudinary.com/i8dsiy94/image/upload/v1795205345/download.jpg',
+    image TEXT DEFAULT 'https://res.cloudinary.com/i8dsiy94/image/upload/v1795207112/default.jpg',
     role VARCHAR(10) DEFAULT 'customer' NOT NULL CHECK (role IN ('customer', 'seller', 'admin', 'manager', 'employee')),
     created_at TIMESTAMPTZ DEFAULT NOW()
 );

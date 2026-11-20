@@ -93,7 +93,11 @@ const deleteUser = asyncWrapper(async (req, res, next) => {
     req.params.u_id,
   ]);
   if (req.currentUser.id === req.params.u_id) {
-    if (user.rows[0]?.image && user.rows[0].image !== "default.jfif") {
+    if (
+      user.rows[0]?.image &&
+      user.rows[0].image !==
+        "https://res.cloudinary.com/i8dsiy94/image/upload/v1795207112/default.jpg"
+    ) {
       await deleteFromCloudinary(user.rows[0].image);
     }
     await pool.query(`DELETE FROM users WHERE u_id = $1`, [req.params.u_id]);
@@ -156,7 +160,11 @@ const editUser = asyncWrapper(async (req, res, next) => {
 
       try {
         const result = await pool.query(query, values);
-        if (req.currentUser.image != "default.jfif" && req.file) {
+        if (
+          req.currentUser.image !=
+            "https://res.cloudinary.com/i8dsiy94/image/upload/v1795207112/default.jpg" &&
+          req.file
+        ) {
           await deleteFromCloudinary(req.currentUser.image);
         }
         const row = result.rows[0];
