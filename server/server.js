@@ -11,7 +11,7 @@ const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.FrontURL, // your frontend URL
+    origin: process.env.FrontURL,
     credentials: true, // allows cookies to be sent cross-origin
   }),
 );
@@ -30,7 +30,6 @@ app.listen(port, "0.0.0.0", () => {
 });
 
 // Rate Limiting
-// app.set("trust proxy", 1);
 app.use("/api", require("./middlewares/rateLimiters").general);
 
 // Routes
