@@ -16,7 +16,7 @@ function EditProfileModal({ user, onClose, onSaved }) {
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
   const [imageFile, setImageFile] = useState(null);
-  const [preview, setPreview] = useState(`${SERVER_URL}/uploads/${user.image}`);
+  const [preview, setPreview] = useState(`${user.image}`);
   const [touched, setTouched] = useState({});
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
@@ -383,11 +383,7 @@ function Profile() {
     content = (
       <section className="profile-card mx-auto">
         <header className="d-flex flex-column align-items-center text-center">
-          <img
-            src={`${SERVER_URL}/uploads/${user.image}`}
-            alt=""
-            className="profile-avatar"
-          />
+          <img src={`${user.image}`} alt="" className="profile-avatar" />
           <h1 className="profile-name">{user.name}</h1>
           <span className="profile-badge">{user.role}</span>
         </header>

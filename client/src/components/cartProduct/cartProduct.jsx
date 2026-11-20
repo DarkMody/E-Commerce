@@ -157,7 +157,7 @@ function CartProduct({
             {hasDiscount && (
               <span className="cart-product__discount-badge">-{discount}%</span>
             )}
-            <img src={`${SERVER_URL}/uploads/${product.image}`} alt="" />
+            <img src={`${product.image}`} alt="" />
           </Link>
         </div>
 
@@ -193,7 +193,8 @@ function CartProduct({
                   </div>
                   {quantity > 1 && (
                     <div className="small text-secondary mt-1">
-                      ${unitPrice.toFixed(2)} each (was ${originalUnitPrice.toFixed(2)})
+                      ${unitPrice.toFixed(2)} each (was $
+                      {originalUnitPrice.toFixed(2)})
                     </div>
                   )}
                 </>

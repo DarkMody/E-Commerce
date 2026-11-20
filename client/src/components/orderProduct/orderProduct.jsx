@@ -6,8 +6,7 @@ function OrderProduct({ product }) {
   const quantity = Number(product.ordered_quantity) || 0;
   const discount = Number(product.ordered_discount ?? product.discount) || 0;
   const hasDiscount = discount > 0;
-  const originalUnitPrice =
-    Number(product.price ?? product.product_price) || 0;
+  const originalUnitPrice = Number(product.price ?? product.product_price) || 0;
   const unitPrice = hasDiscount
     ? originalUnitPrice * (1 - discount / 100)
     : originalUnitPrice;
@@ -28,7 +27,7 @@ function OrderProduct({ product }) {
                 -{discount}%
               </span>
             )}
-            <img src={`${SERVER_URL}/uploads/${product.image}`} alt="" />
+            <img src={`${product.image}`} alt="" />
           </Link>
         </div>
 
@@ -53,7 +52,8 @@ function OrderProduct({ product }) {
                   </div>
                   {quantity > 1 && (
                     <div className="small text-secondary mt-1">
-                      ${unitPrice.toFixed(2)} each (was ${originalUnitPrice.toFixed(2)})
+                      ${unitPrice.toFixed(2)} each (was $
+                      {originalUnitPrice.toFixed(2)})
                     </div>
                   )}
                 </>

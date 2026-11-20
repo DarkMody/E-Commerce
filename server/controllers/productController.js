@@ -2,10 +2,7 @@ const pool = require("../config/db");
 const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
-const multer = require("multer");
-const { v4: uuidv4 } = require("uuid");
-const fs = require("fs");
-const path = require("path");
+const { uploadToCloudinary, deleteFromCloudinary } = require("../utils/image");
 
 const getAllProducts = asyncWrapper(async (req, res, next) => {
   let {
@@ -192,16 +189,13 @@ const addProduct = asyncWrapper(async (req, res, next) => {
     );
     return next(error);
   }
-  // Now put it on disk
-  const uploadDir = path.join(__dirname, "..", "uploads");
-  const savedFilenames = [];
+
+  const savedUrls = [];
 
   try {
     for (const file of req.files) {
-      const type = file.mimetype.split("/")[1];
-      const filename = `${uuidv4()}.${type}`;
-      await fs.promises.writeFile(path.join(uploadDir, filename), file.buffer);
-      savedFilenames.push(filename);
+      const imageUrl = await uploadToCloudinary(file.buffer);
+      savedUrls.push(imageUrl);
     }
 
     const query = `INSERT INTO products (name, description, price, quantity, seller_id, discount)
@@ -216,10 +210,10 @@ const addProduct = asyncWrapper(async (req, res, next) => {
     ]);
     const p_id = result.rows[0].p_id;
 
-    const insertImagesPromises = savedFilenames.map((filename, index) =>
+    const insertImagesPromises = savedUrls.map((url, index) =>
       pool.query(
         `INSERT INTO images (product_id, image, sort_order) VALUES ($1, $2, $3)`,
-        [p_id, filename, index],
+        [p_id, url, index],
       ),
     );
     await Promise.all(insertImagesPromises);
@@ -242,10 +236,7 @@ const addProduct = asyncWrapper(async (req, res, next) => {
       message: "Product has been added successfully",
     });
   } catch (err) {
-    // DB failed after files were written to disk — clean them up
-    savedFilenames.forEach((filename) => {
-      fs.unlink(path.join(uploadDir, filename), () => {});
-    });
+    await Promise.all(savedUrls.map((url) => deleteFromCloudinary(url)));
     return next(
       appError.create("Could not add product", 500, httpStatusText.ERROR),
     );
@@ -272,10 +263,9 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
       `SELECT * FROM images WHERE product_id = $1`,
       [req.params.p_id],
     );
-    Array.from(images.rows).forEach((img) => {
-      const imagePath = path.join(__dirname, "..", "uploads", img.image);
-      fs.unlink(imagePath, () => {});
-    });
+    await Promise.all(
+      Array.from(images.rows).map((img) => deleteFromCloudinary(img.image)),
+    );
     await pool.query(`DELETE FROM products WHERE p_id = $1`, [req.params.p_id]);
     return res.status(200).json({
       status: httpStatusText.SUCCESS,
@@ -348,34 +338,19 @@ const editProduct = asyncWrapper(async (req, res, next) => {
     const removedImages = images.rows.filter(
       (oldImg) => !keptImages.includes(oldImg.image),
     );
-    removedImages.forEach((img) => {
-      const filePath = path.join(__dirname, "..", "uploads", img.image);
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          const error = appError.create(
-            `Failed to delete ${filePath}: ${err.message}`,
-            500,
-            httpStatusText.ERROR,
-          );
-          return next(error);
-        }
-      });
-    });
-    const uploadDir = path.join(__dirname, "..", "uploads");
-    const savedFilenames = [];
+    await Promise.all(
+      removedImages.map((img) => deleteFromCloudinary(img.image)),
+    );
+
+    const savedUrls = [];
 
     try {
       for (const file of req.files) {
-        const type = file.mimetype.split("/")[1];
-        const filename = `${uuidv4()}.${type}`;
-        await fs.promises.writeFile(
-          path.join(uploadDir, filename),
-          file.buffer,
-        );
-        savedFilenames.push(filename);
+        const imageUrl = await uploadToCloudinary(file.buffer);
+        savedUrls.push(imageUrl);
       }
 
-      const newImages = savedFilenames;
+      const newImages = savedUrls;
       const finalImages = [...keptImages, ...newImages];
       await pool.query(`DELETE FROM images WHERE product_id = $1`, [
         req.params.p_id,
@@ -433,10 +408,7 @@ const editProduct = asyncWrapper(async (req, res, next) => {
         message: "Product has been edited successfully",
       });
     } catch (err) {
-      // DB failed after files were written to disk — clean them up
-      savedFilenames.forEach((filename) => {
-        fs.unlink(path.join(uploadDir, filename), () => {});
-      });
+      await Promise.all(savedUrls.map((url) => deleteFromCloudinary(url)));
       return next(
         appError.create("Could not add product", 500, httpStatusText.ERROR),
       );

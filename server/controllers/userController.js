@@ -5,11 +5,12 @@ const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
 const generateToken = require("../utils/generateToken");
 const multer = require("multer");
-const { memoryStorage } = require("../utils/image");
+const {
+  memoryStorage,
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} = require("../utils/image");
 const upload = multer({ storage: memoryStorage });
-const { v4: uuidv4 } = require("uuid");
-const fs = require("fs");
-const path = require("path");
 
 const getUser = asyncWrapper(async (req, res, next) => {
   res.json({ status: httpStatusText.SUCCESS, data: req.currentUser });
@@ -92,8 +93,8 @@ const deleteUser = asyncWrapper(async (req, res, next) => {
     req.params.u_id,
   ]);
   if (req.currentUser.id === req.params.u_id) {
-    if (req.currentUser.img !== "default.jfif") {
-      fs.unlink(path.join(__dirname, "..", "uploads", user.image), () => {});
+    if (user.rows[0]?.image && user.rows[0].image !== "default.jfif") {
+      await deleteFromCloudinary(user.rows[0].image);
     }
     await pool.query(`DELETE FROM users WHERE u_id = $1`, [req.params.u_id]);
     res.clearCookie("accessToken", { path: "/" });
@@ -137,17 +138,10 @@ const editUser = asyncWrapper(async (req, res, next) => {
     }
     if (fieldsToUpdate.length !== 0 || req.file) {
       let values = fieldsToUpdate.map((field) => req.body[field]);
-      const uploadDir = path.join(__dirname, "..", "uploads");
       if (req.file) {
-        const file = req.file;
-        const type = file.mimetype.split("/")[1];
-        const filename = `${uuidv4()}.${type}`;
-        await fs.promises.writeFile(
-          path.join(uploadDir, filename),
-          file.buffer,
-        );
+        const imageUrl = await uploadToCloudinary(req.file.buffer);
         fieldsToUpdate.push("image");
-        values.push(filename);
+        values.push(imageUrl);
       }
       const setClause = fieldsToUpdate
         .map((field, i) => `${field} = $${i + 1}`)
@@ -163,7 +157,7 @@ const editUser = asyncWrapper(async (req, res, next) => {
       try {
         const result = await pool.query(query, values);
         if (req.currentUser.image != "default.jfif" && req.file) {
-          fs.unlink(path.join(uploadDir, req.currentUser.image), () => {});
+          await deleteFromCloudinary(req.currentUser.image);
         }
         const row = result.rows[0];
         await generateToken(row, res);
@@ -180,7 +174,7 @@ const editUser = asyncWrapper(async (req, res, next) => {
         });
       } catch (error) {
         if (req.file) {
-          fs.unlink(path.join(uploadDir, values[values.length - 1]), () => {});
+          await deleteFromCloudinary(values[values.length - 1]);
         }
         return next(
           appError.create("Could not edit profile", 500, httpStatusText.ERROR),

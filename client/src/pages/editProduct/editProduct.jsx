@@ -151,7 +151,7 @@ function EditProduct() {
           (image || []).map((img) => ({
             type: "existing",
             image: img, // { image: "filename" }, the filename is the identifier
-            url: `${SERVER_URL}/uploads/${img.image}`,
+            url: `${img.image}`,
           })),
         );
         setSelectedCategories(category || []);

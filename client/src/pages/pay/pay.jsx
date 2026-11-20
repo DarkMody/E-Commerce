@@ -262,14 +262,16 @@ function Pay() {
                 <div className="checkout-user-avatar">
                   {user.image ? (
                     <img
-                      src={`${SERVER_URL}/uploads/${user.image}`}
+                      src={`${user.image}`}
                       alt={user.name || "User profile"}
                       onError={(e) => {
                         e.target.style.display = "none";
                       }}
                     />
                   ) : (
-                    <span>{user.email ? user.email.charAt(0).toUpperCase() : "U"}</span>
+                    <span>
+                      {user.email ? user.email.charAt(0).toUpperCase() : "U"}
+                    </span>
                   )}
                 </div>
                 <div className="flex-grow-1">

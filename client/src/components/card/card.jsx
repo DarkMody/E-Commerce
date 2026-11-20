@@ -7,7 +7,7 @@ import "./card.css";
  *  - sellerPage  true on the seller's own products page: shows the remaining stock
  */
 function Card({ product, sellerPage = false }) {
-  const imageUrl = `${SERVER_URL}/uploads/${product.image}`;
+  const imageUrl = `${product.image}`;
   const hasReviews = Number(product.people) > 0;
   const soldOut = Number(product.quantity) === 0;
 
@@ -80,9 +80,7 @@ function Card({ product, sellerPage = false }) {
                 </span>
               </>
             ) : (
-              <span className="fw-bold fs-5">
-                ${originalPrice.toFixed(2)}
-              </span>
+              <span className="fw-bold fs-5">${originalPrice.toFixed(2)}</span>
             )}
           </div>
           {soldOut ? (

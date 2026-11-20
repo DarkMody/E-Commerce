@@ -415,7 +415,7 @@ function Product() {
   const inStock = Number(product.quantity) > 0;
   const currentImageUrl =
     images.length > 0 && images[activeImageIndex]
-      ? `${SERVER_URL}/uploads/${images[activeImageIndex].image}`
+      ? `${images[activeImageIndex].image}`
       : "";
 
   return (
@@ -543,11 +543,7 @@ function Product() {
                         onMouseEnter={() => setActiveImageIndex(idx)}
                         aria-label={`View photo ${idx + 1}`}
                       >
-                        <img
-                          src={`${SERVER_URL}/uploads/${img.image}`}
-                          alt=""
-                          loading="lazy"
-                        />
+                        <img src={`${img.image}`} alt="" loading="lazy" />
                       </button>
                     ))}
                   </div>
@@ -916,7 +912,7 @@ function Product() {
                               {comment.image ? (
                                 <img
                                   className="review-avatar"
-                                  src={`${SERVER_URL}/uploads/${comment.image}`}
+                                  src={`${comment.image}`}
                                   alt=""
                                   onError={(e) => {
                                     e.target.style.display = "none";
