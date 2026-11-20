@@ -266,7 +266,6 @@ const editRoles = asyncWrapper(async (req, res, next) => {
   if (!ROLES.includes(role)) return fail(next, "Choose a valid role.");
   if (role == "seller" || role == "admin")
     return fail(next, "This role can't be edited");
-  if (!isUuid(u_id)) return fail(next, "User not found.", 404);
   if (u_id === currentUserId(req))
     return fail(next, "You can't change your own role.", 403);
 
@@ -292,7 +291,6 @@ const editRoles = asyncWrapper(async (req, res, next) => {
 
 const deleteUser = asyncWrapper(async (req, res, next) => {
   const { u_id } = req.params;
-  if (!isUuid(u_id)) return fail(next, "User not found.", 404);
   if (u_id === currentUserId(req))
     return fail(next, "You can't delete your own account here.", 403);
 
@@ -347,12 +345,10 @@ const adminEditOrder = asyncWrapper(async (req, res, next) => {
       problem = ["Only processing orders can be edited.", 409];
     } else if (status === "Shipped") {
       let courier = { rows: [] };
-      if (isUuid(courierId)) {
-        courier = await client.query(
-          `SELECT 1 FROM users WHERE u_id = $1 AND role = 'employee'`,
-          [courierId],
-        );
-      }
+      courier = await client.query(
+        `SELECT 1 FROM users WHERE u_id = $1 AND role = 'employee'`,
+        [courierId],
+      );
       if (!courier.rows.length) problem = ["Choose a valid courier.", 400];
       else {
         await client.query(

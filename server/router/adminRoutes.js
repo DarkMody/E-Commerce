@@ -17,5 +17,5 @@ router.patch("/role/edit/:u_id", verifyToken, verifyRole("admin"), validateUUID(
 router.delete("/delete/user/:u_id", verifyToken, verifyRole("admin"), validateUUID("u_id"), adminController.deleteUser);
 router.get("/order", verifyToken, verifyRole("admin", "manager"), adminController.getAllOrders);
 router.get("/admin/couriers", verifyToken, verifyRole("admin", "manager"), adminController.getCouriers);
-router.patch("/admin/order/:o_id", verifyToken, verifyRole("admin", "manager"), validateOrderId("o_id"), adminController.adminEditOrder);
+router.patch("/admin/order/:o_id", verifyToken, verifyRole("admin", "manager"), validateOrderId("o_id"), validateUUID("courierId"), adminController.adminEditOrder);
 module.exports = router;
