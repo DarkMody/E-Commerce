@@ -181,7 +181,7 @@ The database is created from SQL files in [`server/sql`](server/sql). Some desig
 
   | Endpoint | Limit |
   |---|---|
-  | Login | 8 failed attempts per 15 minutes (per IP and email) |
+  | Login | 5 failed attempts per 15 minutes (per IP and email) |
   | Register | 5 per hour per IP |
   | Change password | 5 per 15 minutes per user |
   | Place order | 10 per minute per user |
@@ -229,74 +229,6 @@ All routes start with `/api`. A short map of the main groups:
     ├── sql/                     # schema and migrations
     └── utils/
 ```
-
-## Getting started
-
-### Requirements
-
-- Node.js 18 or newer
-- A PostgreSQL database (local, or a free one on [Neon](https://neon.tech))
-- A free [Cloudinary](https://cloudinary.com) account for image uploads
-
-### 1. Clone and install
-
-```bash
-git clone https://github.com/YOUR-USERNAME/YOUR-REPO.git
-cd YOUR-REPO
-
-cd server && npm install
-cd ../client && npm install
-```
-
-### 2. Create the database
-
-Run the SQL files from `server/sql` on your database, in this order (adjust the file names to match your folder):
-
-1. the schema (tables, constraints)
-2. `order-product-price.sql`
-3. `orders-keep-history.sql`
-4. optional: the demo data (users for every role, products, orders)
-
-### 3. Add the environment variables
-
-Copy `server/.env.example` to `server/.env` and `client/.env.example` to `client/.env`, then fill them in (see the next section).
-
-### 4. Run it
-
-```bash
-# terminal 1: API
-cd server
-npm run dev        # adjust to your script name, for example: nodemon server.js
-
-# terminal 2: React app
-cd client
-npm start
-```
-
-The app opens at `http://localhost:3000`.
-
-## Environment variables
-
-**Server** (`server/.env`), names may differ slightly in your code:
-
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | Neon (or local) PostgreSQL connection string |
-| `JWT_ACCESS_SECRET` | Secret for access tokens |
-| `JWT_REFRESH_SECRET` | Secret for refresh tokens |
-| `CLIENT_URL` | Address of the frontend (used for CORS) |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
-| `CLOUDINARY_API_KEY` | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
-| `NODE_ENV` | `development` or `production` |
-
-**Client** (`client/.env`):
-
-| Variable | Description |
-|---|---|
-| `REACT_APP_SERVER_URL` | Address of the API, used in `src/config.js` |
-
-> Never commit your real `.env` files. Only the `.env.example` files belong in the repository.
 
 ## Deploying
 
