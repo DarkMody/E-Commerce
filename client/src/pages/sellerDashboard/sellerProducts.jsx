@@ -3,22 +3,19 @@ import { Link, useNavigate } from "react-router-dom";
 import Card from "../../components/card/card";
 import Button from "../../components/button/button";
 import Modal from "../../components/modal/modal";
-import { ProductGridSkeleton, useDelayedLoading } from "../../components/loading";
+import Pagination from "../../components/pagination/Pagination";
+import {
+  ProductGridSkeleton,
+  useDelayedLoading,
+} from "../../components/loading";
 import { SERVER_URL } from "../../config";
 import "./sellerProducts.css";
 
-const LOW_STOCK = 5;
 const TABS = [
   ["all", "All"],
   ["low", "Low stock"],
   ["out", "Out of stock"],
 ];
-
-const stockOf = (p) => Number(p.quantity);
-const isOut = (p) => stockOf(p) === 0;
-const isLow = (p) => stockOf(p) > 0 && stockOf(p) <= LOW_STOCK;
-const filterBy = (products, tab) =>
-  tab === "out" ? products.filter(isOut) : tab === "low" ? products.filter(isLow) : products;
 
 /* ---------- Delete confirmation ---------- */
 function DeleteProductModal({ product, onClose, onDeleted }) {
@@ -29,10 +26,13 @@ function DeleteProductModal({ product, onClose, onDeleted }) {
     try {
       // ===================== BACKEND CONNECTION =====================
       // DELETE /api/product/delete/:p_id  returns { status, message }
-      const res = await fetch(`${SERVER_URL}/api/product/delete/${product.p_id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${SERVER_URL}/api/product/delete/${product.p_id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
       const data = await res.json();
       // ===============================================================
       window.toast(data.status, data.message);
@@ -52,13 +52,18 @@ function DeleteProductModal({ product, onClose, onDeleted }) {
       size="sm"
       footer={
         <>
-          <Button variant="outline" onClick={onClose} disabled={deleting}>Cancel</Button>
-          <Button variant="danger" onClick={handleDelete} loading={deleting}>Delete product</Button>
+          <Button variant="outline" onClick={onClose} disabled={deleting}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDelete} loading={deleting}>
+            Delete product
+          </Button>
         </>
       }
     >
       <p className="mb-0">
-        Are you sure you want to delete <strong>{product.name}</strong>? This can't be undone.
+        Are you sure you want to delete <strong>{product.name}</strong>? This
+        can't be undone.
       </p>
     </Modal>
   );
@@ -67,6 +72,9 @@ function DeleteProductModal({ product, onClose, onDeleted }) {
 function MyProducts() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [counts, setCounts] = useState({ all: 0, low: 0, out: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
@@ -80,13 +88,22 @@ function MyProducts() {
       setLoading(true);
       setError("");
       try {
-        // ===================== BACKEND CONNECTION =====================
-        // GET /api/seller/product -> { data: [ { p_id, name, price, quantity, image, rate, people } ] }
-        const res = await fetch(`${SERVER_URL}/api/seller/product`, { credentials: "include" });
+        const query = new URLSearchParams({ page, tab });
+        const res = await fetch(`${SERVER_URL}/api/seller/product?${query}`, {
+          credentials: "include",
+        });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Could not load your products.");
-        // ===============================================================
-        if (!cancelled) setProducts(data.data || []);
+        if (!res.ok)
+          throw new Error(data.message || "Could not load your products.");
+        if (!cancelled) {
+          setProducts(data.data || []);
+          if (data.pagination) {
+            setTotalPages(data.pagination.totalPages || 1);
+          }
+          if (data.counts) {
+            setCounts(data.counts);
+          }
+        }
       } catch (err) {
         if (!cancelled) setError(err.message);
       } finally {
@@ -97,40 +114,60 @@ function MyProducts() {
     return () => {
       cancelled = true;
     };
-  }, [reloadKey]);
+  }, [page, tab, reloadKey]);
 
-  const handleDeleted = (product) => {
-    setProducts((prev) => prev.filter((p) => p.p_id !== product.p_id));
+  const handleDeleted = () => {
     setDeleting(null);
+    setReloadKey((k) => k + 1);
   };
 
-  const counts = { all: products.length, low: products.filter(isLow).length, out: products.filter(isOut).length };
-  const visible = filterBy(products, tab);
+  const handleTabChange = (key) => {
+    setTab(key);
+    setPage(1);
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   let content;
   if (loading) {
     content = showSkeleton ? <ProductGridSkeleton count={8} /> : null;
   } else if (error) {
     content = (
-      <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
+      <div
+        className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2"
+        role="alert"
+      >
         <span>{error}</span>
-        <Button variant="outline" size="sm" onClick={() => setReloadKey((k) => k + 1)}>Try again</Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setReloadKey((k) => k + 1)}
+        >
+          Try again
+        </Button>
       </div>
     );
-  } else if (products.length === 0) {
+  } else if (counts.all === 0 && tab === "all") {
     content = (
       <div className="text-center py-5">
         <h2 className="h4 fw-bold mb-2">You didn't add any product</h2>
-        <p className="text-secondary mb-4">Add your first product and start selling.</p>
-        <Button onClick={() => navigate("/product/add")}>Add your first product</Button>
+        <p className="text-secondary mb-4">
+          Add your first product and start selling.
+        </p>
+        <Button onClick={() => navigate("/product/add")}>
+          Add your first product
+        </Button>
       </div>
     );
-  } else if (visible.length === 0) {
+  } else if (products.length === 0) {
     content = <p className="text-secondary">No products in this group.</p>;
   } else {
     content = (
       <div className="row g-3">
-        {visible.map((product) => (
+        {products.map((product) => (
           <div className="col-sm-6 col-lg-4 col-xxl-3" key={product.p_id}>
             <div className="my-product">
               <button
@@ -140,13 +177,25 @@ function MyProducts() {
                 aria-label={`Delete ${product.name}`}
                 title="Delete product"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
                   <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6" />
                 </svg>
               </button>
               {/* clicking the card opens the edit page */}
-              <Link className="text-decoration-none d-block h-100" to={`/product/edit/${product.p_id}`}>
+              <Link
+                className="text-decoration-none d-block h-100"
+                to={`/product/edit/${product.p_id}`}
+              >
                 <Card product={product} sellerPage={true} />
               </Link>
             </div>
@@ -160,20 +209,26 @@ function MyProducts() {
     <>
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <h1 className="dash-title mb-0">My Products</h1>
-        <Button onClick={() => navigate("/product/add")}>Add new product</Button>
+        <Button onClick={() => navigate("/product/add")}>
+          Add new product
+        </Button>
       </div>
 
-      {!loading && !error && products.length > 0 && (
-        <div className="dash-tabs mb-4" role="group" aria-label="Filter products">
+      {!loading && !error && (counts.all > 0 || products.length > 0) && (
+        <div
+          className="dash-tabs mb-4"
+          role="group"
+          aria-label="Filter products"
+        >
           {TABS.map(([key, label]) => (
             <button
               type="button"
               key={key}
               className="dash-tab"
               aria-pressed={tab === key}
-              onClick={() => setTab(key)}
+              onClick={() => handleTabChange(key)}
             >
-              {label} ({counts[key]})
+              {label} ({counts[key] ?? 0})
             </button>
           ))}
         </div>
@@ -181,8 +236,22 @@ function MyProducts() {
 
       {content}
 
+      {!loading && !error && totalPages > 1 && (
+        <div className="mt-4 d-flex justify-content-center">
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onChange={handlePageChange}
+          />
+        </div>
+      )}
+
       {deleting && (
-        <DeleteProductModal product={deleting} onClose={() => setDeleting(null)} onDeleted={handleDeleted} />
+        <DeleteProductModal
+          product={deleting}
+          onClose={() => setDeleting(null)}
+          onDeleted={handleDeleted}
+        />
       )}
     </>
   );

@@ -96,14 +96,66 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
 
 const getSellerProducts = asyncWrapper(async (req, res, next) => {
   const seller_id = req.currentUser.id;
-  const result = await pool.query(
-    `SELECT DISTINCT p.*, i.image, COALESCE(ROUND(avg(c.rate) OVER (PARTITION BY p.p_id), 2),0) AS rate, count(c.rate) OVER (PARTITION BY p.p_id) AS people FROM products as p
-    LEFT JOIN comments as c on p.p_id = c.product_id
-    JOIN images as i on i.product_id = p.p_id
-    WHERE i.sort_order = 0 and seller_id = $1`,
-    [seller_id],
-  );
-  res.json({ status: httpStatusText.SUCCESS, data: result.rows });
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const pageSize = 12;
+  const tab = String(req.query.tab || "all").toLowerCase();
+
+  let stockCondition = "";
+  if (tab === "out") {
+    stockCondition = "AND p.quantity = 0";
+  } else if (tab === "low") {
+    stockCondition = "AND p.quantity > 0 AND p.quantity <= 5";
+  }
+
+  const [list, countResult, tabCounts] = await Promise.all([
+    pool.query(
+      `SELECT p.*, i.image,
+              COALESCE(ROUND(c.rate, 2), 0) AS rate,
+              COALESCE(c.people, 0) AS people
+       FROM products p
+       LEFT JOIN images i ON i.product_id = p.p_id AND i.sort_order = 0
+       LEFT JOIN (
+         SELECT product_id, AVG(rate) AS rate, COUNT(rate)::int AS people
+         FROM comments
+         GROUP BY product_id
+       ) c ON c.product_id = p.p_id
+       WHERE p.seller_id = $1 ${stockCondition}
+       ORDER BY p.created_at DESC, p.p_id DESC
+       LIMIT $2 OFFSET $3`,
+      [seller_id, pageSize, (page - 1) * pageSize],
+    ),
+    pool.query(
+      `SELECT COUNT(*)::int AS total FROM products p WHERE p.seller_id = $1 ${stockCondition}`,
+      [seller_id],
+    ),
+    pool.query(
+      `SELECT 
+         COUNT(*)::int AS all_count,
+         COUNT(*) FILTER (WHERE quantity > 0 AND quantity <= 5)::int AS low_count,
+         COUNT(*) FILTER (WHERE quantity = 0)::int AS out_count
+       FROM products
+       WHERE seller_id = $1`,
+      [seller_id],
+    ),
+  ]);
+
+  const total = countResult.rows[0].total;
+  const counts = {
+    all: tabCounts.rows[0].all_count,
+    low: tabCounts.rows[0].low_count,
+    out: tabCounts.rows[0].out_count,
+  };
+
+  res.json({
+    status: httpStatusText.SUCCESS,
+    data: list.rows,
+    pagination: {
+      page,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+      totalItems: total,
+    },
+    counts,
+  });
 });
 
 const getProduct = asyncWrapper(async (req, res, next) => {
