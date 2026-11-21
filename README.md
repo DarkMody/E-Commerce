@@ -13,10 +13,7 @@
 ![Neon](https://img.shields.io/badge/Neon-00E599?logo=neon&logoColor=black)
 ![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?logo=cloudinary&logoColor=white)
 
-**[Live demo](https://YOUR-LIVE-LINK)** · **[Demo video](https://YOUR-VIDEO-LINK)** · **[Report a bug](../../issues)**
-
-<!-- TODO: add a screenshot or GIF of the home page here -->
-<img src="docs/screenshots/home.png" alt="DarkZon home page" width="800" />
+**[Live demo](https://darkzon-mu.vercel.app)** · **[Demo video](https://YOUR-VIDEO-LINK)**
 
 </div>
 
@@ -326,43 +323,7 @@ Production details that matter:
 - Serverless functions have no permanent disk, so every upload goes to Cloudinary.
 - The database connection uses SSL, as Neon requires.
 
-## Demo accounts
-
-<!-- TODO: create these accounts in your database and fill in real emails and passwords -->
-
-| Role | Email | Password |
-|---|---|---|
-| Customer | `customer@example.com` | `YOUR-PASSWORD` |
-| Seller | `seller@example.com` | `YOUR-PASSWORD` |
-| Manager | `manager@example.com` | `YOUR-PASSWORD` |
-| Admin | `admin@example.com` | `YOUR-PASSWORD` |
-| Delivery courier | `courier@example.com` | `YOUR-PASSWORD` |
-
 **A quick tour (2 minutes):** log in as the customer and place an order, then as the manager ship it to the courier, then as the courier mark it delivered, then look at the seller and admin dashboards.
-
-## Screenshots
-
-<!-- TODO: add your screenshots to docs/screenshots and keep these file names, or change them -->
-
-| Home | Products |
-|---|---|
-| ![Home](docs/screenshots/home.png) | ![Products](docs/screenshots/products.png) |
-
-| Cart | Order history |
-|---|---|
-| ![Cart](docs/screenshots/cart.png) | ![History](docs/screenshots/history.png) |
-
-| Admin dashboard | Manager dashboard |
-|---|---|
-| ![Admin](docs/screenshots/admin.png) | ![Manager](docs/screenshots/manager.png) |
-
-| Seller dashboard | Delivery page |
-|---|---|
-| ![Seller](docs/screenshots/seller.png) | ![Delivery](docs/screenshots/delivery.png) |
-
-| Dark mode |
-|---|
-| ![Dark mode](docs/screenshots/dark.png) |
 
 ## Known limitations and roadmap
 
@@ -386,12 +347,10 @@ Ideas for the future: email notifications for order changes, soft delete for pro
 
 ## Author
 
-**Mahmoud Mohamed**
+**Mahmoud Mohamed (DarkMody)**
 
 - GitHub: [@DarkMody](https://github.com/DarkMody)
 - LinkedIn: [Mahmoud Mohamed](https://www.linkedin.com/in/mahmoud-mohamed-194441348/)
 - Email: modyandmody12345@gmail.com
 
 If you like the project, a star on the repository is appreciated.
-
-<!-- TODO: add a LICENSE file (for example MIT) and link it here -->
