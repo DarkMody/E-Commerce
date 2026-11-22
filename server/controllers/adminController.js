@@ -4,6 +4,7 @@ const asyncWrapper = require("../middlewares/asyncWrapper");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
 const generateToken = require("../utils/generateToken");
+const { deleteFromCloudinary } = require("../utils/image");
 
 const ROLES = ["customer", "seller", "admin", "manager", "employee"];
 const ORDER_STATUSES = ["Processing", "Shipped", "Delivered", "Cancelled"];
@@ -401,6 +402,206 @@ const adminEditOrder = asyncWrapper(async (req, res, next) => {
   });
 });
 
+/**
+ * Product Review Endpoints (Admin & Manager)
+ */
+const getCheckProducts = asyncWrapper(async (req, res, next) => {
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const pageSize = 10;
+  const tab = String(req.query.tab || "all").toLowerCase();
+  const rawSearch = String(req.query.search || "").trim();
+
+  // Build base conditions
+  const conds = [];
+  const vals = [];
+  let idx = 1;
+
+  if (rawSearch) {
+    conds.push(
+      `(p.name ILIKE $${idx} OR pp.name ILIKE $${idx} OR u.name ILIKE $${idx} OR u.email ILIKE $${idx})`,
+    );
+    vals.push(`%${rawSearch}%`);
+    idx++;
+  }
+
+  const isEditExpr = `(pp.product_id IS NOT NULL OR (
+    EXISTS (SELECT 1 FROM images WHERE product_id = p.p_id AND accepted = true)
+    AND EXISTS (SELECT 1 FROM images WHERE product_id = p.p_id AND accepted = false)
+  ))`;
+
+  if (tab === "new") conds.push(`NOT ${isEditExpr}`);
+  if (tab === "edit") conds.push(isEditExpr);
+
+  const whereClause = `WHERE (p.status = 'Pending' OR pp.product_id IS NOT NULL) ${conds.length ? "AND " + conds.join(" AND ") : ""}`;
+
+  const selectCore = `
+    FROM products p
+    JOIN users u ON u.u_id = p.seller_id
+    LEFT JOIN pending_product pp ON pp.product_id = p.p_id
+    LEFT JOIN images i ON i.product_id = p.p_id
+    ${whereClause}
+    GROUP BY p.p_id, u.name, u.email, pp.name, pp.description, pp.created_at`;
+
+  const [listResult, tabCountResult] = await Promise.all([
+    pool.query(
+      `SELECT
+        p.p_id, p.name, p.description, p.price, p.quantity, p.discount,
+        p.status, p.note, p.created_at, p.seller_id,
+        u.name AS seller_name, u.email AS seller_email,
+        pp.name AS pending_name, pp.description AS pending_description,
+        pp.created_at AS pending_created_at,
+        COALESCE(
+          json_agg(
+            json_build_object('image_id', i.image_id, 'image', i.image,
+              'sort_order', i.sort_order, 'accepted', i.accepted)
+            ORDER BY i.sort_order ASC, i.created_at ASC
+          ) FILTER (WHERE i.image_id IS NOT NULL), '[]'
+        ) AS images,
+        COALESCE((
+          SELECT json_agg(json_build_object('c_id', c.c_id, 'name', c.name))
+          FROM product_category pc JOIN category c ON c.c_id = pc.category_id
+          WHERE pc.product_id = p.p_id
+        ), '[]') AS categories
+      ${selectCore}
+      ORDER BY COALESCE(pp.created_at, p.created_at) DESC
+      LIMIT $${idx} OFFSET $${idx + 1}`,
+      [...vals, pageSize, (page - 1) * pageSize],
+    ),
+    pool.query(
+      `SELECT
+        COUNT(DISTINCT p.p_id)::int AS all_count,
+        COUNT(DISTINCT p.p_id) FILTER (WHERE ${isEditExpr})::int AS edit_count,
+        COUNT(DISTINCT p.p_id) FILTER (WHERE NOT ${isEditExpr})::int AS new_count
+       FROM products p
+       JOIN users u ON u.u_id = p.seller_id
+       LEFT JOIN pending_product pp ON pp.product_id = p.p_id
+       WHERE p.status = 'Pending' OR pp.product_id IS NOT NULL`,
+      [],
+    ),
+  ]);
+
+  const total = tabCountResult.rows[0]?.all_count || 0;
+  const tc = tabCountResult.rows[0] || {};
+
+  return res.json({
+    status: httpStatusText.SUCCESS,
+    data: listResult.rows,
+    pagination: {
+      page,
+      pageSize,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+      totalItems: total,
+    },
+    counts: {
+      all: tc.all_count || 0,
+      new: tc.new_count || 0,
+      edit: tc.edit_count || 0,
+    },
+  });
+});
+
+const acceptProduct = asyncWrapper(async (req, res, next) => {
+  const p_id = req.params.p_id;
+
+  const product = await pool.query(`SELECT * FROM products WHERE p_id = $1`, [
+    p_id,
+  ]);
+  if (product.rows.length === 0) return fail(next, "Product not found", 404);
+
+  const pending = await pool.query(
+    `SELECT * FROM pending_product WHERE product_id = $1`,
+    [p_id],
+  );
+
+  if (pending.rows.length > 0) {
+    const { name, description } = pending.rows[0];
+    await pool.query(
+      `UPDATE products
+       SET name = COALESCE(NULLIF($1, ''), name),
+           description = COALESCE($2, description),
+           status = 'Accepted', note = NULL
+       WHERE p_id = $3`,
+      [name, description, p_id],
+    );
+    await pool.query(`DELETE FROM pending_product WHERE product_id = $1`, [
+      p_id,
+    ]);
+  } else {
+    await pool.query(
+      `UPDATE products SET status = 'Accepted', note = NULL WHERE p_id = $1`,
+      [p_id],
+    );
+  }
+
+  await pool.query(`UPDATE images SET accepted = true WHERE product_id = $1`, [
+    p_id,
+  ]);
+
+  return res.json({
+    status: httpStatusText.SUCCESS,
+    message: "Product has been approved and is now live.",
+  });
+});
+
+const rejectProduct = asyncWrapper(async (req, res, next) => {
+  const p_id = req.params.p_id;
+  const note = String(req.body?.note || "").trim() || null;
+
+  const prod = await pool.query(`SELECT * FROM products WHERE p_id = $1`, [
+    p_id,
+  ]);
+  if (prod.rows.length === 0) return fail(next, "Product not found", 404);
+
+  const pending = await pool.query(
+    `SELECT * FROM pending_product WHERE product_id = $1`,
+    [p_id],
+  );
+  const acceptedImgs = await pool.query(
+    `SELECT * FROM images WHERE product_id = $1 AND accepted = true`,
+    [p_id],
+  );
+
+  if (pending.rows.length > 0 || acceptedImgs.rows.length > 0) {
+    // Reject edit: delete pending edits & unaccepted images, keep the accepted version live
+    await pool.query(`DELETE FROM pending_product WHERE product_id = $1`, [
+      p_id,
+    ]);
+
+    const unacceptedImgs = await pool.query(
+      `SELECT * FROM images WHERE product_id = $1 AND accepted = false`,
+      [p_id],
+    );
+    await Promise.all(
+      unacceptedImgs.rows.map((img) =>
+        deleteFromCloudinary(img.image).catch(() => {}),
+      ),
+    );
+    await pool.query(
+      `DELETE FROM images WHERE product_id = $1 AND accepted = false`,
+      [p_id],
+    );
+    // Keep status = Accepted but save the note so seller sees why
+    await pool.query(
+      `UPDATE products SET status = 'Accepted', note = $1 WHERE p_id = $2`,
+      [note, p_id],
+    );
+    return res.json({
+      status: httpStatusText.SUCCESS,
+      message: "Edit rejected. The note has been sent to the seller.",
+    });
+  } else {
+    // Reject new product
+    await pool.query(
+      `UPDATE products SET status = 'Rejected', note = $1 WHERE p_id = $2`,
+      [note, p_id],
+    );
+    return res.json({
+      status: httpStatusText.SUCCESS,
+      message: "Product rejected. The note has been sent to the seller.",
+    });
+  }
+});
+
 module.exports = {
   registerAdmin,
   getStatus,
@@ -410,4 +611,7 @@ module.exports = {
   editRoles,
   deleteUser,
   adminEditOrder,
+  getCheckProducts,
+  acceptProduct,
+  rejectProduct,
 };

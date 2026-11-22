@@ -21,7 +21,8 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
 
   let subQuery = `SELECT DISTINCT p.*, i.image, COALESCE(ROUND(avg(c.rate) OVER (PARTITION BY p.p_id), 2),0) AS rate, count(c.rate) OVER (PARTITION BY p.p_id) AS people FROM products AS p
                   LEFT JOIN comments AS c on p.p_id = c.product_id
-                  JOIN images AS i on i.product_id = p.p_id and i.sort_order = 0`;
+                  JOIN images AS i on i.product_id = p.p_id and i.sort_order = 0 and i.accepted = true
+                  WHERE p.status = 'Accepted'`;
 
   const conditions = [];
   const conditions2 = [];
@@ -86,11 +87,23 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
     count.rows.length,
     Math.ceil(count.rows.length / pageSize),
   ];
+
+  const productIds = count.rows.map((row) => row.p_id);
+  const usedCategory = await pool.query(
+    `
+    SELECT DISTINCT c.* FROM category AS c
+    JOIN product_category AS pc ON c.c_id = pc.category_id
+    JOIN UNNEST($1::uuid[]) AS p(p_id) ON pc.product_id = p.p_id
+    `,
+    [productIds],
+  );
+
   res.json({
     status: httpStatusText.SUCCESS,
     data: result.rows,
     pagination: { page, totalItems, totalPages },
     price: price.rows,
+    category: usedCategory.rows,
   });
 });
 
@@ -99,6 +112,7 @@ const getSellerProducts = asyncWrapper(async (req, res, next) => {
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
   const pageSize = 12;
   const tab = String(req.query.tab || "all").toLowerCase();
+  const search = String(req.query.search || req.query.name || "").trim();
 
   let stockCondition = "";
   if (tab === "out") {
@@ -107,35 +121,46 @@ const getSellerProducts = asyncWrapper(async (req, res, next) => {
     stockCondition = "AND p.quantity > 0 AND p.quantity <= 5";
   }
 
+  const baseConditions = ["p.seller_id = $1"];
+  const baseValues = [seller_id];
+
+  if (search) {
+    baseConditions.push(`p.name ILIKE $${baseValues.length + 1}`);
+    baseValues.push(`%${search}%`);
+  }
+
+  const whereClause = `WHERE ${baseConditions.join(" AND ")} ${stockCondition}`;
+
   const [list, countResult, tabCounts] = await Promise.all([
     pool.query(
       `SELECT p.*, i.image,
               COALESCE(ROUND(c.rate, 2), 0) AS rate,
               COALESCE(c.people, 0) AS people
-       FROM products p
-       LEFT JOIN images i ON i.product_id = p.p_id AND i.sort_order = 0
-       LEFT JOIN (
-         SELECT product_id, AVG(rate) AS rate, COUNT(rate)::int AS people
-         FROM comments
-         GROUP BY product_id
-       ) c ON c.product_id = p.p_id
-       WHERE p.seller_id = $1 ${stockCondition}
-       ORDER BY p.created_at DESC, p.p_id DESC
-       LIMIT $2 OFFSET $3`,
-      [seller_id, pageSize, (page - 1) * pageSize],
+        FROM products p
+        LEFT JOIN images i ON i.product_id = p.p_id AND i.sort_order = 0
+        LEFT JOIN (
+          SELECT product_id, AVG(rate) AS rate, COUNT(rate)::int AS people
+          FROM comments
+          GROUP BY product_id
+        ) c ON c.product_id = p.p_id
+        ${whereClause}
+        ORDER BY p.created_at DESC, p.p_id DESC
+        LIMIT $${baseValues.length + 1} OFFSET $${baseValues.length + 2}`,
+      [...baseValues, pageSize, (page - 1) * pageSize],
     ),
     pool.query(
-      `SELECT COUNT(*)::int AS total FROM products p WHERE p.seller_id = $1 ${stockCondition}`,
-      [seller_id],
+      `SELECT COUNT(*)::int AS total FROM products p ${whereClause}`,
+      baseValues,
     ),
     pool.query(
-      `SELECT 
-         COUNT(*)::int AS all_count,
-         COUNT(*) FILTER (WHERE quantity > 0 AND quantity <= 5)::int AS low_count,
-         COUNT(*) FILTER (WHERE quantity = 0)::int AS out_count
-       FROM products
-       WHERE seller_id = $1`,
-      [seller_id],
+      `
+      SELECT 
+        COUNT(*)::int AS all_count,
+        COUNT(*) FILTER (WHERE p.quantity > 0 AND p.quantity <= 5)::int AS low_count,
+        COUNT(*) FILTER (WHERE p.quantity = 0)::int AS out_count
+      FROM products p
+      WHERE ${baseConditions.join(" AND ")}`,
+      baseValues,
     ),
   ]);
 
@@ -168,6 +193,16 @@ const getProduct = asyncWrapper(async (req, res, next) => {
     `,
     [p_id],
   );
+
+  if (product.rows.length === 0) {
+    const error = appError.create(
+      "Product not found",
+      404,
+      httpStatusText.FAIL,
+    );
+    return next(error);
+  }
+
   const categories = await pool.query(
     `select c.* from product_category as pc 
     JOIN products as p on p.p_id = pc.product_id 
@@ -176,18 +211,24 @@ const getProduct = asyncWrapper(async (req, res, next) => {
     [p_id],
   );
   const images = await pool.query(
-    `SELECT image FROM images as i 
-    JOIN products as p on i.product_id = p.p_id
-    WHERE p.p_id = $1
-    ORDER BY i.sort_order`,
+    `SELECT image, accepted, sort_order FROM images as i 
+    WHERE i.product_id = $1
+    ORDER BY i.sort_order, i.created_at ASC`,
     [p_id],
   );
+
+  const pending = await pool.query(
+    `SELECT * FROM pending_product WHERE product_id = $1`,
+    [p_id],
+  );
+
   res.json({
     status: httpStatusText.SUCCESS,
     data: {
       product: product.rows[0],
       category: categories.rows,
       image: images.rows,
+      pending: pending.rows[0] || null,
     },
   });
 });
@@ -250,8 +291,8 @@ const addProduct = asyncWrapper(async (req, res, next) => {
       savedUrls.push(imageUrl);
     }
 
-    const query = `INSERT INTO products (name, description, price, quantity, seller_id, discount)
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
+    const query = `INSERT INTO products (name, description, price, quantity, seller_id, discount, status)
+      VALUES ($1, $2, $3, $4, $5, $6, 'Pending') RETURNING *`;
     const result = await pool.query(query, [
       name,
       description,
@@ -264,7 +305,7 @@ const addProduct = asyncWrapper(async (req, res, next) => {
 
     const insertImagesPromises = savedUrls.map((url, index) =>
       pool.query(
-        `INSERT INTO images (product_id, image, sort_order) VALUES ($1, $2, $3)`,
+        `INSERT INTO images (product_id, image, sort_order, accepted) VALUES ($1, $2, $3, false)`,
         [p_id, url, index],
       ),
     );
@@ -285,7 +326,7 @@ const addProduct = asyncWrapper(async (req, res, next) => {
 
     return res.status(201).json({
       status: httpStatusText.SUCCESS,
-      message: "Product has been added successfully",
+      message: "Product has been submitted and is pending admin approval",
     });
   } catch (err) {
     await Promise.all(savedUrls.map((url) => deleteFromCloudinary(url)));
@@ -386,13 +427,28 @@ const editProduct = asyncWrapper(async (req, res, next) => {
     }
 
     const keptImages = existingImages ? JSON.parse(existingImages) : [];
+    const currentProduct = result.rows[0];
+    const isRejected = currentProduct.status === "Rejected";
 
-    const removedImages = images.rows.filter(
-      (oldImg) => !keptImages.includes(oldImg.image),
-    );
-    await Promise.all(
-      removedImages.map((img) => deleteFromCloudinary(img.image)),
-    );
+    const nameChanged =
+      (name || "").trim() !== (currentProduct.name || "").trim();
+    const descChanged =
+      (description || "").trim() !== (currentProduct.description || "").trim();
+    const hasNewImages = req.files && req.files.length > 0;
+
+    const disc =
+      discount !== undefined && discount !== "" && discount !== null
+        ? Number(discount)
+        : currentProduct.discount || 0;
+
+    if (isNaN(disc) || disc < 0 || disc > 100) {
+      const error = appError.create(
+        "Discount must be between 0 and 100",
+        400,
+        httpStatusText.FAIL,
+      );
+      return next(error);
+    }
 
     const savedUrls = [];
 
@@ -402,62 +458,109 @@ const editProduct = asyncWrapper(async (req, res, next) => {
         savedUrls.push(imageUrl);
       }
 
-      const newImages = savedUrls;
-      const finalImages = [...keptImages, ...newImages];
-      await pool.query(`DELETE FROM images WHERE product_id = $1`, [
-        req.params.p_id,
-      ]);
-
-      const disc =
-        discount !== undefined && discount !== "" && discount !== null
-          ? Number(discount)
-          : result.rows[0].discount || 0;
-
-      if (isNaN(disc) || disc < 0 || disc > 100) {
-        const error = appError.create(
-          "Discount must be between 0 and 100",
-          400,
-          httpStatusText.FAIL,
-        );
-        return next(error);
-      }
-
-      // editing product
+      // 1. Price, quantity, and discount ALWAYS update immediately
       await pool.query(
-        `UPDATE products SET name = $1, description = $2, price = $3, quantity = GREATEST(quantity + $4 , 0), discount = $5 WHERE p_id = $6;`,
-        [name, description, price, quantity, disc, req.params.p_id],
+        `UPDATE products SET price = $1, quantity = GREATEST(quantity + $2, 0), discount = $3 WHERE p_id = $4`,
+        [price, quantity || 0, disc, req.params.p_id],
       );
 
-      // Adding the new images
-      const insertImagesPromises = finalImages.map((img, index) => {
-        const imageUrl = img;
-        return pool.query(
-          `INSERT INTO images (product_id, image, sort_order) VALUES ($1, $2, $3)`,
-          [req.params.p_id, imageUrl, index],
-        );
-      });
-      await Promise.all(insertImagesPromises);
-
+      // 2. Categories update immediately
       await pool.query(`DELETE FROM product_category WHERE product_id = $1`, [
         req.params.p_id,
       ]);
-      const insertCategoriesPromises = category.map(async (category) => {
+      const insertCategoriesPromises = category.map(async (catId) => {
         const check = await pool.query(
           `SELECT * FROM category WHERE c_id = $1`,
-          [category],
+          [catId],
         );
         if (check.rows.length !== 0) {
           return await pool.query(
-            `INSERT INTO product_category VALUES ($1 , $2)`,
-            [req.params.p_id, category],
+            `INSERT INTO product_category VALUES ($1, $2)`,
+            [req.params.p_id, catId],
           );
         }
       });
       await Promise.all(insertCategoriesPromises);
 
+      // 3. Handle name, description, and images depending on product state
+      if (isRejected) {
+        // Product was rejected; seller edited it to resubmit for review
+        await pool.query(
+          `UPDATE products SET name = $1, description = $2, status = 'Pending' WHERE p_id = $3`,
+          [(name || "").trim(), (description || "").trim(), req.params.p_id],
+        );
+        await pool.query(`DELETE FROM pending_product WHERE product_id = $1`, [
+          req.params.p_id,
+        ]);
+
+        // Remove old images not kept
+        const removedImages = images.rows.filter(
+          (oldImg) => !keptImages.includes(oldImg.image),
+        );
+        await Promise.all(
+          removedImages.map((img) => deleteFromCloudinary(img.image)),
+        );
+        await pool.query(`DELETE FROM images WHERE product_id = $1`, [
+          req.params.p_id,
+        ]);
+
+        const allImages = [...keptImages, ...savedUrls];
+        const insertImagesPromises = allImages.map((imgUrl, index) =>
+          pool.query(
+            `INSERT INTO images (product_id, image, sort_order, accepted) VALUES ($1, $2, $3, false)`,
+            [req.params.p_id, imgUrl, index],
+          ),
+        );
+        await Promise.all(insertImagesPromises);
+
+        return res.status(200).json({
+          status: httpStatusText.SUCCESS,
+          message: "Product resubmitted for admin approval",
+        });
+      }
+
+      // For Accepted / Pending products:
+      let needsApproval = false;
+
+      // A) Name / Description changes go to pending_product
+      if (nameChanged || descChanged) {
+        needsApproval = true;
+        await pool.query(
+          `INSERT INTO pending_product (product_id, name, description)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (product_id) DO UPDATE SET name = $2, description = $3`,
+          [req.params.p_id, (name || "").trim(), (description || "").trim()],
+        );
+      }
+
+      // B) New images go to images table with accepted = false
+      if (hasNewImages) {
+        needsApproval = true;
+        const currentCount = keptImages.length;
+        const insertImagesPromises = savedUrls.map((imgUrl, index) =>
+          pool.query(
+            `INSERT INTO images (product_id, image, sort_order, accepted) VALUES ($1, $2, $3, false)`,
+            [req.params.p_id, imgUrl, currentCount + index],
+          ),
+        );
+        await Promise.all(insertImagesPromises);
+      }
+
+      if (needsApproval) {
+        await pool.query(
+          `UPDATE products SET status = 'Pending' WHERE p_id = $1`,
+          [req.params.p_id],
+        );
+        return res.status(200).json({
+          status: httpStatusText.SUCCESS,
+          message:
+            "Product updated. Name, description, or image changes are pending admin approval.",
+        });
+      }
+
       return res.status(200).json({
         status: httpStatusText.SUCCESS,
-        message: "Product has been edited successfully",
+        message: "Product updated successfully.",
       });
     } catch (err) {
       await Promise.all(savedUrls.map((url) => deleteFromCloudinary(url)));

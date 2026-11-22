@@ -7,5 +7,7 @@ CREATE TABLE IF NOT EXISTS products (
     seller_id   UUID           NOT NULL REFERENCES users(u_id) ON DELETE CASCADE,
     created_at  TIMESTAMPTZ    DEFAULT NOW(),
     sold        INT DEFAULT 0,
-    discount    INT DEFAULT 0 CHECK (discount BETWEEN 0 AND 100)
+    discount    INT DEFAULT 0 CHECK (discount BETWEEN 0 AND 100),
+    status      VARCHAR(25) NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Accepted', 'Rejected')),
+    note        TEXT
 );

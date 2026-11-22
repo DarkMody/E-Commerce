@@ -38,6 +38,10 @@ const createTables = async () => {
       "utf8",
     );
     const cartSql = fs.readFileSync(path.join(__dirname, "cart.sql"), "utf8");
+    const pendingProductSql = fs.readFileSync(
+      path.join(__dirname, "pendingProduct.sql"),
+      "utf8",
+    );
     await pool.query(usersSql);
     await pool.query(sellersSql);
     await pool.query(productsSql);
@@ -45,6 +49,7 @@ const createTables = async () => {
     await pool.query(categorySql);
     await pool.query(productCategorySql);
     await pool.query(imagesSql);
+    await pool.query(pendingProductSql);
     await pool.query(ordersSQL);
     await pool.query(orderProductSQL);
     await pool.query(cartSql);

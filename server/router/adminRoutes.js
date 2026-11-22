@@ -18,4 +18,7 @@ router.delete("/delete/user/:u_id", verifyToken, verifyRole("admin"), validateUU
 router.get("/order", verifyToken, verifyRole("admin", "manager"), adminController.getAllOrders);
 router.get("/admin/couriers", verifyToken, verifyRole("admin", "manager"), adminController.getCouriers);
 router.patch("/admin/order/:o_id", verifyToken, verifyRole("admin", "manager"), validateOrderId("o_id"), validateUUID("courierId"), adminController.adminEditOrder);
+router.get("/admin/check-products", verifyToken, verifyRole("admin", "manager"), adminController.getCheckProducts);
+router.post("/admin/check-product/:p_id/accept", verifyToken, verifyRole("admin", "manager"), validateUUID("p_id"), adminController.acceptProduct);
+router.post("/admin/check-product/:p_id/reject", verifyToken, verifyRole("admin", "manager"), validateUUID("p_id"), adminController.rejectProduct);
 module.exports = router;
