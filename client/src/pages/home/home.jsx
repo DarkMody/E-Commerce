@@ -103,7 +103,7 @@ function Home() {
     }
   };
 
-  const displayCategories = categories.length > 0 ? categories : [];
+  const displayCategories = categories.length > 0 ? categories.slice(0, 8) : [];
 
   return (
     <>
