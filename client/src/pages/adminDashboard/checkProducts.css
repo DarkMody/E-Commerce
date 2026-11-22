@@ -1,0 +1,123 @@
+/* Check Products / Approvals Page */
+
+.review-card {
+  background-color: var(--dz-surface);
+  border: 1px solid var(--dz-border);
+  border-radius: var(--dz-radius-lg);
+  box-shadow: var(--dz-shadow);
+  padding: 1.5rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.review-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.review-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.review-gallery__main {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: var(--dz-surface-2);
+  border-radius: var(--dz-radius);
+  overflow: hidden;
+  border: 1px solid var(--dz-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.review-gallery__main img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.review-gallery__thumbs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.review-gallery__thumb {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  border-radius: var(--dz-radius);
+  border: 2px solid var(--dz-border);
+  overflow: hidden;
+  cursor: pointer;
+  background-color: var(--dz-surface-2);
+  padding: 0;
+  transition: border-color 0.2s ease;
+}
+
+.review-gallery__thumb.is-active {
+  border-color: var(--dz-primary);
+}
+
+.review-gallery__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.review-gallery__thumb-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--dz-warning);
+  color: #ffffff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.1;
+  padding: 1px 0;
+  text-transform: uppercase;
+}
+
+.diff-box {
+  padding: 0.75rem;
+  border-radius: var(--dz-radius);
+  font-size: 0.9rem;
+}
+
+.diff-box--old {
+  background-color: var(--dz-surface-2);
+  border: 1px dashed var(--dz-border);
+  color: var(--dz-muted);
+}
+
+.diff-box--new {
+  background-color: var(--dz-success-bg);
+  border: 1px solid var(--dz-success-border);
+  color: var(--dz-success);
+}
+
+.review-badge-new {
+  background-color: var(--dz-info-bg);
+  color: var(--dz-info);
+  border: 1px solid var(--dz-info-border);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.review-badge-edit {
+  background-color: var(--dz-warning-bg);
+  color: var(--dz-warning);
+  border: 1px solid var(--dz-warning-border);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}

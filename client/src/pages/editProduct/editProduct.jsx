@@ -97,6 +97,7 @@ function EditProduct() {
   });
   const [touched, setTouched] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [rejectionNote, setRejectionNote] = useState("");
 
   // ---- images: existing ones from the server + new uploads ----
   const [images, setImages] = useState([]);
@@ -139,6 +140,7 @@ function EditProduct() {
 
         if (cancelled) return;
         const { product, image, category } = data.data;
+        setRejectionNote(product.note || "");
         setValues({
           name: product.name ?? "",
           price: String(product.price ?? ""),
@@ -345,6 +347,16 @@ function EditProduct() {
     content = (
       <form className="add-product__card" onSubmit={handleSubmit} noValidate>
         <h1 className="add-product__title">Edit product</h1>
+
+        {rejectionNote && (
+          <div className="alert alert-danger d-flex gap-2 align-items-start mb-3" role="alert">
+            <i className="fa-solid fa-circle-exclamation mt-1" aria-hidden="true"></i>
+            <div>
+              <div className="fw-semibold mb-1">Your product was rejected</div>
+              <div className="small">{rejectionNote}</div>
+            </div>
+          </div>
+        )}
 
         <Input
           label="Name"

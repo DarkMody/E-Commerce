@@ -11,19 +11,6 @@ import "./products.css";
 
 /* ---------- Data loading helpers ---------- */
 
-const loadCategoriesData = async () => {
-  try {
-    const res = await fetch(`${SERVER_URL}/api/category`);
-    const data = await res.json();
-    if (data.status === "success" && Array.isArray(data.data)) {
-      return data.data;
-    }
-    return [];
-  } catch {
-    return [];
-  }
-};
-
 const fetchProductsData = async (queryString) => {
   const url = `${SERVER_URL}/api/products${queryString ? `?${queryString}` : ""}`;
   const res = await fetch(url);
@@ -131,6 +118,9 @@ function Products() {
           setTotalPages(data.pagination.totalPages || 1);
           setTotalItems(data.pagination.totalItems || 0);
         }
+        if (data.category) {
+          setCategories(data.category);
+        }
 
         // Update price bounds from backend response
         if (data.price && data.price.length > 0) {
@@ -152,13 +142,6 @@ function Products() {
   // 1. Initial Load & Categories
   useEffect(() => {
     let cancelled = false;
-
-    // Load categories
-    loadCategoriesData().then((cats) => {
-      if (!cancelled && cats.length > 0) {
-        setCategories(cats);
-      }
-    });
 
     // Close category dropdown on outside click
     const handleClickOutside = (e) => {
@@ -651,6 +634,7 @@ function Products() {
                     <option value="price-asc">Price: Low to High</option>
                     <option value="price-desc">Price: High to Low</option>
                     <option value="rate-desc">Highest Rated</option>
+                    <option value="rate-asc">Lowest Rated</option>
                     <option value="created_at-desc">Newest Arrivals</option>
                   </select>
                 </div>

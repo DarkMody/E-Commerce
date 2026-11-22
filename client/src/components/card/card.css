@@ -69,7 +69,7 @@
   height: calc(100% + 48px);
   object-fit: cover;
   filter: blur(18px);
-  opacity: 0.2;
+  opacity: 0;
 }
 .product-card__photo {
   position: relative;

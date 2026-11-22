@@ -1,4 +1,3 @@
-import { SERVER_URL } from "../../config";
 import "./card.css";
 
 /**

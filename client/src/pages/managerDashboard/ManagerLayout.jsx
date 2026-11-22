@@ -4,6 +4,7 @@ const LINKS = [
   { to: "/manager", label: "Main", end: true },
   { to: "/manager/orders", label: "Orders" },
   { to: "/manager/couriers", label: "Couriers" },
+  { to: "/manager/checkProducts", label: "Check Products" },
 ];
 
 /**

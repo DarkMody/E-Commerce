@@ -618,7 +618,7 @@ function Product() {
                 {/* Price */}
                 {Number(product.discount) > 0 ? (
                   <div className="d-flex align-items-baseline gap-3 flex-wrap">
-                    <span className="product-price">
+                    <span className="product-price product-price--discounted">
                       $
                       {(
                         Number(product.price) *

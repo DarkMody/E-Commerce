@@ -32,6 +32,7 @@ import AdminLayout from "./pages/adminDashboard/AdminLayout";
 import AdminMain from "./pages/adminDashboard/AdminMain";
 import AdminRoles from "./pages/adminDashboard/AdminRoles";
 import AdminOrders from "./pages/adminDashboard/AdminOrders";
+import CheckProducts from "./pages/adminDashboard/checkProducts";
 
 // Manager
 import ManagerLayout from "./pages/managerDashboard/ManagerLayout";
@@ -102,6 +103,7 @@ function App() {
           <Route index element={<AdminMain />} />
           <Route path="roles" element={<AdminRoles />} />
           <Route path="orders" element={<AdminOrders />} />
+          <Route path="checkProducts" element={<CheckProducts />} />
         </Route>
 
         {/* Manager */}
@@ -109,6 +111,7 @@ function App() {
           <Route index element={<ManagerMain />} />
           <Route path="orders" element={<ManagerOrders />} />
           <Route path="couriers" element={<ManagerCouriers />} />
+          <Route path="checkProducts" element={<CheckProducts />} />
         </Route>
 
         {/* Delivery */}

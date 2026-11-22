@@ -5,12 +5,50 @@
   height: 100%;
 }
 
-/* trash button on top of a card */
-.my-product__delete {
+/* top right action container: status badge on the left, delete button on the right */
+.my-product__top-actions {
   position: absolute;
   top: 0.6rem;
   right: 0.6rem;
-  z-index: 2;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.my-product__status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 999px;
+  box-shadow: var(--dz-shadow);
+  letter-spacing: 0.01em;
+  text-transform: capitalize;
+  pointer-events: none;
+}
+
+.my-product__status.is-pending {
+  background-color: var(--dz-warning-bg);
+  color: var(--dz-warning);
+  border: 1px solid var(--dz-warning-border);
+}
+
+.my-product__status.is-accepted {
+  background-color: var(--dz-success-bg);
+  color: var(--dz-success);
+  border: 1px solid var(--dz-success-border);
+}
+
+.my-product__status.is-rejected {
+  background-color: var(--dz-danger-bg);
+  color: var(--dz-danger);
+  border: 1px solid var(--dz-danger-border);
+}
+
+/* trash button on top of a card */
+.my-product__delete {
   display: flex;
   align-items: center;
   justify-content: center;

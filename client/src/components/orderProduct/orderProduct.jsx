@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { SERVER_URL } from "../../config";
 import "./orderProduct.css";
 
 function OrderProduct({ product }) {

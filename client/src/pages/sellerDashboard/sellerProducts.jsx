@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Card from "../../components/card/card";
 import Button from "../../components/button/button";
 import Modal from "../../components/modal/modal";
+import Input from "../../components/input/input";
 import Pagination from "../../components/pagination/Pagination";
 import {
   ProductGridSkeleton,
@@ -16,6 +17,22 @@ const TABS = [
   ["low", "Low stock"],
   ["out", "Out of stock"],
 ];
+
+const SearchIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    aria-hidden="true"
+  >
+    <circle cx="11" cy="11" r="7" />
+    <path d="M20 20l-3.5-3.5" />
+  </svg>
+);
 
 /* ---------- Delete confirmation ---------- */
 function DeleteProductModal({ product, onClose, onDeleted }) {
@@ -75,6 +92,8 @@ function MyProducts() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [counts, setCounts] = useState({ all: 0, low: 0, out: 0 });
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState(""); // debounced search value sent to server
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
@@ -83,12 +102,21 @@ function MyProducts() {
   const showSkeleton = useDelayedLoading(loading);
 
   useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput.trim());
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  useEffect(() => {
     let cancelled = false;
     const load = async () => {
       setLoading(true);
       setError("");
       try {
         const query = new URLSearchParams({ page, tab });
+        if (search) query.set("search", search);
         const res = await fetch(`${SERVER_URL}/api/seller/product?${query}`, {
           credentials: "include",
         });
@@ -114,7 +142,7 @@ function MyProducts() {
     return () => {
       cancelled = true;
     };
-  }, [page, tab, reloadKey]);
+  }, [page, tab, search, reloadKey]);
 
   const handleDeleted = () => {
     setDeleting(null);
@@ -150,7 +178,7 @@ function MyProducts() {
         </Button>
       </div>
     );
-  } else if (counts.all === 0 && tab === "all") {
+  } else if (counts.all === 0 && tab === "all" && !search) {
     content = (
       <div className="text-center py-5">
         <h2 className="h4 fw-bold mb-2">You didn't add any product</h2>
@@ -163,34 +191,47 @@ function MyProducts() {
       </div>
     );
   } else if (products.length === 0) {
-    content = <p className="text-secondary">No products in this group.</p>;
+    content = search ? (
+      <p className="text-secondary">No products matching "{search}".</p>
+    ) : (
+      <p className="text-secondary">No products in this group.</p>
+    );
   } else {
     content = (
       <div className="row g-3">
         {products.map((product) => (
           <div className="col-sm-6 col-lg-4 col-xxl-3" key={product.p_id}>
             <div className="my-product">
-              <button
-                type="button"
-                className="my-product__delete"
-                onClick={() => setDeleting(product)}
-                aria-label={`Delete ${product.name}`}
-                title="Delete product"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
+              <div className="my-product__top-actions">
+                <span
+                  className={`my-product__status is-${(
+                    product.status || "Pending"
+                  ).toLowerCase()}`}
                 >
-                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6" />
-                </svg>
-              </button>
+                  {product.status || "Pending"}
+                </span>
+                <button
+                  type="button"
+                  className="my-product__delete"
+                  onClick={() => setDeleting(product)}
+                  aria-label={`Delete ${product.name}`}
+                  title="Delete product"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6" />
+                  </svg>
+                </button>
+              </div>
               {/* clicking the card opens the edit page */}
               <Link
                 className="text-decoration-none d-block h-100"
@@ -214,7 +255,21 @@ function MyProducts() {
         </Button>
       </div>
 
-      {!loading && !error && (counts.all > 0 || products.length > 0) && (
+      {(counts.all > 0 || search || searchInput || loading) && (
+        <div className="dash-search mb-4">
+          <Input
+            type="search"
+            name="productSearch"
+            placeholder="Search by product name"
+            aria-label="Search products by name"
+            icon={<SearchIcon />}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+        </div>
+      )}
+
+      {!loading && !error && (counts.all > 0 || search || products.length > 0) && (
         <div
           className="dash-tabs mb-4"
           role="group"
