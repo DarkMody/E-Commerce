@@ -22,7 +22,7 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
   let subQuery = `SELECT DISTINCT p.*, i.image, COALESCE(ROUND(avg(c.rate) OVER (PARTITION BY p.p_id), 2),0) AS rate, count(c.rate) OVER (PARTITION BY p.p_id) AS people FROM products AS p
                   LEFT JOIN comments AS c on p.p_id = c.product_id
                   JOIN images AS i on i.product_id = p.p_id and i.sort_order = 0 and i.accepted = true
-                  WHERE p.status = 'Accepted'`;
+                  `;
 
   const conditions = [];
   const conditions2 = [];
@@ -66,6 +66,7 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
     values.push(`%${search}%`);
   }
   if (conditions.length) subQuery += " " + conditions.join(" AND ");
+  subQuery += " WHERE p.status = 'Accepted' ";
   let query = `SELECT * FROM (${subQuery})`;
   if (conditions2.length) query += " WHERE " + conditions2.join(" AND ");
 
@@ -88,14 +89,13 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
     Math.ceil(count.rows.length / pageSize),
   ];
 
-  const productIds = count.rows.map((row) => row.p_id);
   const usedCategory = await pool.query(
     `
     SELECT DISTINCT c.* FROM category AS c
     JOIN product_category AS pc ON c.c_id = pc.category_id
-    JOIN UNNEST($1::uuid[]) AS p(p_id) ON pc.product_id = p.p_id
+    JOIN products AS p ON pc.product_id = p.p_id
+    WHERE p.status != 'Rejected'
     `,
-    [productIds],
   );
 
   res.json({

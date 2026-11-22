@@ -8,46 +8,6 @@ import { ProductGridSkeleton } from "../../components/loading";
 import { SERVER_URL } from "../../config";
 import "./home.css";
 
-/* ---------- Data loading (same pattern as Cart page) ---------- */
-
-const loadCategories = async () => {
-  try {
-    const res = await fetch(`${SERVER_URL}/api/category`);
-    const data = await res.json();
-    if (data.status === "success" && Array.isArray(data.data)) {
-      return data.data.slice(0, 8);
-    }
-    return [];
-  } catch {
-    return [];
-  }
-};
-
-const loadProductsBySort = async (sort) => {
-  const params = new URLSearchParams({
-    page: "1",
-    inStock: "true",
-    sort,
-  });
-
-  const res = await fetch(`${SERVER_URL}/api/products?${params.toString()}`);
-  const data = await res.json();
-
-  if (data.status !== "success" || !Array.isArray(data.data)) {
-    throw new Error(data.message || `Could not load products.`);
-  }
-
-  return data.data;
-};
-
-const DEFAULT_CATEGORIES = [
-  { name: "Electronics" },
-  { name: "Fashion" },
-  { name: "Home" },
-  { name: "Gaming" },
-  { name: "Sports" },
-];
-
 function Home() {
   const navigate = useNavigate();
 
@@ -60,18 +20,29 @@ function Home() {
   const [errorTop, setErrorTop] = useState("");
   const [errorNew, setErrorNew] = useState("");
 
+  const loadProductsBySort = async (sort) => {
+    const params = new URLSearchParams({
+      page: "1",
+      inStock: "true",
+      sort,
+    });
+
+    const res = await fetch(`${SERVER_URL}/api/products?${params.toString()}`);
+    const data = await res.json();
+
+    if (data.status !== "success" || !Array.isArray(data.data)) {
+      throw new Error(data.message || `Could not load products.`);
+    }
+    console.log(data);
+    setCategories(data.category);
+    return data.data;
+  };
+
   useEffect(() => {
     let cancelled = false;
 
     const loadHomeData = async () => {
-      // 1. Categories
-      loadCategories().then((cats) => {
-        if (!cancelled) {
-          setCategories(cats);
-        }
-      });
-
-      // 2. Top Selling
+      // 1. Top Selling
       const fetchTop = async () => {
         setLoadingTop(true);
         setErrorTop("");
@@ -87,7 +58,7 @@ function Home() {
         }
       };
 
-      // 3. New Arrivals
+      // 2. New Arrivals
       const fetchNew = async () => {
         setLoadingNew(true);
         setErrorNew("");
@@ -132,8 +103,7 @@ function Home() {
     }
   };
 
-  const displayCategories =
-    categories.length > 0 ? categories : DEFAULT_CATEGORIES;
+  const displayCategories = categories.length > 0 ? categories : [];
 
   return (
     <>
