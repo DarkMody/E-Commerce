@@ -91,14 +91,14 @@ function Nav() {
   const { pathname } = useLocation();
   const [params] = useSearchParams();
 
-  const [login, setLogin] = useState(Boolean(window.loggedIn));
+  // const [window.loggedIn, setLogin] = useState(Boolean(window.loggedIn));
   const [menuOpen, setMenuOpen] = useState(false);
   // On the products page, show the current search in the box
   const [searchValue, setSearchValue] = useState(
     pathname.startsWith("/product") ? params.get("search") || "" : "",
   );
 
-  const dashboard = login ? DASHBOARDS[getUserRole()] : undefined;
+  const dashboard = window.loggedIn ? DASHBOARDS[getUserRole()] : undefined;
 
   // Close the mobile menu whenever the page changes
   useEffect(() => {
@@ -123,7 +123,6 @@ function Nav() {
       const data = await res.json();
 
       if (data.status === "success") {
-        setLogin(false);
         window.loggedIn = false;
         localStorage.setItem("userData", JSON.stringify({}));
         navigate("/");
@@ -219,15 +218,17 @@ function Nav() {
             <li className="nav-item">
               <NavLink
                 className={iconLinkClass}
-                to={login ? "/user/profile" : "/login"}
-                aria-label={login ? "Profile" : "Login"}
-                title={login ? "Profile" : "Login"}
+                to={window.loggedIn ? "/user/profile" : "/window.loggedIn"}
+                aria-label={window.loggedIn ? "Profile" : "window.loggedIn"}
+                title={window.loggedIn ? "Profile" : "window.loggedIn"}
               >
                 <Icon name="user" />
-                <span className="d-lg-none">{login ? "Profile" : "Login"}</span>
+                <span className="d-lg-none">
+                  {window.loggedIn ? "Profile" : "window.loggedIn"}
+                </span>
               </NavLink>
             </li>
-            {login && (
+            {window.loggedIn && (
               <>
                 <li className="nav-item">
                   <NavLink
