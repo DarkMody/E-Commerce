@@ -184,7 +184,7 @@ function CartProduct({
               {hasDiscount ? (
                 <>
                   <div className="d-flex align-items-baseline gap-2 flex-wrap">
-                    <span className="fs-3 fw-bold lh-1 text-danger">
+                    <span className="fs-3 fw-bold lh-1 cart-price">
                       ${(unitPrice * quantity).toFixed(2)}
                     </span>
                     <span className="text-secondary small text-decoration-line-through">

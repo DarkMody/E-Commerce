@@ -62,7 +62,8 @@
   line-height: 1.3;
   transition: color 0.2s ease;
 }
-.cart-product__title:hover {
+.cart-product__title:hover,
+.cart-product .cart-price {
   color: var(--dz-accent);
 }
 
