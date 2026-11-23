@@ -12,6 +12,16 @@ const {
 } = require("../utils/image");
 const upload = multer({ storage: memoryStorage });
 
+const isProduction =
+  process.env.NODE_ENV === "production" || Boolean(process.env.VERCEL);
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  path: "/",
+};
+
 const getUser = asyncWrapper(async (req, res, next) => {
   res.json({ status: httpStatusText.SUCCESS, data: req.currentUser });
 });
@@ -83,8 +93,8 @@ const login = asyncWrapper(async (req, res, next) => {
 });
 
 const logout = asyncWrapper(async (req, res, next) => {
-  res.clearCookie("accessToken", { path: "/" });
-  res.clearCookie("refreshToken", { path: "/" });
+  res.clearCookie("accessToken", cookieOptions);
+  res.clearCookie("refreshToken", cookieOptions);
   res.json({ status: httpStatusText.SUCCESS, message: "Logged out" });
 });
 
@@ -101,8 +111,8 @@ const deleteUser = asyncWrapper(async (req, res, next) => {
       await deleteFromCloudinary(user.rows[0].image);
     }
     await pool.query(`DELETE FROM users WHERE u_id = $1`, [req.params.u_id]);
-    res.clearCookie("accessToken", { path: "/" });
-    res.clearCookie("refreshToken", { path: "/" });
+    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
     return res.json({
       status: httpStatusText.SUCCESS,
       message: "Account has been deleted",
