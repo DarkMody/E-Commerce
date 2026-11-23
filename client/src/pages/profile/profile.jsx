@@ -275,8 +275,9 @@ function DeleteModal({ user, onClose }) {
       const data = await res.json();
 
       window.toast(data.status, data.message);
-      window.loggedIn = false;
       if (data.status === "success") {
+        window.loggedIn = false;
+        localStorage.removeItem("userData");
         window.location.href = "/";
         return;
       }
