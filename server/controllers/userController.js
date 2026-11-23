@@ -83,8 +83,8 @@ const login = asyncWrapper(async (req, res, next) => {
 });
 
 const logout = asyncWrapper(async (req, res, next) => {
-  await res.clearCookie("accessToken", { path: "/" });
-  await res.clearCookie("refreshToken", { path: "/" });
+  res.clearCookie("accessToken", { path: "/" });
+  res.clearCookie("refreshToken", { path: "/" });
   res.json({ status: httpStatusText.SUCCESS, message: "Logged out" });
 });
 
@@ -101,8 +101,8 @@ const deleteUser = asyncWrapper(async (req, res, next) => {
       await deleteFromCloudinary(user.rows[0].image);
     }
     await pool.query(`DELETE FROM users WHERE u_id = $1`, [req.params.u_id]);
-    await res.clearCookie("accessToken", { path: "/" });
-    await res.clearCookie("refreshToken", { path: "/" });
+    res.clearCookie("accessToken", { path: "/" });
+    res.clearCookie("refreshToken", { path: "/" });
     return res.json({
       status: httpStatusText.SUCCESS,
       message: "Account has been deleted",

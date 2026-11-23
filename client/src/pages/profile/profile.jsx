@@ -263,6 +263,7 @@ function PasswordModal({ onClose }) {
 
 /* ---------- Delete profile confirmation ---------- */
 function DeleteModal({ user, onClose }) {
+  const navigate = useNavigate();
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -277,8 +278,8 @@ function DeleteModal({ user, onClose }) {
       window.toast(data.status, data.message);
       if (data.status === "success") {
         window.loggedIn = false;
-        localStorage.removeItem("userData");
-        window.location.href = "/";
+        localStorage.setItem("userData", JSON.stringify({}));
+        navigate("/");
         return;
       }
     } catch {
