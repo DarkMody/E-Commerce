@@ -90,8 +90,6 @@ function Nav() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [params] = useSearchParams();
-
-  // const [window.loggedIn, setLogin] = useState(Boolean(window.loggedIn));
   const [menuOpen, setMenuOpen] = useState(false);
   // On the products page, show the current search in the box
   const [searchValue, setSearchValue] = useState(
@@ -218,13 +216,13 @@ function Nav() {
             <li className="nav-item">
               <NavLink
                 className={iconLinkClass}
-                to={window.loggedIn ? "/user/profile" : "/window.loggedIn"}
-                aria-label={window.loggedIn ? "Profile" : "window.loggedIn"}
-                title={window.loggedIn ? "Profile" : "window.loggedIn"}
+                to={window.loggedIn ? "/user/profile" : "/login"}
+                aria-label={window.loggedIn ? "Profile" : "login"}
+                title={window.loggedIn ? "Profile" : "login"}
               >
                 <Icon name="user" />
                 <span className="d-lg-none">
-                  {window.loggedIn ? "Profile" : "window.loggedIn"}
+                  {window.loggedIn ? "Profile" : "login"}
                 </span>
               </NavLink>
             </li>
